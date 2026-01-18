@@ -1,0 +1,10 @@
+type Query {
+    test: String
+    items: [AuctionItem]
+}
+
+type AuctionItem {
+    id: ID
+    title: String
+    price: Float
+}
