@@ -55,7 +55,7 @@ public class LoadDatabase {
             
             bidRepository.save(firstBid);
 
-            System.out.println(">>> Database initialized with Sample Data!");
+            System.out.println(">>>>>>>>>>>>>>>>>> Database initialized with Sample Data!<<<<<<<<<<<<<<");
         };
     }
 }
