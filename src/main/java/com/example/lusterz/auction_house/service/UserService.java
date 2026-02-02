@@ -3,9 +3,7 @@ package com.example.lusterz.auction_house.service;
 import java.util.List;
 
 import com.example.lusterz.auction_house.Dto.UserRequest;
-import com.example.lusterz.auction_house.exception.EmailAlreadyExistsException;
-import com.example.lusterz.auction_house.exception.UserNotFoundException;
-import com.example.lusterz.auction_house.exception.UsernameAlreadyExistsException;
+import com.example.lusterz.auction_house.exception.UserException;
 import com.example.lusterz.auction_house.model.User;
 import com.example.lusterz.auction_house.repository.UserRepository;
 
@@ -16,22 +14,27 @@ public class UserService {
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-    
-    public User getUser(Long id) {
+
+    public User getUserById(Long id) {
         return userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException(id));  
+            .orElseThrow(() -> UserException.NotFound.byId(id));  
+    }
+
+    public User getUserByName(String username) {
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> UserException.NotFound.byUsername(username));  
     }
 
     public List<User> getAllUsers() {
         return userRepository.findAll();  
     }
 
-    public User saveUser(UserRequest userRequest) {
-        if (userRepository.exexistsByUsername(userRequest.getUsername())) {
-            throw new UsernameAlreadyExistsException(userRequest.getUsername());
+    public User createUser(UserRequest userRequest) {
+        if (userRepository.existsByUsername(userRequest.getUsername())) {
+            throw UserException.AlreadyExists.byUsername(userRequest.getUsername());
         }
-        if (userRepository.exexistsByEmail(userRequest.getEmail())) {
-            throw new EmailAlreadyExistsException(userRequest.getEmail());
+        if (userRepository.existsByEmail(userRequest.getEmail())) {
+            throw UserException.AlreadyExists.byEmail(userRequest.getEmail());
         }
 
         User newUser = new User();
@@ -45,28 +48,29 @@ public class UserService {
 
     public User updateUser(Long id, UserRequest userRequest) {
         User existingUser = userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException(id));
+            .orElseThrow(() -> UserException.NotFound.byId(id));
 
         if (!existingUser.getUsername().equals(userRequest.getUsername()) &&
-             userRepository.exexistsByUsername(userRequest.getUsername())) {
-            throw new UsernameAlreadyExistsException(userRequest.getUsername());
+             userRepository.existsByUsername(userRequest.getUsername())) {
+            throw new UserException.AlreadyExists(userRequest.getUsername());
         }
         if (!existingUser.getEmail().equals(userRequest.getEmail()) &&
-             userRepository.exexistsByEmail(userRequest.getEmail())) {
-            throw new EmailAlreadyExistsException(userRequest.getEmail());
+             userRepository.existsByEmail(userRequest.getEmail())) {
+            throw UserException.AlreadyExists.byEmail(userRequest.getEmail());
         }
 
         existingUser.setUsername(userRequest.getUsername());
         existingUser.setEmail(userRequest.getEmail());
         existingUser.setPassword(userRequest.getPassword());
         existingUser.setUserImageUrl(userRequest.getUserImageUrl());
+        existingUser.setBalance(userRequest.getBalance());
 
         return userRepository.save(existingUser);
     }
 
     public void deleteUser(Long id) {
         User deletedUser = userRepository.findById(id)
-            .orElseThrow(() -> new UserNotFoundException(id));
+            .orElseThrow(() -> UserException.NotFound.byId(id));
         userRepository.delete(deletedUser);
     }
 }

@@ -1,5 +1,7 @@
 package com.example.lusterz.auction_house.Dto;
 
+import java.math.BigDecimal;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,5 +13,6 @@ public class UserRequest {
     private String email;
     private String password;
     private String userImageUrl;
+    private BigDecimal balance;
 
 }
