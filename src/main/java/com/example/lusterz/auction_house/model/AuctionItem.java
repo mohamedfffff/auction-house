@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.example.lusterz.auction_house.model.enums.AuctionStatus;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -54,8 +56,7 @@ public class AuctionItem {
     @FutureOrPresent
     private LocalDateTime endTime;
 
-    @Version
-    private Long version;
+    private AuctionStatus status = AuctionStatus.ACTIVE;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

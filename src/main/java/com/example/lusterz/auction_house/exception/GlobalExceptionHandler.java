@@ -12,27 +12,29 @@ import com.example.lusterz.auction_house.dao.ErrorDetails;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleUserNotFoundException(UserNotFoundException ex, WebRequest request) {
+    // handle all not_found exceptions
+    @ExceptionHandler({
+        UserException.NotFound.class,
+        AuctionItemException.NotFound.class
+    })
+    public ResponseEntity<ErrorDetails> handleNotFound(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(EmailAlreadyExistsException.class)
-    public ResponseEntity<ErrorDetails> handleEmailAlreadyExistsException(EmailAlreadyExistsException ex, WebRequest request) {
+    // handle all already_exists exceptions
+    @ExceptionHandler({
+        UserException.AlreadyExists.class
+    })
+    public ResponseEntity<ErrorDetails> handleEmailAlreadyExistsException(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(UsernameAlreadyExistsException.class)
-    public ResponseEntity<ErrorDetails> handleUsernameAlreadyExistsException(UsernameAlreadyExistsException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails("An internal server error occurred", request.getDescription(false));
+    // global handling 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorDetails> handleGlobalException(RuntimeException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails("An unexpected error occurred", request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

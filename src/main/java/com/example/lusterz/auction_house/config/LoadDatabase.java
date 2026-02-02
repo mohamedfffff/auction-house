@@ -1,6 +1,8 @@
 package com.example.lusterz.auction_house.config;
 
 import java.math.BigDecimal;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.boot.CommandLineRunner;
@@ -25,6 +27,7 @@ public class LoadDatabase {
             seller.setUsername("ArtCollector9999");
             seller.setEmail("seller@example.com");
             seller.setPassword("hashed_pass_1");
+            seller.setBalance(new BigDecimal(5841));
             seller.setUserImageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOOOp7Ae6JdqU8o-6BLyjvrep4SEd8mfKx2w&s");
             userRepository.save(seller);
 
