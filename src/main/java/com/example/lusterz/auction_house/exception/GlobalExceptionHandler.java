@@ -15,7 +15,8 @@ public class GlobalExceptionHandler {
     // handle all not_found exceptions
     @ExceptionHandler({
         UserException.NotFound.class,
-        AuctionItemException.NotFound.class
+        AuctionItemException.NotFound.class,
+        BidException.NotFound.class
     })
     public ResponseEntity<ErrorDetails> handleNotFound(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
@@ -26,9 +27,31 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         UserException.AlreadyExists.class
     })
-    public ResponseEntity<ErrorDetails> handleEmailAlreadyExistsException(RuntimeException ex, WebRequest request) {
+    public ResponseEntity<ErrorDetails> handleAlreadyExists(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    // handle all bad_request exceptions
+    @ExceptionHandler({
+        UserException.InsufficientFunds.class,
+        AuctionItemException.InvalidState.class,
+        BidException.InsufficientBid.class,
+    })
+    public ResponseEntity<ErrorDetails> handleBadRequest(RuntimeException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+    }
+
+    // handle all unauthorized excetptions
+    @ExceptionHandler({
+        UserException.Unauthorized.class,
+        AuctionItemException.Unauthorized.class,
+        BidException.Unauthorized.class
+    })
+    public ResponseEntity<ErrorDetails> handleUnauthorized(RuntimeException ex, WebRequest request) {
+        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
     }
 
     // global handling 

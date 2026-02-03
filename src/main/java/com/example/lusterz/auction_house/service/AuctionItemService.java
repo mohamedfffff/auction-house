@@ -8,6 +8,7 @@ import com.example.lusterz.auction_house.Dto.AuctionItemRequest;
 import com.example.lusterz.auction_house.exception.AuctionItemException;
 import com.example.lusterz.auction_house.exception.UserException;
 import com.example.lusterz.auction_house.model.AuctionItem;
+import com.example.lusterz.auction_house.model.Bid;
 import com.example.lusterz.auction_house.model.User;
 import com.example.lusterz.auction_house.repository.AuctionItemRepository;
 import com.example.lusterz.auction_house.repository.UserRepository;
@@ -15,8 +16,8 @@ import com.example.lusterz.auction_house.repository.UserRepository;
 @Service
 public class AuctionItemService {
 
-    private AuctionItemRepository itemRepository;
-    private UserRepository userRepository;
+    private final AuctionItemRepository itemRepository;
+    private final UserRepository userRepository;
 
     public AuctionItemService(AuctionItemRepository itemRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
@@ -30,6 +31,12 @@ public class AuctionItemService {
 
     public List<AuctionItem> getAllItems(Long id) {
         return itemRepository.findAll();
+    }
+
+    public List<Bid> getItemBids(Long itemId) {
+        return itemRepository.findByIdWithBidHistory(itemId)
+                .map(AuctionItem::getBidHistory)
+                .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
     }
     
     public AuctionItem createItem(AuctionItemRequest auctionItemRequest) {
@@ -69,5 +76,19 @@ public class AuctionItemService {
         updatedItem.setEndTime(auctionItemRequest.getEndTime());
 
         return itemRepository.save(updatedItem);
+    }
+
+    public void deleteItem(Long itemId, Long userId) {
+        AuctionItem deletedItem = itemRepository.findById(itemId)
+            .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
+
+        if (!deletedItem.getSeller().getId().equals(userId)) {
+            throw AuctionItemException.Unauthorized.notOwner();
+        }
+
+        if (!deletedItem.getBidHistory().isEmpty()) {
+            throw AuctionItemException.InvalidState.hasBids();
+        }
+        itemRepository.delete(deletedItem);
     }
 }

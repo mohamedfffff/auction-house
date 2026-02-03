@@ -1,5 +1,7 @@
 package com.example.lusterz.auction_house.exception;
 
+import com.example.lusterz.auction_house.exception.AuctionItemException.Unauthorized;
+
 public class UserException extends RuntimeException {
     public UserException(String message) {
         super(message);
@@ -28,6 +30,15 @@ public class UserException extends RuntimeException {
         }
         public static AlreadyExists byUsername(String username) {
             return new AlreadyExists("Username " + username + " already exists");
+        }
+    }
+
+    public static class Unauthorized extends UserException{
+        public Unauthorized(String message) {
+            super(message);
+        }
+        public static Unauthorized notOwner() {
+            return new Unauthorized("User id does not match");
         }
     }
 
