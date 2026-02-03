@@ -40,17 +40,17 @@ public class AuctionItemService {
     }
     
     public AuctionItem createItem(AuctionItemRequest auctionItemRequest) {
-        User seller = userRepository.findById(auctionItemRequest.getSellerId())
-            .orElseThrow(() -> UserException.NotFound.byId(auctionItemRequest.getSellerId()));
+        User seller = userRepository.findById(auctionItemRequest.sellerId())
+            .orElseThrow(() -> UserException.NotFound.byId(auctionItemRequest.sellerId()));
 
         AuctionItem newItem = new AuctionItem();
 
-        newItem.setTitle(auctionItemRequest.getTitle());
-        newItem.setDescription(auctionItemRequest.getDescription());
-        newItem.setItemImageUrl(auctionItemRequest.getItemImageUrl());
-        newItem.setStartingPrice(auctionItemRequest.getStartingPrice());
-        newItem.setStartTime(auctionItemRequest.getStartTime());
-        newItem.setEndTime(auctionItemRequest.getEndTime());
+        newItem.setTitle(auctionItemRequest.title());
+        newItem.setDescription(auctionItemRequest.description());
+        newItem.setItemImageUrl(auctionItemRequest.itemImageUrl());
+        newItem.setStartingPrice(auctionItemRequest.startingPrice());
+        newItem.setStartTime(auctionItemRequest.startTime());
+        newItem.setEndTime(auctionItemRequest.endTime());
         newItem.setSeller(seller);
 
         return itemRepository.save(newItem);
@@ -68,12 +68,12 @@ public class AuctionItemService {
             throw AuctionItemException.InvalidState.hasBids();
         }
 
-        updatedItem.setTitle(auctionItemRequest.getTitle());
-        updatedItem.setDescription(auctionItemRequest.getDescription());
-        updatedItem.setItemImageUrl(auctionItemRequest.getItemImageUrl());
-        updatedItem.setStartingPrice(auctionItemRequest.getStartingPrice());
-        updatedItem.setStartTime(auctionItemRequest.getStartTime());
-        updatedItem.setEndTime(auctionItemRequest.getEndTime());
+        updatedItem.setTitle(auctionItemRequest.title());
+        updatedItem.setDescription(auctionItemRequest.description());
+        updatedItem.setItemImageUrl(auctionItemRequest.itemImageUrl());
+        updatedItem.setStartingPrice(auctionItemRequest.startingPrice());
+        updatedItem.setStartTime(auctionItemRequest.startTime());
+        updatedItem.setEndTime(auctionItemRequest.endTime());
 
         return itemRepository.save(updatedItem);
     }

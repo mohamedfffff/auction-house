@@ -32,18 +32,18 @@ public class UserService {
     }
 
     public User createUser(UserRequest userRequest) {
-        if (userRepository.existsByUsername(userRequest.getUsername())) {
-            throw UserException.AlreadyExists.byUsername(userRequest.getUsername());
+        if (userRepository.existsByUsername(userRequest.username())) {
+            throw UserException.AlreadyExists.byUsername(userRequest.username());
         }
-        if (userRepository.existsByEmail(userRequest.getEmail())) {
-            throw UserException.AlreadyExists.byEmail(userRequest.getEmail());
+        if (userRepository.existsByEmail(userRequest.email())) {
+            throw UserException.AlreadyExists.byEmail(userRequest.email());
         }
 
         User newUser = new User();
-        newUser.setUsername(userRequest.getUsername());
-        newUser.setEmail(userRequest.getEmail());
-        newUser.setPassword(userRequest.getPassword());
-        newUser.setUserImageUrl(userRequest.getUserImageUrl());
+        newUser.setUsername(userRequest.username());
+        newUser.setEmail(userRequest.email());
+        newUser.setPassword(userRequest.password());
+        newUser.setUserImageUrl(userRequest.userImageUrl());
 
         return userRepository.save(newUser);
     }
@@ -53,20 +53,20 @@ public class UserService {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        if (!existingUser.getUsername().equals(userRequest.getUsername()) &&
-             userRepository.existsByUsername(userRequest.getUsername())) {
-            throw UserException.AlreadyExists.byUsername(userRequest.getUsername());
+        if (!existingUser.getUsername().equals(userRequest.username()) &&
+             userRepository.existsByUsername(userRequest.username())) {
+            throw UserException.AlreadyExists.byUsername(userRequest.username());
         }
-        if (!existingUser.getEmail().equals(userRequest.getEmail()) &&
-             userRepository.existsByEmail(userRequest.getEmail())) {
-            throw UserException.AlreadyExists.byEmail(userRequest.getEmail());
+        if (!existingUser.getEmail().equals(userRequest.email()) &&
+             userRepository.existsByEmail(userRequest.email())) {
+            throw UserException.AlreadyExists.byEmail(userRequest.email());
         }
 
-        existingUser.setUsername(userRequest.getUsername());
-        existingUser.setEmail(userRequest.getEmail());
-        existingUser.setPassword(userRequest.getPassword());
-        existingUser.setUserImageUrl(userRequest.getUserImageUrl());
-        existingUser.setBalance(userRequest.getBalance());
+        existingUser.setUsername(userRequest.username());
+        existingUser.setEmail(userRequest.email());
+        existingUser.setPassword(userRequest.password());
+        existingUser.setUserImageUrl(userRequest.userImageUrl());
+        existingUser.setBalance(userRequest.balance());
 
         return userRepository.save(existingUser);
     }
