@@ -20,7 +20,7 @@ public class AuctionItemException extends RuntimeException{
             super(message);
         }
         public static Unauthorized notOwner() {
-            return new Unauthorized("User is not the owener of the bid");
+            return new Unauthorized("User is not the owener of this item");
         }
     }
 
@@ -28,8 +28,21 @@ public class AuctionItemException extends RuntimeException{
         public InvalidState(String message) {
             super(message);
         }
+
         public static InvalidState hasBids() {
             return new InvalidState("Auction item has bids");
+        }
+        public static InvalidState notActive() {
+            return new InvalidState("Auction hasn't started yet");
+        }
+        public static InvalidState expired() {
+            return new InvalidState("Auction has ended");
+        }
+        public static InvalidState alreadyStarted() {
+            return new InvalidState("Auction has already started");
+        }
+        public static InvalidState invalidDuration() {
+            return new InvalidState("Auction starting or ending date is invalid");
         }
     }
     

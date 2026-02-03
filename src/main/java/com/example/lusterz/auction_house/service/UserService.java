@@ -2,6 +2,8 @@ package com.example.lusterz.auction_house.service;
 
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.lusterz.auction_house.Dto.UserRequest;
 import com.example.lusterz.auction_house.exception.UserException;
 import com.example.lusterz.auction_house.model.User;
@@ -9,7 +11,7 @@ import com.example.lusterz.auction_house.repository.UserRepository;
 
 public class UserService {
 
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -46,13 +48,14 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
+    @Transactional
     public User updateUser(Long id, UserRequest userRequest) {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
         if (!existingUser.getUsername().equals(userRequest.getUsername()) &&
              userRepository.existsByUsername(userRequest.getUsername())) {
-            throw new UserException.AlreadyExists(userRequest.getUsername());
+            throw UserException.AlreadyExists.byUsername(userRequest.getUsername());
         }
         if (!existingUser.getEmail().equals(userRequest.getEmail()) &&
              userRepository.existsByEmail(userRequest.getEmail())) {
@@ -68,9 +71,11 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    public void deleteUser(Long id) {
+    @Transactional
+    public void deactivateUser(Long id) {
         User deletedUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
-        userRepository.delete(deletedUser);
+        deletedUser.setActive(false);
+        userRepository.save(deletedUser);
     }
 }

@@ -3,6 +3,8 @@ package com.example.lusterz.auction_house.model;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.hibernate.annotations.SQLRestriction;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -17,6 +19,7 @@ import lombok.Data;
 
 @Entity(name = "users")
 @Data
+@SQLRestriction("active = true")
 public class User {
     
     @Id
@@ -40,6 +43,8 @@ public class User {
 
     @Positive
     private BigDecimal balance;
+
+    private boolean active = true;
 
     @OneToMany(mappedBy = "bidder")
     private List<Bid> userBids;
