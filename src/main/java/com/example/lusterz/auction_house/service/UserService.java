@@ -31,6 +31,7 @@ public class UserService {
         return userRepository.findAll();  
     }
 
+    @Transactional
     public User createUser(UserRequest userRequest) {
         if (userRepository.existsByUsername(userRequest.username())) {
             throw UserException.AlreadyExists.byUsername(userRequest.username());
@@ -75,6 +76,11 @@ public class UserService {
     public void deactivateUser(Long id) {
         User deletedUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        if (!deletedUser.getId().equals(id)) {
+            throw UserException.Unauthorized.notOwner();
+        }
+
         deletedUser.setActive(false);
         userRepository.save(deletedUser);
     }
