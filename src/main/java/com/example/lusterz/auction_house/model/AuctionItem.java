@@ -8,6 +8,8 @@ import com.example.lusterz.auction_house.model.enums.AuctionStatus;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,7 +47,7 @@ public class AuctionItem {
 
     @Positive
     @Digits(integer = 10, fraction = 2)
-    private BigDecimal currentHighestBid;
+    private BigDecimal currentHighestBid = startingPrice;
 
     @NotNull
     @FutureOrPresent
@@ -55,7 +57,8 @@ public class AuctionItem {
     @FutureOrPresent
     private LocalDateTime endTime;
 
-    private AuctionStatus status = AuctionStatus.ACTIVE;
+    @Enumerated(EnumType.STRING)
+    private AuctionStatus status = AuctionStatus.PENDING;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

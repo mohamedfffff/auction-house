@@ -1,7 +1,5 @@
 package com.example.lusterz.auction_house.exception;
 
-import com.example.lusterz.auction_house.exception.AuctionItemException.Unauthorized;
-
 public class UserException extends RuntimeException {
     public UserException(String message) {
         super(message);

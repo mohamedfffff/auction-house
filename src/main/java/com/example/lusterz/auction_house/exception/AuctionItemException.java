@@ -35,9 +35,6 @@ public class AuctionItemException extends RuntimeException{
         public static InvalidState notActive() {
             return new InvalidState("Auction hasn't started yet");
         }
-        public static InvalidState expired() {
-            return new InvalidState("Auction has ended");
-        }
         public static InvalidState alreadyStarted() {
             return new InvalidState("Auction has already started");
         }
