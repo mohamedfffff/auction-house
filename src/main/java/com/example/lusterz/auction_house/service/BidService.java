@@ -40,8 +40,22 @@ public class BidService {
         return bidRepository.findAll();
     }
 
+    public List<Bid> getAllByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw UserException.NotFound.byId(userId);
+        }
+        return bidRepository.findAllByUserId(userId);
+    }
+
+    public List<Bid> getAllByItemId(Long itemId) {
+        if (!itemRepository.existsById(itemId)) {
+            throw AuctionItemException.NotFound.byId(itemId);
+        }
+        return bidRepository.findAllByItemId(itemId);
+    }
+
     @Transactional
-    public Bid createBid(Long userId, BidRequest bidRequest) {
+    public Bid placeBid(Long userId, BidRequest bidRequest) {
         User bidder = userRepository.findById(userId)
             .orElseThrow(() -> UserException.NotFound.byId(userId));
         AuctionItem item = itemRepository.findById(bidRequest.auctionItemId())
@@ -51,6 +65,10 @@ public class BidService {
             throw BidException.Unauthorized.isOwner();
         }
 
+        if (bidder.getBalance().compareTo(bidRequest.amount()) < 0) {
+            throw UserException.InsufficientFunds.balanceLessThanBid(bidRequest.amount());
+        }
+
         if (!item.getStatus().equals(AuctionStatus.ACTIVE)) {
             throw AuctionItemException.InvalidState.notActive();
         }
@@ -58,6 +76,7 @@ public class BidService {
         if (item.getCurrentHighestBid().compareTo(bidRequest.amount()) > 0 ) {
             throw BidException.InsufficientBid.lessThanHighest();
         }
+
 
         Bid newBid = new Bid();
         newBid.setAmount(bidRequest.amount());

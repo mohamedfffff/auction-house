@@ -5,8 +5,12 @@ import java.util.List;
 
 import org.hibernate.annotations.SQLRestriction;
 
+import com.example.lusterz.auction_house.model.enums.UserRoles;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,6 +49,9 @@ public class User {
     private BigDecimal balance;
 
     private boolean active = true;
+
+    @Enumerated(EnumType.STRING)
+    private UserRoles rule = UserRoles.USER;
 
     @OneToMany(mappedBy = "bidder")
     private List<Bid> userBids;

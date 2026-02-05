@@ -47,7 +47,7 @@ public class LoadDatabase {
             item.setStartTime(LocalDateTime.now().plusMinutes(1));
             item.setEndTime(LocalDateTime.now().plusDays(7)); // Satisfies @FutureOrPresent
             item.setSeller(seller);
-            item.setCurrentWinner(bidder); // Setting the bidder as current winner
+            item.setWinner(bidder); // Setting the bidder as current winner
             auctionItemRepository.save(item);
 
             Bid firstBid = new Bid();

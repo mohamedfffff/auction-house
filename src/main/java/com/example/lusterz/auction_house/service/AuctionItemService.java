@@ -3,16 +3,17 @@ package com.example.lusterz.auction_house.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.lusterz.auction_house.Dto.AuctionItemRequest;
 import com.example.lusterz.auction_house.exception.AuctionItemException;
 import com.example.lusterz.auction_house.exception.UserException;
 import com.example.lusterz.auction_house.model.AuctionItem;
-import com.example.lusterz.auction_house.model.Bid;
 import com.example.lusterz.auction_house.model.User;
 import com.example.lusterz.auction_house.model.enums.AuctionStatus;
 import com.example.lusterz.auction_house.repository.AuctionItemRepository;
+import com.example.lusterz.auction_house.repository.BidRepository;
 import com.example.lusterz.auction_house.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -20,12 +21,15 @@ import jakarta.transaction.Transactional;
 @Service
 public class AuctionItemService {
 
+    private final BidRepository bidRepository;
+
     private final AuctionItemRepository itemRepository;
     private final UserRepository userRepository;
 
-    public AuctionItemService(AuctionItemRepository itemRepository, UserRepository userRepository) {
+    public AuctionItemService(AuctionItemRepository itemRepository, UserRepository userRepository, BidRepository bidRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.bidRepository = bidRepository;
     }
 
     public AuctionItem getItem(Long id) {
@@ -37,10 +41,11 @@ public class AuctionItemService {
         return itemRepository.findAll();
     }
 
-    public List<Bid> getItemBids(Long itemId) {
-        return itemRepository.findByIdWithBidHistory(itemId)
-                .map(AuctionItem::getBidHistory)
-                .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
+    public List<AuctionItem> getAllItemsByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw UserException.NotFound.byId(userId);
+        }
+        return itemRepository.findAllByUserId(userId);    
     }
     
     @Transactional
@@ -112,4 +117,26 @@ public class AuctionItemService {
 
         itemRepository.delete(deletedItem);
     }
+
+    @Scheduled(cron = "0 * * * * *")
+    @Transactional
+    public void endAuction() {
+        // update all expired items to CLOSED then fetch them
+        itemRepository.closeExpiredItems(LocalDateTime.now());
+        List<AuctionItem> closedItems = itemRepository.findAllByStatus(AuctionStatus.CLOSED);
+        for (AuctionItem item : closedItems) {
+            // check if a top bid exist and update the winner and status accordingly
+            bidRepository.findTopByItemOrderByAmountDesc(item)
+                .ifPresentOrElse(
+                    (topBid) -> {
+                        item.setWinner(topBid.getBidder());
+                        item.setStatus(AuctionStatus.SOLD);
+                    }, 
+                    () -> {
+                        item.setStatus(AuctionStatus.EXPIRED_UNSOLD);
+                    }
+                );    
+        }
+    }
+
 }
