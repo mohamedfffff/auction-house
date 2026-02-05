@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Version;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.FutureOrPresent;
@@ -28,11 +29,11 @@ import lombok.Data;
 @Data
 @Entity
 public class AuctionItem {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @NotBlank
     @Size(min = 2, max = 100)
     private String title;
@@ -60,13 +61,16 @@ public class AuctionItem {
     @Enumerated(EnumType.STRING)
     private AuctionStatus status = AuctionStatus.PENDING;
 
+    @Version
+    private Integer version;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User seller;
 
     @ManyToOne
     @JoinColumn(name = "winner_id")
-    private User currentWinner;
+    private User winner;
 
     @OneToMany(mappedBy = "auctionItem", cascade = CascadeType.ALL)
     private List<Bid> bidHistory;

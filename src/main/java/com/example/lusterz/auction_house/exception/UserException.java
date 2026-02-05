@@ -1,5 +1,7 @@
 package com.example.lusterz.auction_house.exception;
 
+import java.math.BigDecimal;
+
 public class UserException extends RuntimeException {
     public UserException(String message) {
         super(message);
@@ -45,7 +47,7 @@ public class UserException extends RuntimeException {
             super(message);
         }
 
-        public static InsufficientFunds lessThanBid(String bid) {
+        public static InsufficientFunds balanceLessThanBid(BigDecimal bid) {
             return new InsufficientFunds("Balance is less than " + bid);
         }
     }
