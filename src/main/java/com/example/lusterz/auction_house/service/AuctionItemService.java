@@ -41,6 +41,11 @@ public class AuctionItemService {
         return itemRepository.findAll();
     }
 
+    public List<AuctionItem> getActiveAuctions() {
+        //to-do
+        return null;
+    }
+
     public List<AuctionItem> getAllItemsByUserId(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw UserException.NotFound.byId(userId);
@@ -137,6 +142,10 @@ public class AuctionItemService {
                     }
                 );    
         }
+    }
+
+    public void searchItems() {
+        //to-do
     }
 
 }
