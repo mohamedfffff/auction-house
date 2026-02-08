@@ -1,6 +1,6 @@
 package com.example.lusterz.auction_house.model.enums;
 
-public enum UserRoles {
+public enum UserRole {
     ADMIN,
     USER
 }

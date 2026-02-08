@@ -2,29 +2,40 @@ package com.example.lusterz.auction_house.service;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lusterz.auction_house.Dto.UserPrivateDto;
+import com.example.lusterz.auction_house.Dto.UserPublicDto;
 import com.example.lusterz.auction_house.Dto.UserRequest;
 import com.example.lusterz.auction_house.exception.UserException;
+import com.example.lusterz.auction_house.mapper.UserMapper;
 import com.example.lusterz.auction_house.model.User;
 import com.example.lusterz.auction_house.repository.UserRepository;
 
+@Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+ 
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserPrivateDto getUserById(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+        return userMapper.toPrivateDto(user);
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id)
-            .orElseThrow(() -> UserException.NotFound.byId(id));  
-    }
-
-    public User getUserByName(String username) {
-        return userRepository.findByUsername(username)
-            .orElseThrow(() -> UserException.NotFound.byUsername(username));  
+    public UserPublicDto getUserByName(String username) {
+        User user = userRepository.findByUsername(username)
+            .orElseThrow(() -> UserException.NotFound.byUsername(username));
+        return userMapper.toPublicDto(user); 
     }
 
     public List<User> getAllUsers() {
@@ -83,5 +94,10 @@ public class UserService {
 
         deletedUser.setActive(false);
         userRepository.save(deletedUser);
+    }
+
+    @Transactional
+    public void updateBalance() {
+        //to-do
     }
 }

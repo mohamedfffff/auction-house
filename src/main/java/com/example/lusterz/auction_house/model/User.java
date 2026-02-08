@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.hibernate.annotations.SQLRestriction;
 
-import com.example.lusterz.auction_house.model.enums.UserRoles;
+import com.example.lusterz.auction_house.model.enums.UserRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,7 +51,7 @@ public class User {
     private boolean active = true;
 
     @Enumerated(EnumType.STRING)
-    private UserRoles rule = UserRoles.USER;
+    private UserRole role = UserRole.USER;
 
     @OneToMany(mappedBy = "bidder")
     private List<Bid> userBids;
