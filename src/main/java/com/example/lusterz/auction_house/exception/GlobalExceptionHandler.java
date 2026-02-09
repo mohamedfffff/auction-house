@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import com.example.lusterz.auction_house.dao.ErrorDetails;
-
 @ControllerAdvice
 public class GlobalExceptionHandler {
     

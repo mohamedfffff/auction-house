@@ -2,24 +2,23 @@ package com.example.lusterz.auction_house.config;
 
 import java.math.BigDecimal;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.example.lusterz.auction_house.model.AuctionItem;
-import com.example.lusterz.auction_house.model.Bid;
-import com.example.lusterz.auction_house.model.User;
-import com.example.lusterz.auction_house.repository.AuctionItemRepository;
-import com.example.lusterz.auction_house.repository.BidRepository;
-import com.example.lusterz.auction_house.repository.UserRepository;
+import com.example.lusterz.auction_house.bid.model.Bid;
+import com.example.lusterz.auction_house.bid.repository.BidRepository;
+import com.example.lusterz.auction_house.item.model.Item;
+import com.example.lusterz.auction_house.item.repository.ItemRepository;
+import com.example.lusterz.auction_house.user.model.User;
+import com.example.lusterz.auction_house.user.repository.UserRepository;
 
 @Configuration
 public class LoadDatabase {
     @Bean
-    public CommandLineRunner intialDatabase(UserRepository userRepository, AuctionItemRepository auctionItemRepository, BidRepository bidRepository) {
+    public CommandLineRunner intialDatabase(UserRepository userRepository, ItemRepository auctionItemRepository, BidRepository bidRepository) {
         if (userRepository.count() > 0) return args ->{};
         return args -> {
 
@@ -38,7 +37,7 @@ public class LoadDatabase {
             bidder.setUserImageUrl("https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80");
             userRepository.save(bidder);
 
-            AuctionItem item = new AuctionItem();
+            Item item = new Item();
             item.setTitle("Vintage Leica M583 Camera");
             item.setDescription("Excellent condition, original leather case included.");
             item.setItemImageUrl("https://leaders.jo/wp-content/uploads/2025/09/image-24-large.png");
