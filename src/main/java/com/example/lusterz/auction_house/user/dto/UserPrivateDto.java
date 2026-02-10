@@ -14,6 +14,7 @@ public record UserPrivateDto (
     String userImageUrl,
     BigDecimal balance,
     UserRole role,
+    //change to dto when done
     List<Item> itemsForSale,
     List<Bid> userBids
 ) {}
