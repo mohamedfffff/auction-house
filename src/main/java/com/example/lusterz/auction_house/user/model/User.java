@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.user.model;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.SQLRestriction;
@@ -18,12 +19,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity(name = "users")
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @SQLRestriction("active = true")
 public class User {
     
@@ -33,12 +40,12 @@ public class User {
 
     @NotBlank
     @Size(min = 2, max = 100)
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
     @NotBlank
     @Email
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotBlank
@@ -46,17 +53,19 @@ public class User {
     
     private String userImageUrl;
 
-    @Positive
-    private BigDecimal balance;
+    @PositiveOrZero
+    @Column(nullable = false, precision = 19, scale = 4)
+    private BigDecimal balance = BigDecimal.ZERO;
 
     private boolean active = true;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private UserRole role = UserRole.USER;
 
     @OneToMany(mappedBy = "bidder")
-    private List<Bid> userBids;
+    private List<Bid> userBids = new ArrayList<>();
 
     @OneToMany(mappedBy = "seller")
-    private List<Item> itemsForSale;
+    private List<Item> itemsForSale = new ArrayList<>();
 }
