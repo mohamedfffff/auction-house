@@ -2,8 +2,10 @@ package com.example.lusterz.auction_house.user.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lusterz.auction_house.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.user.dto.UserPublicDto;
-import com.example.lusterz.auction_house.user.model.User;
+import com.example.lusterz.auction_house.user.dto.UserRequest;
 import com.example.lusterz.auction_house.user.service.UserService;
+
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
+
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -24,25 +34,39 @@ public class UserController {
         this.userService = userService;
     }
     
-    @GetMapping("/{id}")
-    public ResponseEntity<UserPrivateDto> getUserById(@PathVariable Long id) {
-        UserPrivateDto user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+    @GetMapping("/id/{id}")
+    public UserPrivateDto getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<UserPublicDto> getUserByName(@PathVariable String name) {
-        UserPublicDto user = userService.getUserByName(name);
-        return ResponseEntity.ok(user);
+    @GetMapping("/name/{name}")
+    public UserPublicDto getUserByName(@PathVariable String name) {
+        return userService.getUserByName(name);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers() {
-        List<User> list = userService.getAllUsers();
-
-        if (list.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(userService.getAllUsers());
+    public List<UserPrivateDto> getAllUsers() {
+        return userService.getAllUsers();
     }
+
+    @PostMapping()
+    public ResponseEntity<UserPrivateDto> createUser(@Valid @RequestBody UserRequest userRequest) {
+        UserPrivateDto newUser = userService.createUser(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+    }
+
+    @PutMapping("/{id}")
+    public UserPrivateDto updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
+        return userService.updateUser(id, userRequest);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deactivateUser(@PathVariable Long id) {
+        userService.deactivateUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    //to-do
+    public void updateBalance() {}
+    
 }
