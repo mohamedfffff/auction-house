@@ -20,6 +20,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -43,6 +44,7 @@ public class Item {
     private String description;
     private String itemImageUrl;
 
+    @NotNull
     @DecimalMin(value = "0.01")
     @Digits(integer = 10, fraction = 2)
     private BigDecimal startingPrice;
@@ -56,7 +58,7 @@ public class Item {
     private LocalDateTime startTime;
 
     @NotNull
-    @FutureOrPresent
+    @Future
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)

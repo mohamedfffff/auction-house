@@ -3,12 +3,19 @@ package com.example.lusterz.auction_house.item.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Future;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public record ItemRequest(
-    String title,
-    String description,
+    @NotBlank String title,
+    @NotBlank @Size(min = 2, max = 100) String description,
     String itemImageUrl,
-    BigDecimal startingPrice,
-    LocalDateTime startTime,
-    LocalDateTime endTime,
-    Long sellerId
+    @NotNull @DecimalMin(value = "0.01") BigDecimal startingPrice,
+    @NotNull @FutureOrPresent LocalDateTime startTime,
+    @NotNull @Future LocalDateTime endTime,
+    @NotBlank Long sellerId
 ) {}
