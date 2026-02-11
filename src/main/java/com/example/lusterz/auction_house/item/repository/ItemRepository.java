@@ -11,14 +11,14 @@ import org.springframework.data.repository.query.Param;
 import com.example.lusterz.auction_house.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.item.model.Item;
 
+import jakarta.transaction.Transactional;
+
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
-    boolean existsById(Long id);
     List<Item> findAllByStatus(AuctionStatus status);
-    @Query("SELECT a FROM AuctionItem a WHERE a.seller.id = :userId")
-    List<Item> findAllByUserId(@Param("userId") Long userId);
-
+    List<Item> findAllBySellerId(Long sellerId);
     @Modifying
-    @Query("UPDATE AuctionItem i SET i.status='CLOSED' WHERE i.status='ACTIVE' AND i.endTime <= :now")
+    @Transactional
+    @Query("UPDATE Item i SET i.status='CLOSED' WHERE i.status='ACTIVE' AND i.endTime <= :now")
     int closeExpiredItems(@Param("now") LocalDateTime now);
 }

@@ -11,8 +11,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ItemRequest(
-    @NotBlank String title,
-    @NotBlank @Size(min = 2, max = 100) String description,
+    @NotBlank @Size(min = 2, max = 100) String title,
+    @NotBlank String description,
     String itemImageUrl,
     @NotNull @DecimalMin(value = "0.01") BigDecimal startingPrice,
     @NotNull @FutureOrPresent LocalDateTime startTime,

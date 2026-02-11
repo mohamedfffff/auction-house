@@ -8,5 +8,5 @@ import com.example.lusterz.auction_house.item.model.Item;
 @Mapper(componentModel = "spring")
 public interface ItemMapper {
     
-    ItemDto tDto(Item item);
+    ItemDto toDto(Item item);
 }

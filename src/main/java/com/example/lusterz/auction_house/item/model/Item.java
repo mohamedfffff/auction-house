@@ -2,6 +2,7 @@ package com.example.lusterz.auction_house.item.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.example.lusterz.auction_house.bid.model.Bid;
@@ -26,9 +27,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 public class Item {
 
@@ -49,9 +56,8 @@ public class Item {
     @Digits(integer = 10, fraction = 2)
     private BigDecimal startingPrice;
 
-    @Positive
-    @Digits(integer = 10, fraction = 2)
-    private BigDecimal currentHighestBid = startingPrice;
+    @NotNull
+    private BigDecimal currentHighestBid;
 
     @NotNull
     @FutureOrPresent
@@ -75,7 +81,7 @@ public class Item {
     @JoinColumn(name = "winner_id")
     private User winner;
 
-    @OneToMany(mappedBy = "auctionItem", cascade = CascadeType.ALL)
-    private List<Bid> bidHistory;
+    @OneToMany(mappedBy = "Item")
+    private List<Bid> bidHistory = new ArrayList<>();
 
 }
