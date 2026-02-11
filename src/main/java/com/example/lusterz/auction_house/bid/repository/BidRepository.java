@@ -14,6 +14,7 @@ import io.lettuce.core.dynamic.annotation.Param;
 
 public interface BidRepository extends JpaRepository<Bid, Long> {
 
+    int countByItemId(Long itemId);
     Optional<Bid> findTopByItemOrderByAmountDesc(Item item);
     @Query("SELECT b FROM Bid b WHERE b.bidder.id = :userId")
     List<Bid> findAllByUserId(@Param("userId") Long userId);

@@ -1,5 +1,6 @@
 package com.example.lusterz.auction_house.user.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.example.lusterz.auction_house.user.dto.UserPrivateDto;
@@ -21,5 +22,5 @@ public interface UserService {
     public void deactivateUser(Long id);
 
     //to-do
-    public void updateBalance();
+    public void updateBalance(Long id, BigDecimal amount);
 }   

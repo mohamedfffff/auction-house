@@ -1,5 +1,6 @@
 package com.example.lusterz.auction_house.user.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,6 +16,7 @@ import com.example.lusterz.auction_house.user.model.User;
 import com.example.lusterz.auction_house.user.repository.UserRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImp implements UserService{
 
     private final UserRepository userRepository;
@@ -62,7 +64,7 @@ public class UserServiceImp implements UserService{
         User newUser = new User();
         newUser.setUsername(userRequest.username());
         newUser.setEmail(userRequest.email());
-        newUser.setPassword(userRequest.password());
+        newUser.setPassword(userRequest.password());//to-do hash the password
         newUser.setUserImageUrl(userRequest.userImageUrl());
 
         userRepository.save(newUser);
@@ -87,7 +89,7 @@ public class UserServiceImp implements UserService{
 
         existingUser.setUsername(userRequest.username());
         existingUser.setEmail(userRequest.email());
-        existingUser.setPassword(userRequest.password());
+        existingUser.setPassword(userRequest.password());//to-do hash the password
         existingUser.setUserImageUrl(userRequest.userImageUrl());
         existingUser.setBalance(userRequest.balance());
 
@@ -102,9 +104,12 @@ public class UserServiceImp implements UserService{
         User deletedUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        if (!deletedUser.getId().equals(id)) {
-            throw UserException.Unauthorized.notOwner();
-        }
+        //to-do check if request user id matches the id
+        // Long currentUserId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
+
+        // if (!deletedUser.getId().equals(currentUserId)) {
+        //     throw UserException.Unauthorized.notOwner();
+        // }
 
         deletedUser.setActive(false);
         userRepository.save(deletedUser);
@@ -112,7 +117,7 @@ public class UserServiceImp implements UserService{
 
     @Transactional
     @Override
-    public void updateBalance() {
+    public void updateBalance(Long id, BigDecimal amount) {
         //to-do
     }
 }
