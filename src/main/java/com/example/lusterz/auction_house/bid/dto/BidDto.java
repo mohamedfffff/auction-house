@@ -10,6 +10,6 @@ import com.example.lusterz.auction_house.user.dto.UserPublicDto;
 public record BidDto(
     BigDecimal amount,
     LocalDateTime bidTime,
-    ItemDto auctionItem,
+    ItemDto item,
     UserPublicDto bidder
 ) {}

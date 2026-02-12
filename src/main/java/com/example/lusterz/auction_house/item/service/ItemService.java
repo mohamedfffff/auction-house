@@ -14,22 +14,22 @@ import com.example.lusterz.auction_house.item.dto.ItemRequest;
 @Transactional(readOnly = true)
 public interface ItemService {
 
-    public ItemDto getItem(Long id);
+    ItemDto getItem(Long id);
 
-    public List<ItemDto> getAllItems();
+    List<ItemDto> getAllItems();
 
-    public List<ItemDto> getActiveAuctions();
+    List<ItemDto> getActiveAuctions();
 
-    public List<ItemDto> getAllItemsBySellerId(Long sellerId);
+    List<ItemDto> getAllItemsBySellerId(Long sellerId);
     
-    public ItemDto createItem(ItemRequest auctionItemRequest);
+    ItemDto createItem(ItemRequest auctionItemRequest);
 
-    public ItemDto updateItem(Long itemId, Long userId, ItemRequest auctionItemRequest);
+    ItemDto updateItem(Long itemId, Long userId, ItemRequest auctionItemRequest);
 
-    public void deleteItem(Long itemId, Long userId);
+    void deleteItem(Long itemId, Long userId);
 
-    public void endAuction();
+    void endAuction();
 
-    public void searchItems();
+    void searchItems();
 
 }

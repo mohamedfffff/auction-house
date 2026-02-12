@@ -4,10 +4,12 @@ import java.math.BigDecimal;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record BidRequest (
 
-    @NotBlank @DecimalMin(value = "0.01") BigDecimal amount,
-    @NotBlank Long auctionItemId
+    @NotNull @DecimalMin(value = "0.01") BigDecimal amount,
+    @NotBlank Long itemId,
+    @NotBlank Long biddderId
 
 ){}
