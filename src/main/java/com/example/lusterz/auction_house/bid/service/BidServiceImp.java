@@ -76,13 +76,13 @@ public class BidServiceImp implements BidService{
 
     @Override
     @Transactional
-    public BidDto placeBid(Long userId, BidRequest bidRequest) {
-        User bidder = userRepository.findById(userId)
-            .orElseThrow(() -> UserException.NotFound.byId(userId));
-        Item item = itemRepository.findById(bidRequest.itemId())
-            .orElseThrow(() -> AuctionItemException.NotFound.byId(bidRequest.itemId()));
+    public BidDto placeBid(Long bidderId, Long itemId, BidRequest bidRequest) {
+        User bidder = userRepository.findById(bidderId)
+            .orElseThrow(() -> UserException.NotFound.byId(bidderId));
+        Item item = itemRepository.findById(itemId)
+            .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
 
-        if (item.getSeller().getId().equals(userId)) {
+        if (item.getSeller().getId().equals(bidderId)) {
             throw BidException.Unauthorized.isOwner();
         }
 
@@ -102,7 +102,7 @@ public class BidServiceImp implements BidService{
         Bid newBid = new Bid();
         newBid.setAmount(bidRequest.amount());
         newBid.setBidder(bidder);
-        newBid.setAuctionItem(item);
+        newBid.setItem(item);
 
         item.setCurrentHighestBid(bidRequest.amount());
 
@@ -112,13 +112,13 @@ public class BidServiceImp implements BidService{
 
     @Override
     @Transactional
-    public void deleteBid(Long userId, Long itemId, Long bidId) {
+    public void deleteBid(Long bidderId, Long itemId, Long bidId) {
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
         Bid deletedBid = bidRepository.findById(bidId)
             .orElseThrow(() -> BidException.NotFound.byId(bidId));
 
-        if (!deletedBid.getBidder().getId().equals(userId)) {
+        if (!deletedBid.getBidder().getId().equals(bidderId)) {
             throw BidException.Unauthorized.notOwner();
         }
 
