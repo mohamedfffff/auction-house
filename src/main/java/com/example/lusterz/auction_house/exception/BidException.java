@@ -1,7 +1,5 @@
 package com.example.lusterz.auction_house.exception;
 
-import com.example.lusterz.auction_house.exception.AuctionItemException.Unauthorized;
-
 public class BidException extends RuntimeException{
     public BidException(String message) {
         super(message);

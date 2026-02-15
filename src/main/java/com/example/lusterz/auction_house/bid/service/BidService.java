@@ -16,7 +16,7 @@ public interface BidService {
 
     List<BidDto> getAllBidsByItemId(Long itemId);
 
-    BidDto placeBid(Long userId, BidRequest bidRequest);
+    BidDto placeBid(Long bidderId, Long itemId, BidRequest bidRequest);
 
-    void deleteBid(Long userId, Long itemId, Long bidId);
+    void deleteBid(Long bidderId, Long itemId, Long bidId);
 }
