@@ -23,7 +23,7 @@ import com.example.lusterz.auction_house.user.repository.UserRepository;
 
 @Service
 @Transactional(readOnly = true)
-public class ItemServiceImp {
+public class ItemServiceImp implements ItemService{
 
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
@@ -37,12 +37,14 @@ public class ItemServiceImp {
         this.itemMapper = itemMapper;
     }
 
+    @Override
     public ItemDto getItem(Long id) {
         Item item = itemRepository.findById(id)
             .orElseThrow(() -> AuctionItemException.NotFound.byId(id));
         return itemMapper.toDto(item);
     }
 
+    @Override
     public List<ItemDto> getAllItems() {
         List<Item> list = itemRepository.findAll();
         return list.stream()
@@ -50,6 +52,7 @@ public class ItemServiceImp {
                 .toList();
     }
 
+    @Override
     public List<ItemDto> getActiveAuctions() {
         List<Item> list = itemRepository.findAllByStatus(AuctionStatus.ACTIVE);
         return list.stream()
@@ -57,6 +60,7 @@ public class ItemServiceImp {
                 .toList();
     }
 
+    @Override
     public List<ItemDto> getAllItemsBySellerId(Long sellerId) {
         if (!userRepository.existsById(sellerId)) {
             throw UserException.NotFound.byId(sellerId);
@@ -67,6 +71,7 @@ public class ItemServiceImp {
                 .toList(); 
     }
     
+    @Override
     @Transactional
     public ItemDto createItem(ItemRequest auctionItemRequest) {
         User seller = userRepository.findById(auctionItemRequest.sellerId())
@@ -91,6 +96,7 @@ public class ItemServiceImp {
         return itemMapper.toDto(newItem);
     }
 
+    @Override
     @Transactional//to-do after adding security, get user id from it not as parameter
     public ItemDto updateItem(Long itemId, Long userId, ItemRequest auctionItemRequest) {
         Item updatedItem = itemRepository.findById(itemId)
@@ -119,6 +125,7 @@ public class ItemServiceImp {
         return itemMapper.toDto(updatedItem);
     }
 
+    @Override
     @Transactional//to-do after adding security, get user id from it not as parameter
     public void deleteItem(Long itemId, Long userId) {
         Item deletedItem = itemRepository.findById(itemId)

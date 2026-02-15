@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
@@ -37,6 +38,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@Table(name = "items")
 public class Item {
 
     @Id
@@ -81,7 +83,7 @@ public class Item {
     @JoinColumn(name = "winner_id")
     private User winner;
 
-    @OneToMany(mappedBy = "Item")
+    @OneToMany(mappedBy = "item")
     private List<Bid> bidHistory = new ArrayList<>();
 
 }

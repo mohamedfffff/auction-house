@@ -23,7 +23,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity
+@Entity(name = "bids")
     public class Bid {
     
     @Id
@@ -38,8 +38,8 @@ import lombok.Setter;
     private LocalDateTime bidTime;
 
     @ManyToOne
-    @JoinColumn(name = "auction_item_id")
-    private Item auctionItem;
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @ManyToOne
     @JoinColumn(name = "bidder_id")

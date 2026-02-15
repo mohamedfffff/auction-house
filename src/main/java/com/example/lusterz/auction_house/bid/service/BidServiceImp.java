@@ -102,7 +102,7 @@ public class BidServiceImp implements BidService{
         Bid newBid = new Bid();
         newBid.setAmount(bidRequest.amount());
         newBid.setBidder(bidder);
-        newBid.setAuctionItem(item);
+        newBid.setItem(item);
 
         item.setCurrentHighestBid(bidRequest.amount());
 
