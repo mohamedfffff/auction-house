@@ -40,7 +40,7 @@ public class UserException extends RuntimeException {
         public static Unauthorized notOwner() {
             return new Unauthorized("User id does not match");
         }
-    }
+    } 
 
     public static class InsufficientFunds extends UserException{
         public InsufficientFunds(String message) {

@@ -2,6 +2,9 @@ package com.example.lusterz.auction_house.common.exception;
 
 import java.time.LocalDateTime;
 
+import lombok.Data;
+
+@Data
 public class ErrorDetails {
     
     private String message;

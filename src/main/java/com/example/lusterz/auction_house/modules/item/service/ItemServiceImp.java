@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.lusterz.auction_house.common.exception.AuctionItemException;
+import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
@@ -39,7 +39,7 @@ public class ItemServiceImp implements ItemService{
     @Override
     public ItemDto getItem(Long id) {
         Item item = itemRepository.findById(id)
-            .orElseThrow(() -> AuctionItemException.NotFound.byId(id));
+            .orElseThrow(() -> ItemException.NotFound.byId(id));
         return itemMapper.toDto(item);
     }
 
@@ -77,7 +77,7 @@ public class ItemServiceImp implements ItemService{
             .orElseThrow(() -> UserException.NotFound.byId(auctionItemRequest.sellerId()));
 
         if (auctionItemRequest.endTime().isAfter(LocalDateTime.now().plusWeeks(4))) {
-            throw AuctionItemException.InvalidState.invalidDuration();
+            throw ItemException.InvalidState.invalidDuration();
         }
 
         Item newItem = new Item();
@@ -99,18 +99,18 @@ public class ItemServiceImp implements ItemService{
     @Transactional//to-do after adding security, get user id from it not as parameter
     public ItemDto updateItem(Long itemId, Long userId, ItemRequest auctionItemRequest) {
         Item updatedItem = itemRepository.findById(itemId)
-            .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
+            .orElseThrow(() -> ItemException.NotFound.byId(itemId));
 
         if (!updatedItem.getSeller().getId().equals(userId)) {
-            throw AuctionItemException.Unauthorized.notOwner();
+            throw ItemException.Unauthorized.notOwner();
         }
 
         if (bidRepository.countByItemId(itemId) > 0) {
-            throw AuctionItemException.InvalidState.hasBids();
+            throw ItemException.InvalidState.hasBids();
         }
 
         if (updatedItem.getEndTime().isAfter(LocalDateTime.now().plusWeeks(4))) {
-            throw AuctionItemException.InvalidState.invalidDuration();
+            throw ItemException.InvalidState.invalidDuration();
         }
 
         updatedItem.setTitle(auctionItemRequest.title());
@@ -128,18 +128,18 @@ public class ItemServiceImp implements ItemService{
     @Transactional//to-do after adding security, get user id from it not as parameter
     public void deleteItem(Long itemId, Long userId) {
         Item deletedItem = itemRepository.findById(itemId)
-            .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
+            .orElseThrow(() -> ItemException.NotFound.byId(itemId));
 
         if (!deletedItem.getSeller().getId().equals(userId)) {
-            throw AuctionItemException.Unauthorized.notOwner();
+            throw ItemException.Unauthorized.notOwner();
         }
 
         if (!deletedItem.getBidHistory().isEmpty()) {
-            throw AuctionItemException.InvalidState.hasBids();
+            throw ItemException.InvalidState.hasBids();
         }
 
         if (!deletedItem.getStatus().equals(AuctionStatus.PENDING)) {
-            throw AuctionItemException.InvalidState.alreadyStarted();
+            throw ItemException.InvalidState.alreadyStarted();
         }
 
         itemRepository.delete(deletedItem);

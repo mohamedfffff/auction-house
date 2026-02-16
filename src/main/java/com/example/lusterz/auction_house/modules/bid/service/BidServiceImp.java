@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.lusterz.auction_house.common.exception.AuctionItemException;
+import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.BidException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.bid.dto.BidDto;
@@ -66,7 +66,7 @@ public class BidServiceImp implements BidService{
     @Override
     public List<BidDto> getAllBidsByItemId(Long itemId) {
         if (!itemRepository.existsById(itemId)) {
-            throw AuctionItemException.NotFound.byId(itemId);
+            throw ItemException.NotFound.byId(itemId);
         }
         return bidRepository.findAllByItemId(itemId)
                 .stream()
@@ -80,7 +80,7 @@ public class BidServiceImp implements BidService{
         User bidder = userRepository.findById(bidderId)
             .orElseThrow(() -> UserException.NotFound.byId(bidderId));
         Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
+            .orElseThrow(() -> ItemException.NotFound.byId(itemId));
 
         if (item.getSeller().getId().equals(bidderId)) {
             throw BidException.Unauthorized.isOwner();
@@ -91,7 +91,7 @@ public class BidServiceImp implements BidService{
         }
 
         if (!item.getStatus().equals(AuctionStatus.ACTIVE)) {
-            throw AuctionItemException.InvalidState.notActive();
+            throw ItemException.InvalidState.notActive();
         }
 
         if (item.getCurrentHighestBid().compareTo(bidRequest.amount()) > 0 ) {
@@ -114,7 +114,7 @@ public class BidServiceImp implements BidService{
     @Transactional
     public void deleteBid(Long bidderId, Long itemId, Long bidId) {
         Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> AuctionItemException.NotFound.byId(itemId));
+            .orElseThrow(() -> ItemException.NotFound.byId(itemId));
         Bid deletedBid = bidRepository.findById(bidId)
             .orElseThrow(() -> BidException.NotFound.byId(bidId));
 
@@ -123,7 +123,7 @@ public class BidServiceImp implements BidService{
         }
 
         if (!item.getStatus().equals(AuctionStatus.ACTIVE)) {
-            throw AuctionItemException.InvalidState.notActive();
+            throw ItemException.InvalidState.notActive();
         }
 
 

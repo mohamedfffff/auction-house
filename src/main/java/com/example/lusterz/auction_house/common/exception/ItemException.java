@@ -1,11 +1,11 @@
 package com.example.lusterz.auction_house.common.exception;
 
-public class AuctionItemException extends RuntimeException{
-    public AuctionItemException(String message) {
+public class ItemException extends RuntimeException{
+    public ItemException(String message) {
         super(message);
     }
 
-    public static class NotFound extends AuctionItemException{
+    public static class NotFound extends ItemException{
         public NotFound(String message) {
             super(message);
         }
@@ -15,7 +15,7 @@ public class AuctionItemException extends RuntimeException{
         }
     }
 
-    public static class Unauthorized extends AuctionItemException{
+    public static class Unauthorized extends ItemException{
         public Unauthorized(String message) {
             super(message);
         }
@@ -24,7 +24,7 @@ public class AuctionItemException extends RuntimeException{
         }
     }
 
-    public static class InvalidState extends AuctionItemException{
+    public static class InvalidState extends ItemException{
         public InvalidState(String message) {
             super(message);
         }

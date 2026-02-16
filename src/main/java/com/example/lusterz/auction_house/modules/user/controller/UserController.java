@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
@@ -40,11 +41,13 @@ public class UserController {
 
     @GetMapping("/name/{name}")
     public UserPublicDto getUserByName(@PathVariable String name) {
-        return userService.getUserByName(name);
+        return userService.getUserByName(name); 
     }
 
     @GetMapping
-    public List<UserPrivateDto> getAllUsers() {
+    public List<UserPrivateDto> getAllUsers(@RequestParam(required = false) Boolean active) {
+        if (active != null && active) return userService.getAllActiveUsers();
+        if (active != null && !active) return userService.getAllUnactiveUsers();
         return userService.getAllUsers();
     }
 

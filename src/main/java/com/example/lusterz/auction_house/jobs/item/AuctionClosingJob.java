@@ -14,7 +14,8 @@ public class AuctionClosingJob {
         this.itemService = itemService;
     }
 
-    @Scheduled(cron = "0 * * * * *")
+    //change to 0 * * * * * on production or testing
+    @Scheduled(cron = "0 0 0 * * *")
     public void run() {
         itemService.endAuction();
     }

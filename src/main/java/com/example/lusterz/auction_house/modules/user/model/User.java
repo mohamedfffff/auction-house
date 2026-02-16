@@ -31,7 +31,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@SQLRestriction("active = true")
 public class User {
     
     @Id
@@ -49,6 +48,7 @@ public class User {
     private String email;
 
     @NotBlank
+    @Column(nullable = false)
     private String password;
     
     private String userImageUrl;
@@ -57,6 +57,7 @@ public class User {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance = BigDecimal.ZERO;
 
+    @Column(nullable = false)
     private boolean active = true;
 
     @Enumerated(EnumType.STRING)

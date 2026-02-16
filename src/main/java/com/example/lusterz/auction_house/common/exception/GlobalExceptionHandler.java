@@ -4,17 +4,17 @@ package com.example.lusterz.auction_house.common.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
     
     // handle all not_found exceptions
     @ExceptionHandler({
         UserException.NotFound.class,
-        AuctionItemException.NotFound.class,
+        ItemException.NotFound.class,
         BidException.NotFound.class
     })
     public ResponseEntity<ErrorDetails> handleNotFound(RuntimeException ex, WebRequest request) {
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     // handle all bad_request exceptions
     @ExceptionHandler({
         UserException.InsufficientFunds.class,
-        AuctionItemException.InvalidState.class,
+        ItemException.InvalidState.class,
         BidException.InsufficientBid.class,
     })
     public ResponseEntity<ErrorDetails> handleBadRequest(RuntimeException ex, WebRequest request) {
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
     // handle all unauthorized excetptions
     @ExceptionHandler({
         UserException.Unauthorized.class,
-        AuctionItemException.Unauthorized.class,
+        ItemException.Unauthorized.class,
         BidException.Unauthorized.class
     })
     public ResponseEntity<ErrorDetails> handleUnauthorized(RuntimeException ex, WebRequest request) {
@@ -61,8 +61,8 @@ public class GlobalExceptionHandler {
     }
 
     // global handling 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorDetails> handleGlobalException(RuntimeException ex, WebRequest request) {
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails("An unexpected error occurred", request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }

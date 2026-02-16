@@ -13,6 +13,10 @@ public interface UserService {
 
     UserPublicDto getUserByName(String username);
 
+    List<UserPrivateDto> getAllActiveUsers();
+
+    List<UserPrivateDto> getAllUnactiveUsers();
+
     List<UserPrivateDto> getAllUsers();
 
     UserPrivateDto createUser(UserRequest userRequest);

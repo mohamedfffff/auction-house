@@ -3,7 +3,6 @@ package com.example.lusterz.auction_house.modules.user.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,10 +23,9 @@ public class UserServiceImp implements UserService{
 
     public UserServiceImp(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
-        this.userMapper = userMapper;
+        this.userMapper = userMapper; 
     }
  
-    @PreAuthorize("hasRole('ADMIN')")
     @Override
     public UserPrivateDto getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -42,7 +40,23 @@ public class UserServiceImp implements UserService{
         return userMapper.toPublicDto(user); 
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+
+    @Override
+    public List<UserPrivateDto> getAllActiveUsers() {
+        List<User> list = userRepository.findAllByActive(true);
+        return list.stream()
+                .map(userMapper::toPrivateDto)
+                .toList();
+    }
+
+    @Override
+    public List<UserPrivateDto> getAllUnactiveUsers() {
+        List<User> list = userRepository.findAllByActive(false);
+        return list.stream()
+                .map(userMapper::toPrivateDto)
+                .toList();
+    }
+
     @Override
     public List<UserPrivateDto> getAllUsers() {
         List<User> list = userRepository.findAll();
@@ -51,8 +65,8 @@ public class UserServiceImp implements UserService{
                 .toList();
     }
 
-    @Transactional
     @Override
+    @Transactional
     public UserPrivateDto createUser(UserRequest userRequest) {
         if (userRepository.existsByUsername(userRequest.username())) {
             throw UserException.AlreadyExists.byUsername(userRequest.username());
@@ -91,7 +105,6 @@ public class UserServiceImp implements UserService{
         existingUser.setEmail(userRequest.email());
         existingUser.setPassword(userRequest.password());//to-do hash the password
         existingUser.setUserImageUrl(userRequest.userImageUrl());
-        existingUser.setBalance(userRequest.balance());
 
         userRepository.save(existingUser);
 
@@ -118,6 +131,6 @@ public class UserServiceImp implements UserService{
     @Transactional
     @Override
     public void updateBalance(Long id, BigDecimal amount) {
-        //to-do
+        //to-do 
     }
 }
