@@ -141,9 +141,6 @@ public class UserServiceImp implements UserService{
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
         if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
-            System.out.println(user.getPassword());
-            System.out.println(request.oldPassword());
-            System.out.println(request);
             throw UserException.PasswordMismatch.oldAndGiven();
         }
 
