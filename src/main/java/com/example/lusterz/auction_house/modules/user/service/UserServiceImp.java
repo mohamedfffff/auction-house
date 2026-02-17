@@ -3,15 +3,20 @@ package com.example.lusterz.auction_house.modules.user.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
-import com.example.lusterz.auction_house.modules.user.dto.UserRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @Service
@@ -20,10 +25,12 @@ public class UserServiceImp implements UserService{
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImp(UserRepository userRepository, UserMapper userMapper) {
+    public UserServiceImp(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userMapper = userMapper; 
+        this.passwordEncoder = passwordEncoder;
     }
  
     @Override
@@ -67,7 +74,7 @@ public class UserServiceImp implements UserService{
 
     @Override
     @Transactional
-    public UserPrivateDto createUser(UserRequest userRequest) {
+    public UserPrivateDto createUser(UserCreateRequest userRequest) {
         if (userRepository.existsByUsername(userRequest.username())) {
             throw UserException.AlreadyExists.byUsername(userRequest.username());
         }
@@ -78,7 +85,7 @@ public class UserServiceImp implements UserService{
         User newUser = new User();
         newUser.setUsername(userRequest.username());
         newUser.setEmail(userRequest.email());
-        newUser.setPassword(userRequest.password());//to-do hash the password
+        newUser.setPassword(passwordEncoder.encode(userRequest.password()));
         newUser.setUserImageUrl(userRequest.userImageUrl());
 
         userRepository.save(newUser);
@@ -88,7 +95,7 @@ public class UserServiceImp implements UserService{
 
     @Transactional
     @Override
-    public UserPrivateDto updateUser(Long id, UserRequest userRequest) {
+    public UserPrivateDto updateUser(Long id, UserUpdateRequest userRequest) {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
@@ -103,7 +110,6 @@ public class UserServiceImp implements UserService{
 
         existingUser.setUsername(userRequest.username());
         existingUser.setEmail(userRequest.email());
-        existingUser.setPassword(userRequest.password());//to-do hash the password
         existingUser.setUserImageUrl(userRequest.userImageUrl());
 
         userRepository.save(existingUser);
@@ -130,7 +136,42 @@ public class UserServiceImp implements UserService{
 
     @Transactional
     @Override
+    public void updatePassword(Long id, UserUpdatePasswordRequest request) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+            throw UserException.PasswordMismatch.oldAndGiven();
+        }
+
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw UserException.PasswordMismatch.newAndConfirm();
+        }
+
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public void updateRole(Long id, UserUpdateRoleRequest request) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        user.setRole(request.role());
+        userRepository.save(user);
+
+        refreshSecurityContext(user);
+    }
+
+    @Transactional
+    @Override
     public void updateBalance(Long id, BigDecimal amount) {
         //to-do 
     }
+
+    private void refreshSecurityContext(User user) {
+        //to-do
+    }
+
 }

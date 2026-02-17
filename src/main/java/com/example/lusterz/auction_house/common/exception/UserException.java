@@ -42,6 +42,19 @@ public class UserException extends RuntimeException {
         }
     } 
 
+    public static class PasswordMismatch extends UserException{
+        public PasswordMismatch(String message) {
+            super(message);
+        }
+
+        public static PasswordMismatch oldAndGiven() {
+            return new PasswordMismatch("Old password is incorrect");
+        }
+        public static PasswordMismatch newAndConfirm() {
+            return new PasswordMismatch("new password and confirm password don't match");
+        }
+    }
+
     public static class InsufficientFunds extends UserException{
         public InsufficientFunds(String message) {
             super(message);
