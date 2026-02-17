@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
-import com.example.lusterz.auction_house.modules.user.dto.UserRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -52,14 +55,27 @@ public class UserController {
     }
 
     @PostMapping()
-    public ResponseEntity<UserPrivateDto> createUser(@Valid @RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserPrivateDto> createUser(@Valid @RequestBody UserCreateRequest userRequest) {
         UserPrivateDto newUser = userService.createUser(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
     }
 
     @PutMapping("/{id}")
-    public UserPrivateDto updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest userRequest) {
+    public UserPrivateDto updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest userRequest) {
         return userService.updateUser(id, userRequest);
+    }
+
+    @PutMapping("/{id}/role")
+    public ResponseEntity<Void> updateRole(@PathVariable Long id, @Valid @RequestBody UserUpdateRoleRequest role) {
+        userService.updateRole(id, role);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserUpdatePasswordRequest request) {
+        userService.updatePassword(id, request);
+        System.out.println(request);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
@@ -67,8 +83,5 @@ public class UserController {
         userService.deactivateUser(id);
         return ResponseEntity.noContent().build();
     }
-
-    //to-do
-    public void updateBalance() {}
     
 }
