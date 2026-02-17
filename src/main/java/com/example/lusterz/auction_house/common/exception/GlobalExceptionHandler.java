@@ -34,6 +34,7 @@ public class GlobalExceptionHandler {
     // handle all bad_request exceptions
     @ExceptionHandler({
         UserException.InsufficientFunds.class,
+        UserException.PasswordMismatch.class,
         ItemException.InvalidState.class,
         BidException.InsufficientBid.class,
     })
