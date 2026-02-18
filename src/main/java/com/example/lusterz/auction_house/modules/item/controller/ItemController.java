@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,9 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.lusterz.auction_house.common.validation.onCreate;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
+import com.example.lusterz.auction_house.modules.item.dto.ItemUpdateRequest;
 import com.example.lusterz.auction_house.modules.item.service.ItemService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +41,7 @@ public class ItemController {
     }
 
     @GetMapping 
-    public List<ItemDto> getItems(@RequestParam(required = false) Long sellerId) {
+    public List<ItemDto> getAllItems(@RequestParam(required = false) Long sellerId) {
         if (sellerId != null) {
             return itemService.getAllItemsBySellerId(sellerId);
         }
@@ -49,13 +54,13 @@ public class ItemController {
     }
 
     @PostMapping
-    public ResponseEntity<ItemDto> createItem(@RequestBody ItemRequest auctionItemRequest) {
+    public ResponseEntity<ItemDto> createItem(@Validated(onCreate.class) @RequestBody ItemRequest auctionItemRequest) {
         ItemDto newItem = itemService.createItem(auctionItemRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(newItem);
     }
 
     @PutMapping("/{itemId}")
-    public ItemDto updateItem(@PathVariable Long itemId,@RequestParam Long userId, @RequestBody ItemRequest auctionItemRequest) {
+    public ItemDto updateItem(@PathVariable Long itemId,@RequestParam Long userId, @RequestBody ItemUpdateRequest auctionItemRequest) {
         return itemService.updateItem(itemId, userId, auctionItemRequest);
     }
 

@@ -11,6 +11,7 @@ import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
+import com.example.lusterz.auction_house.modules.item.dto.ItemUpdateRequest;
 import com.example.lusterz.auction_house.modules.item.mapper.ItemMapper;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
@@ -18,8 +19,10 @@ import com.example.lusterz.auction_house.modules.item.repository.ItemRepository;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
 
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class ItemServiceImp implements ItemService{
@@ -72,22 +75,22 @@ public class ItemServiceImp implements ItemService{
     
     @Override
     @Transactional
-    public ItemDto createItem(ItemRequest auctionItemRequest) {
-        User seller = userRepository.findById(auctionItemRequest.sellerId())
-            .orElseThrow(() -> UserException.NotFound.byId(auctionItemRequest.sellerId()));
+    public ItemDto createItem(ItemRequest request) {
+        User seller = userRepository.findById(request.sellerId())
+            .orElseThrow(() -> UserException.NotFound.byId(request.sellerId()));
 
-        if (auctionItemRequest.endTime().isAfter(LocalDateTime.now().plusWeeks(4))) {
+        if (request.endTime().isAfter(LocalDateTime.now().plusWeeks(4))) {
             throw ItemException.InvalidState.invalidDuration();
         }
 
         Item newItem = new Item();
 
-        newItem.setTitle(auctionItemRequest.title());
-        newItem.setDescription(auctionItemRequest.description());
-        newItem.setItemImageUrl(auctionItemRequest.itemImageUrl());
-        newItem.setStartingPrice(auctionItemRequest.startingPrice());
-        newItem.setStartTime(auctionItemRequest.startTime());
-        newItem.setEndTime(auctionItemRequest.endTime());
+        newItem.setTitle(request.title());
+        newItem.setDescription(request.description());
+        newItem.setItemImageUrl(request.itemImageUrl());
+        newItem.setStartingPrice(request.startingPrice());
+        newItem.setStartTime(request.startTime());
+        newItem.setEndTime(request.endTime());
         
         newItem.setSeller(seller);
 
@@ -97,7 +100,7 @@ public class ItemServiceImp implements ItemService{
 
     @Override
     @Transactional//to-do after adding security, get user id from it not as parameter
-    public ItemDto updateItem(Long itemId, Long userId, ItemRequest auctionItemRequest) {
+    public ItemDto updateItem(Long itemId, Long userId, ItemUpdateRequest request) {
         Item updatedItem = itemRepository.findById(itemId)
             .orElseThrow(() -> ItemException.NotFound.byId(itemId));
 
@@ -113,12 +116,12 @@ public class ItemServiceImp implements ItemService{
             throw ItemException.InvalidState.invalidDuration();
         }
 
-        updatedItem.setTitle(auctionItemRequest.title());
-        updatedItem.setDescription(auctionItemRequest.description());
-        updatedItem.setItemImageUrl(auctionItemRequest.itemImageUrl());
-        updatedItem.setStartingPrice(auctionItemRequest.startingPrice());
-        updatedItem.setStartTime(auctionItemRequest.startTime());
-        updatedItem.setEndTime(auctionItemRequest.endTime());
+        updatedItem.setTitle(request.title());
+        updatedItem.setDescription(request.description());
+        updatedItem.setItemImageUrl(request.itemImageUrl());
+        updatedItem.setStartingPrice(request.startingPrice());
+        updatedItem.setStartTime(request.startTime());
+        updatedItem.setEndTime(request.endTime());
 
         itemRepository.save(updatedItem);
         return itemMapper.toDto(updatedItem);
@@ -147,9 +150,17 @@ public class ItemServiceImp implements ItemService{
 
     @Override
     @Transactional
+    public void startAuction() {
+        int count = itemRepository.startPendingItems(LocalDateTime.now());
+
+        log.info("{} Auctions started successfully", count);
+    }
+
+    @Override
+    @Transactional
     public void endAuction() {
         // update all expired items to CLOSED then fetch them
-        itemRepository.closeExpiredItems(LocalDateTime.now());
+        int count = itemRepository.closeExpiredItems(LocalDateTime.now());
         List<Item> closedItems = itemRepository.findAllByStatus(AuctionStatus.CLOSED);
         for (Item item : closedItems) {
             // check if a top bid exist and update the winner and status accordingly
@@ -164,6 +175,8 @@ public class ItemServiceImp implements ItemService{
                     }
                 );    
         }
+
+        log.info("{} Auctions ended successfully", count);
     }
 
     public void searchItems() {

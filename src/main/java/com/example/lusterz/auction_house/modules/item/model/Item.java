@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.lusterz.auction_house.common.validation.onCreate;
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.user.model.User;
 
@@ -60,11 +61,11 @@ public class Item {
     private BigDecimal currentHighestBid;
 
     @NotNull
-    @FutureOrPresent
+    @FutureOrPresent(groups = onCreate.class)
     private LocalDateTime startTime;
 
     @NotNull
-    @Future
+    @Future(groups = onCreate.class)
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)

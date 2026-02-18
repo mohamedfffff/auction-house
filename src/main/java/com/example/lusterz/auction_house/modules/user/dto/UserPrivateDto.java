@@ -3,7 +3,8 @@ package com.example.lusterz.auction_house.modules.user.dto;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
+import com.example.lusterz.auction_house.modules.bid.dto.BidSummaryDto;
+import com.example.lusterz.auction_house.modules.item.dto.ItemSummaryDto;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
 
 public record UserPrivateDto (
@@ -16,17 +17,4 @@ public record UserPrivateDto (
 
     List<ItemSummaryDto> itemsForSale,
     List<BidSummaryDto> userBids
-) {
-    public record ItemSummaryDto (
-        Long id,
-        String title,
-        String description,
-        String itemImageUrl,
-        AuctionStatus status
-    ) {}
-
-    public record BidSummaryDto (
-        Long id,
-        BigDecimal amount
-    ) {}
-}
+) { }

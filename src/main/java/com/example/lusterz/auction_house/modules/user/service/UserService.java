@@ -8,7 +8,6 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
-import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 
 public interface UserService {

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
@@ -21,51 +22,69 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 public class LoadDatabase {
 
+    private final PasswordEncoder passwordEncoder;
+
+    LoadDatabase(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Bean
-    public CommandLineRunner intialDatabase(UserRepository userRepository, ItemRepository auctionItemRepository, BidRepository bidRepository) {
-        if (userRepository.count() > 0) return args ->{};
+    public CommandLineRunner initialDatabase(UserRepository userRepo, ItemRepository itemRepo, BidRepository bidRepo) {
+        if (userRepo.count() > 0) return args -> {};
+
         return args -> {
-
-            User seller = new User();
-            seller.setUsername("ArtCollector9999");
-            seller.setEmail("seller@example.com");
-            seller.setPassword("hashed_pass_1");
-            seller.setBalance(new BigDecimal(5841));
-            seller.setUserImageUrl("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOOOp7Ae6JdqU8o-6BLyjvrep4SEd8mfKx2w&s");
-            userRepository.save(seller);
-            log.info("seller created");
-
-            User bidder = new User();
-            bidder.setUsername("LuuuckyBidder");
-            bidder.setEmail("bidder@example.com");
-            bidder.setPassword("hashed_pass_2");
-            bidder.setBalance(new BigDecimal(541));
-            bidder.setUserImageUrl("https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80");
-            userRepository.save(bidder);
-            log.info("seller created");
-
-            Item item = new Item();
-            item.setTitle("Vintage Leica M583 Camera");
-            item.setDescription("Excellent condition, original leather case included.");
-            item.setItemImageUrl("https://leaders.jo/wp-content/uploads/2025/09/image-24-large.png");
-            item.setStartingPrice(new BigDecimal("500.00"));
-            item.setCurrentHighestBid(new BigDecimal("550.00"));
-            item.setStartTime(LocalDateTime.now().plusMinutes(1));
-            item.setEndTime(LocalDateTime.now().plusDays(7)); 
-            item.setSeller(seller);
-            item.setWinner(bidder); 
-            auctionItemRepository.save(item);
-            log.info("item created");
-
-            Bid firstBid = new Bid();
-            firstBid.setAmount(new BigDecimal("50.00"));
-            firstBid.setBidTime(LocalDateTime.now());
-            firstBid.setBidder(bidder);
-            firstBid.setItem(item);
-            bidRepository.save(firstBid);
-            log.info("bid created");
             
-            log.info("database initialized with Sample Data!");
+            User seller1 = createUser(userRepo, "seller1", "seller1@test.com");
+            User seller2 = createUser(userRepo, "seller2", "seller2@test.com");
+            User seller3 = createUser(userRepo, "seller3", "seller3@test.com");
+            User bidder1 = createUser(userRepo, "bidder1", "bidder1@test.com");
+            User bidder2 = createUser(userRepo, "bidder2", "bidder2@test.com");
+            User bidder3 = createUser(userRepo, "bidder3", "bidder3@test.com");
+
+            Item camera = createItem(itemRepo, seller1, "Vintage Leica M583", "500.00");
+            Item watch = createItem(itemRepo, seller2, "Gold Rolex 1970", "1200.00");
+            Item vinyl = createItem(itemRepo, seller3, "Signed Beatles Record", "100.00");
+
+            createBid(bidRepo, bidder1, camera, "550.00");
+            createBid(bidRepo, bidder2, camera, "600.00");
+            createBid(bidRepo, bidder3, camera, "650.00");
+            createBid(bidRepo, bidder1, watch, "550.00");
+            createBid(bidRepo, bidder2, watch, "600.00");
+            createBid(bidRepo, bidder3, vinyl, "650.00");
+
+            log.info("Database loaded with mock data");
         };
+    }
+
+
+    private User createUser(UserRepository repo, String name, String email) {
+        User user = new User();
+        user.setUsername(name);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(name)); 
+        user.setBalance(new BigDecimal("1000.00"));
+        user.setUserImageUrl("https//:" + email + ".image.com");
+        return repo.save(user);
+    }
+
+    private Item createItem(ItemRepository repo, User seller, String title, String price) {
+        Item item = new Item();
+        item.setTitle(title);
+        item.setSeller(seller);
+        item.setDescription("a very good description");
+        item.setItemImageUrl("https//:" + title + ".image.com");
+        item.setStartingPrice(new BigDecimal(price));
+        item.setCurrentHighestBid(new BigDecimal(price));
+        item.setStartTime(LocalDateTime.now().plusMinutes(1));
+        item.setEndTime(LocalDateTime.now().plusMinutes(2));
+        return repo.save(item);
+    }
+
+    private void createBid(BidRepository repo, User bidder, Item item, String amount) {
+        Bid bid = new Bid();
+        bid.setBidder(bidder);
+        bid.setItem(item);
+        bid.setAmount(new BigDecimal(amount));
+        repo.save(bid);
     }
 }

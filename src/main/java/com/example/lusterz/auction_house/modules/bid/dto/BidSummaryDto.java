@@ -2,13 +2,10 @@ package com.example.lusterz.auction_house.modules.bid.dto;
 
 import java.math.BigDecimal;
 
-import com.example.lusterz.auction_house.modules.item.dto.ItemSummaryDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserSummaryDto;
 
-
-public record BidDto(
+public record BidSummaryDto (
     Long id,
     BigDecimal amount,
-    ItemSummaryDto item,
     UserSummaryDto bidder
 ) {}

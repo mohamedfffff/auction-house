@@ -4,12 +4,13 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.example.lusterz.auction_house.modules.bid.dto.BidDto;
+import com.example.lusterz.auction_house.modules.bid.dto.BidSummaryDto;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
-import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
+import com.example.lusterz.auction_house.modules.user.dto.UserSummaryDto;
 
 public record ItemDto(
 
+    Long id,
     String title,
     String description,
     String itemImageUrl,
@@ -18,8 +19,8 @@ public record ItemDto(
     LocalDateTime startTime,
     LocalDateTime endTime,
     AuctionStatus status,
-    UserPublicDto seller,
-    UserPublicDto winner,
-    List<BidDto> bidHistory
+    UserSummaryDto seller,
+    UserSummaryDto winner,
+    List<BidSummaryDto> bidHistory
 
-) {}
+) { }
