@@ -35,7 +35,7 @@ import lombok.Setter;
     private BigDecimal amount;
 
     @NotNull
-    private LocalDateTime bidTime;
+    private LocalDateTime bidTime = LocalDateTime.now();
 
     @ManyToOne
     @JoinColumn(name = "item_id")

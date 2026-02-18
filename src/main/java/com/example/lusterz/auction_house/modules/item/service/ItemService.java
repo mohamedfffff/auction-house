@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
+import com.example.lusterz.auction_house.modules.item.dto.ItemUpdateRequest;
 
 
 
@@ -17,11 +18,13 @@ public interface ItemService {
 
     List<ItemDto> getAllItemsBySellerId(Long sellerId);
     
-    ItemDto createItem(ItemRequest auctionItemRequest);
+    ItemDto createItem(ItemRequest request);
 
-    ItemDto updateItem(Long itemId, Long userId, ItemRequest auctionItemRequest);
+    ItemDto updateItem(Long itemId, Long userId, ItemUpdateRequest request);
 
     void deleteItem(Long itemId, Long userId);
+
+    void startAuction();
 
     void endAuction();
 
