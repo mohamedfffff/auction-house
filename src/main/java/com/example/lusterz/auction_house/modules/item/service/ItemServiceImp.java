@@ -1,6 +1,6 @@
 package com.example.lusterz.auction_house.modules.item.service;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -79,7 +79,7 @@ public class ItemServiceImp implements ItemService{
         User seller = userRepository.findById(request.sellerId())
             .orElseThrow(() -> UserException.NotFound.byId(request.sellerId()));
 
-        if (request.endTime().isAfter(LocalDateTime.now().plusWeeks(4))) {
+        if (request.endTime().isAfter(OffsetDateTime.now().plusWeeks(4))) {
             throw ItemException.InvalidState.invalidDuration();
         }
 
@@ -91,6 +91,7 @@ public class ItemServiceImp implements ItemService{
         newItem.setStartingPrice(request.startingPrice());
         newItem.setStartTime(request.startTime());
         newItem.setEndTime(request.endTime());
+        newItem.setCurrentHighestBid(request.startingPrice());
         
         newItem.setSeller(seller);
 
@@ -112,7 +113,7 @@ public class ItemServiceImp implements ItemService{
             throw ItemException.InvalidState.hasBids();
         }
 
-        if (updatedItem.getEndTime().isAfter(LocalDateTime.now().plusWeeks(4))) {
+        if (updatedItem.getEndTime().isAfter(OffsetDateTime.now().plusWeeks(4))) {
             throw ItemException.InvalidState.invalidDuration();
         }
 
@@ -122,6 +123,7 @@ public class ItemServiceImp implements ItemService{
         updatedItem.setStartingPrice(request.startingPrice());
         updatedItem.setStartTime(request.startTime());
         updatedItem.setEndTime(request.endTime());
+        updatedItem.setCurrentHighestBid(request.startingPrice());
 
         itemRepository.save(updatedItem);
         return itemMapper.toDto(updatedItem);
@@ -151,7 +153,7 @@ public class ItemServiceImp implements ItemService{
     @Override
     @Transactional
     public void startAuction() {
-        int count = itemRepository.startPendingItems(LocalDateTime.now());
+        int count = itemRepository.startPendingItems(OffsetDateTime.now());
 
         log.info("{} Auctions started successfully", count);
     }
@@ -160,7 +162,7 @@ public class ItemServiceImp implements ItemService{
     @Transactional
     public void endAuction() {
         // update all expired items to CLOSED then fetch them
-        int count = itemRepository.closeExpiredItems(LocalDateTime.now());
+        int count = itemRepository.closeExpiredItems(OffsetDateTime.now());
         List<Item> closedItems = itemRepository.findAllByStatus(AuctionStatus.CLOSED);
         for (Item item : closedItems) {
             // check if a top bid exist and update the winner and status accordingly

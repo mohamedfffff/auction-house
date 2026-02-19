@@ -1,11 +1,12 @@
 package com.example.lusterz.auction_house.modules.bid.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import com.example.lusterz.auction_house.modules.item.model.Item;
 import com.example.lusterz.auction_house.modules.user.model.User;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,7 +25,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity(name = "bids")
-    public class Bid {
+public class Bid {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,16 +33,20 @@ import lombok.Setter;
 
     @NotNull
     @DecimalMin(value = "0.01")
+    @Column(nullable = false)
     private BigDecimal amount;
 
     @NotNull
-    private LocalDateTime bidTime = LocalDateTime.now();
+    @Column(nullable = false)
+    private OffsetDateTime bidTime = OffsetDateTime.now();
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "item_id", nullable = false)
     private Item item;
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "bidder_id")
+    @JoinColumn(name = "bidder_id", nullable = false)
     private User bidder;
 }

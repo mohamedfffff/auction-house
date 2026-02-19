@@ -1,7 +1,7 @@
 package com.example.lusterz.auction_house.modules.item.repository;
 
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -18,9 +18,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Item i SET i.status='ACTIVE' WHERE i.status='PENDING' AND i.startTime <= :now")
-    int startPendingItems(@Param("now") LocalDateTime now);
+    int startPendingItems(@Param("now") OffsetDateTime now);
     
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Item i SET i.status='CLOSED' WHERE i.status='ACTIVE' AND i.endTime <= :now")
-    int closeExpiredItems(@Param("now") LocalDateTime now);
+    int closeExpiredItems(@Param("now") OffsetDateTime now);
 }

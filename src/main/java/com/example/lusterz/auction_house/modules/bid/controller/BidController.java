@@ -8,6 +8,8 @@ import com.example.lusterz.auction_house.modules.bid.dto.BidDto;
 import com.example.lusterz.auction_house.modules.bid.dto.BidRequest;
 import com.example.lusterz.auction_house.modules.bid.service.BidService;
 
+import jakarta.validation.Valid;
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -48,7 +50,7 @@ public class BidController {
     }
 
     @PostMapping//to-do pull bidder id from security
-    public ResponseEntity<BidDto> placeBid(@RequestParam Long bidderId, @RequestParam Long itemId, @RequestBody BidRequest bidRequest) {
+    public ResponseEntity<BidDto> placeBid(@RequestParam Long bidderId, @RequestParam Long itemId, @Valid @RequestBody BidRequest bidRequest) {
         BidDto bid = bidService.placeBid(bidderId, itemId, bidRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(bid);
     }
