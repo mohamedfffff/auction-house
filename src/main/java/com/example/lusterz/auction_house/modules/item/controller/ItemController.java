@@ -60,7 +60,7 @@ public class ItemController {
     }
 
     @PutMapping("/{itemId}")
-    public ItemDto updateItem(@PathVariable Long itemId,@RequestParam Long userId, @RequestBody ItemUpdateRequest auctionItemRequest) {
+    public ItemDto updateItem(@PathVariable Long itemId,@RequestParam Long userId, @Valid @RequestBody ItemUpdateRequest auctionItemRequest) {
         return itemService.updateItem(itemId, userId, auctionItemRequest);
     }
 

@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -46,22 +47,24 @@ public class User {
     private String email;
 
     @NotBlank
-    @Column(nullable = false)
     @Size(min = 8)
+    @Column(nullable = false)
     private String password;
     
     private String userImageUrl;
 
     @PositiveOrZero
     @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal balance;
 
+    @NotNull
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role = UserRole.USER;
+    private UserRole role;
 
     @OneToMany(mappedBy = "bidder")
     private List<Bid> userBids = new ArrayList<>();

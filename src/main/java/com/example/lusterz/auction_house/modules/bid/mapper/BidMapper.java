@@ -9,5 +9,4 @@ import com.example.lusterz.auction_house.modules.bid.model.Bid;
 public interface BidMapper {
 
     BidDto toDto(Bid bid);
-    
 }

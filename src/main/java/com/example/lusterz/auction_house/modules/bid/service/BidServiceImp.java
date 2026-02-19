@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.modules.bid.service;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -103,7 +104,9 @@ public class BidServiceImp implements BidService{
         newBid.setAmount(bidRequest.amount());
         newBid.setBidder(bidder);
         newBid.setItem(item);
+        newBid.setBidTime(OffsetDateTime.now());
 
+        // update the highest bid on item entity
         item.setCurrentHighestBid(bidRequest.amount());
 
         bidRepository.save(newBid);
@@ -129,6 +132,7 @@ public class BidServiceImp implements BidService{
 
         bidRepository.delete(deletedBid);
 
+        // if the deleted bid is the highest then we need to update the item
         if (deletedBid.getAmount().equals(item.getCurrentHighestBid())) {
             updateHighestBid(item);
         }

@@ -29,5 +29,4 @@ public interface ItemService {
     void endAuction();
 
     void searchItems();
-
 }

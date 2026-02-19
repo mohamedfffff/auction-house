@@ -14,7 +14,6 @@ public record UserPrivateDto (
     String userImageUrl,
     BigDecimal balance,
     UserRole role,
-
     List<ItemSummaryDto> itemsForSale,
     List<BidSummaryDto> userBids
 ) { }

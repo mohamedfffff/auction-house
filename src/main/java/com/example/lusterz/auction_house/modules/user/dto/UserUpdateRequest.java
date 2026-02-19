@@ -8,5 +8,5 @@ public record UserUpdateRequest (
     @NotBlank @Size(min = 2, max = 100) String username,
     @NotBlank @Email String email,
     String userImageUrl
-) {}
+) { }
 

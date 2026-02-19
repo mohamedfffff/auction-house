@@ -1,7 +1,7 @@
 package com.example.lusterz.auction_house.modules.item.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Future;
@@ -15,7 +15,7 @@ public record ItemRequest(
     @NotBlank String description,
     String itemImageUrl,
     @NotNull @DecimalMin(value = "0.01") BigDecimal startingPrice,
-    @NotNull @FutureOrPresent LocalDateTime startTime,
-    @NotNull @Future LocalDateTime endTime,
-    @NotBlank Long sellerId
+    @NotNull @FutureOrPresent OffsetDateTime startTime,
+    @NotNull @Future OffsetDateTime endTime,
+    @NotNull Long sellerId
 ) {}

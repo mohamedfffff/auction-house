@@ -1,7 +1,7 @@
 package com.example.lusterz.auction_house.modules.item.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +9,7 @@ import com.example.lusterz.auction_house.common.validation.onCreate;
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.user.model.User;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -46,36 +47,45 @@ public class Item {
     
     @NotBlank
     @Size(min = 2, max = 100)
+    @Column(nullable = false)
     private String title;
 
-    @NotBlank
     private String description;
     private String itemImageUrl;
 
     @NotNull
     @DecimalMin(value = "0.01")
     @Digits(integer = 10, fraction = 2)
+    @Column(nullable = false)
     private BigDecimal startingPrice;
-
+    
     @NotNull
+    @DecimalMin(value = "0.01")
+    @Digits(integer = 10, fraction = 2)
+    @Column(nullable = false)
     private BigDecimal currentHighestBid;
 
     @NotNull
     @FutureOrPresent(groups = onCreate.class)
-    private LocalDateTime startTime;
+    @Column(nullable = false)
+    private OffsetDateTime startTime;
 
     @NotNull
     @Future(groups = onCreate.class)
-    private LocalDateTime endTime;
+    @Column(nullable = false)
+    private OffsetDateTime endTime;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    private AuctionStatus status = AuctionStatus.PENDING;
+    @Column(nullable = false)
+    private AuctionStatus status;
 
     @Version
     private Integer version;
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
     @ManyToOne
