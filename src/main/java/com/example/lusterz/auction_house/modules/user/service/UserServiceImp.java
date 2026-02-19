@@ -16,6 +16,7 @@ import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @Service
@@ -86,6 +87,10 @@ public class UserServiceImp implements UserService{
         newUser.setEmail(userRequest.email());
         newUser.setPassword(passwordEncoder.encode(userRequest.password()));
         newUser.setUserImageUrl(userRequest.userImageUrl());
+
+        newUser.setRole(UserRole.USER);
+        newUser.setActive(true);
+        newUser.setBalance(BigDecimal.ZERO);
 
         userRepository.save(newUser);
 

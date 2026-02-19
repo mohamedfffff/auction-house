@@ -2,7 +2,6 @@ package com.example.lusterz.auction_house.common.config;
 
 import java.math.BigDecimal;
 
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 import org.springframework.boot.CommandLineRunner;
@@ -12,9 +11,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
+import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
 import com.example.lusterz.auction_house.modules.item.repository.ItemRepository;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -65,6 +66,8 @@ public class LoadDatabase {
         user.setPassword(passwordEncoder.encode(name)); 
         user.setBalance(new BigDecimal("1000.00"));
         user.setUserImageUrl(email + ".image.com");
+        user.setActive(true);
+        user.setRole(UserRole.USER);
         return repo.save(user);
     }
 
@@ -78,6 +81,7 @@ public class LoadDatabase {
         item.setCurrentHighestBid(new BigDecimal(price));
         item.setStartTime(OffsetDateTime.now().plusSeconds(5));
         item.setEndTime(OffsetDateTime.now().plusMinutes(1));
+        item.setStatus(AuctionStatus.PENDING);
         return repo.save(item);
     }
 
@@ -86,6 +90,7 @@ public class LoadDatabase {
         bid.setBidder(bidder);
         bid.setItem(item);
         bid.setAmount(new BigDecimal(amount));
+        bid.setBidTime(OffsetDateTime.now());
         repo.save(bid);
     }
 }

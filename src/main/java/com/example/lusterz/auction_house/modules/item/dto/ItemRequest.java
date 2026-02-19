@@ -17,5 +17,5 @@ public record ItemRequest(
     @NotNull @DecimalMin(value = "0.01") BigDecimal startingPrice,
     @NotNull @FutureOrPresent OffsetDateTime startTime,
     @NotNull @Future OffsetDateTime endTime,
-    @NotBlank Long sellerId
+    @NotNull Long sellerId
 ) {}

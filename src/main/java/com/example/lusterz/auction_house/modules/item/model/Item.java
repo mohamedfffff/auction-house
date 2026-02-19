@@ -78,15 +78,14 @@ public class Item {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AuctionStatus status = AuctionStatus.PENDING;
+    private AuctionStatus status;
 
     @Version
     private Integer version;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    @Column(nullable = false)
+    @JoinColumn(name = "seller_id", nullable = false)
     private User seller;
 
     @ManyToOne

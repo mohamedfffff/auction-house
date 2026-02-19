@@ -55,16 +55,16 @@ public class User {
 
     @PositiveOrZero
     @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal balance = BigDecimal.ZERO;
+    private BigDecimal balance;
 
     @NotNull
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active;
 
-    @NotBlank
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role = UserRole.USER;
+    private UserRole role;
 
     @OneToMany(mappedBy = "bidder")
     private List<Bid> userBids = new ArrayList<>();

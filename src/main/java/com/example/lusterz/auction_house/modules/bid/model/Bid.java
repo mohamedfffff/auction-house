@@ -38,7 +38,7 @@ public class Bid {
 
     @NotNull
     @Column(nullable = false)
-    private OffsetDateTime bidTime = OffsetDateTime.now();
+    private OffsetDateTime bidTime;
 
     @NotNull
     @ManyToOne

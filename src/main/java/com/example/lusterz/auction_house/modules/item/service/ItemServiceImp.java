@@ -91,6 +91,8 @@ public class ItemServiceImp implements ItemService{
         newItem.setStartingPrice(request.startingPrice());
         newItem.setStartTime(request.startTime());
         newItem.setEndTime(request.endTime());
+
+        newItem.setStatus(AuctionStatus.PENDING);
         newItem.setCurrentHighestBid(request.startingPrice());
         
         newItem.setSeller(seller);
