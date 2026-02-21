@@ -77,13 +77,13 @@ public class BidServiceImp implements BidService{
 
     @Override
     @Transactional
-    public BidDto placeBid(Long bidderId, Long itemId, BidRequest bidRequest) {
-        User bidder = userRepository.findById(bidderId)
-            .orElseThrow(() -> UserException.NotFound.byId(bidderId));
-        Item item = itemRepository.findById(itemId)
-            .orElseThrow(() -> ItemException.NotFound.byId(itemId));
+    public BidDto placeBid(BidRequest bidRequest) {
+        User bidder = userRepository.findById(bidRequest.bidderId())
+            .orElseThrow(() -> UserException.NotFound.byId(bidRequest.bidderId()));
+        Item item = itemRepository.findById(bidRequest.itemId())
+            .orElseThrow(() -> ItemException.NotFound.byId(bidRequest.itemId()));
 
-        if (item.getSeller().getId().equals(bidderId)) {
+        if (item.getSeller().getId().equals(bidRequest.bidderId())) {
             throw BidException.Unauthorized.isOwner();
         }
 

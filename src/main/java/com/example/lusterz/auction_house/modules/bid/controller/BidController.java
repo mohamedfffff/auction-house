@@ -37,26 +37,26 @@ public class BidController {
     }
     
     @GetMapping
-    public List<BidDto> getAllBids(@RequestParam(required = false) Long bidderId, @RequestParam(required = false) Long item_id) {
+    public List<BidDto> getAllBids(@RequestParam(required = false) Long bidderId, @RequestParam(required = false) Long itemId) {
         if (bidderId != null) {
             return bidService.getAllBidsByBidderId(bidderId);
         } 
 
-        if (item_id != null) {
-            return bidService.getAllBidsByItemId(item_id);
+        if (itemId != null) {
+            return bidService.getAllBidsByItemId(itemId);
         }
 
         return bidService.getAllBids();
     }
 
-    @PostMapping//to-do pull bidder id from security
-    public ResponseEntity<BidDto> placeBid(@RequestParam Long bidderId, @RequestParam Long itemId, @Valid @RequestBody BidRequest bidRequest) {
-        BidDto bid = bidService.placeBid(bidderId, itemId, bidRequest);
+    @PostMapping
+    public ResponseEntity<BidDto> placeBid(@Valid @RequestBody BidRequest bidRequest) {
+        BidDto bid = bidService.placeBid(bidRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(bid);
     }
 
-    @DeleteMapping//to-do pull bidder id from security
-    public ResponseEntity<Void> deleteBid(@RequestParam Long bidderId, @RequestParam Long itemId, @RequestParam Long bidId) {
+    @DeleteMapping("/{bidId}")
+    public ResponseEntity<Void> deleteBid(@PathVariable Long bidId, @RequestParam Long bidderId, @RequestParam Long itemId) {
         bidService.deleteBid(bidderId, itemId, bidId);
         return ResponseEntity.noContent().build();
     }
