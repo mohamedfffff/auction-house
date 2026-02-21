@@ -50,13 +50,13 @@ public class BidController {
     }
 
     @PostMapping
-    public ResponseEntity<BidDto> placeBid(@RequestParam Long bidderId, @RequestParam Long itemId, @Valid @RequestBody BidRequest bidRequest) {
-        BidDto bid = bidService.placeBid(bidderId, itemId, bidRequest);
+    public ResponseEntity<BidDto> placeBid(@Valid @RequestBody BidRequest bidRequest) {
+        BidDto bid = bidService.placeBid(bidRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(bid);
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteBid(@RequestParam Long bidderId, @RequestParam Long itemId, @RequestParam Long bidId) {
+    @DeleteMapping("/{bidId}")
+    public ResponseEntity<Void> deleteBid(@PathVariable Long bidId, @RequestParam Long bidderId, @RequestParam Long itemId) {
         bidService.deleteBid(bidderId, itemId, bidId);
         return ResponseEntity.noContent().build();
     }
