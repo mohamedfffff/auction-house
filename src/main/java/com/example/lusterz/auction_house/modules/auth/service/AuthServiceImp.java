@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.UserException;
-import com.example.lusterz.auction_house.modules.auth.dto.registerRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
@@ -31,7 +32,7 @@ public class AuthServiceImp implements AuthService{
 
     @Override
     @Transactional
-    public UserPrivateDto register(registerRequest userRequest) {
+    public UserPrivateDto register(RegisterRequest userRequest) {
         if (userRepository.existsByUsername(userRequest.username())) {
             throw UserException.AlreadyExists.byUsername(userRequest.username());
         }
@@ -55,7 +56,7 @@ public class AuthServiceImp implements AuthService{
     }
 
     @Override
-    public void login() {}
+    public void login(LoginRequest request) {}
 
     @Override
     public void verifyEmail() {}
