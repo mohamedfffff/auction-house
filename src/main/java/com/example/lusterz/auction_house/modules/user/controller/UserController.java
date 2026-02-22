@@ -16,7 +16,6 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -54,11 +53,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PostMapping()
-    public ResponseEntity<UserPrivateDto> createUser(@Valid @RequestBody UserCreateRequest userRequest) {
-        UserPrivateDto newUser = userService.createUser(userRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
-    }
 
     @PutMapping("/{id}")
     public UserPrivateDto updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest userRequest) {
