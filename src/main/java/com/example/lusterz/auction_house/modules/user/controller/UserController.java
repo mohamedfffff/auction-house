@@ -2,7 +2,6 @@ package com.example.lusterz.auction_house.modules.user.controller;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,12 +15,10 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import jakarta.validation.Valid;
 
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
@@ -54,11 +51,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PostMapping()
-    public ResponseEntity<UserPrivateDto> createUser(@Valid @RequestBody UserCreateRequest userRequest) {
-        UserPrivateDto newUser = userService.createUser(userRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
-    }
 
     @PutMapping("/{id}")
     public UserPrivateDto updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest userRequest) {

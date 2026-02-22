@@ -13,10 +13,8 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserCreateRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
-import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @Service
@@ -72,30 +70,6 @@ public class UserServiceImp implements UserService{
                 .toList();
     }
 
-    @Override
-    @Transactional
-    public UserPrivateDto createUser(UserCreateRequest userRequest) {
-        if (userRepository.existsByUsername(userRequest.username())) {
-            throw UserException.AlreadyExists.byUsername(userRequest.username());
-        }
-        if (userRepository.existsByEmail(userRequest.email())) {
-            throw UserException.AlreadyExists.byEmail(userRequest.email());
-        }
-
-        User newUser = new User();
-        newUser.setUsername(userRequest.username());
-        newUser.setEmail(userRequest.email());
-        newUser.setPassword(passwordEncoder.encode(userRequest.password()));
-        newUser.setUserImageUrl(userRequest.userImageUrl());
-
-        newUser.setRole(UserRole.USER);
-        newUser.setActive(true);
-        newUser.setBalance(BigDecimal.ZERO);
-
-        userRepository.save(newUser);
-
-        return userMapper.toPrivateDto(newUser);
-    }
 
     @Transactional
     @Override
