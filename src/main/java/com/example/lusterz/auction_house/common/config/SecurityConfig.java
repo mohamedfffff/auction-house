@@ -1,4 +1,4 @@
-package com.example.lusterz.auction_house.common.security;
+package com.example.lusterz.auction_house.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,14 +9,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.example.lusterz.auction_house.common.security.JwtFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig{
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    private final JwtFilter jwtFilter;
+
+    public SecurityConfig(JwtFilter jwtFilter) {
+        this.jwtFilter = jwtFilter;
     }
 
     @Bean
@@ -25,11 +29,11 @@ public class SecurityConfig{
             .csrf(csfr -> csfr.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/items/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2Login(Customizer.withDefaults());
+            // .formLogin(Customizer.withDefaults())
+            .oauth2Login(Customizer.withDefaults())
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

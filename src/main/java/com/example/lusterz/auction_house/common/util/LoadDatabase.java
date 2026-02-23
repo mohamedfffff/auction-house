@@ -1,4 +1,4 @@
-package com.example.lusterz.auction_house.common.config;
+package com.example.lusterz.auction_house.common.util;
 
 import java.math.BigDecimal;
 
