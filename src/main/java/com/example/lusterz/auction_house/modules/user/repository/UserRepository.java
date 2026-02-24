@@ -10,6 +10,7 @@ import com.example.lusterz.auction_house.modules.user.model.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
+    Optional<User> findByUsernameOrEmail(String username, String email);
     List<User> findAllByActive(boolean active);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);

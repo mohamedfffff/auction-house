@@ -21,4 +21,14 @@ public class AuthException extends RuntimeException{
             return new JwtError("Session expired. Please login again");
         }
     }
+
+    public static class Unauthorized extends AuthException{
+        public Unauthorized(String message) {
+            super(message);
+        }
+
+        public static Unauthorized wrongPassword() {
+            return new Unauthorized("The password is incorrect");
+        }
+    }
 }
