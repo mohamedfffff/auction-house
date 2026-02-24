@@ -18,6 +18,9 @@ public class UserException extends RuntimeException {
         public static NotFound byUsername(String username) {
             return new NotFound("User not found with name " + username);
         }
+        public static NotFound byIdentifier(String identifier) {
+            return new NotFound(identifier + " user not");
+        }
     }
 
     public static class AlreadyExists extends UserException{
