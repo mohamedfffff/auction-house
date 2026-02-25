@@ -1,5 +1,6 @@
 package com.example.lusterz.auction_house.common.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -14,17 +15,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.example.lusterz.auction_house.common.security.JwtFilter;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 
+@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig{
 
     private final JwtFilter jwtFilter;
     private final JwtUtils jwtUtils;
-
-    public SecurityConfig(JwtFilter jwtFilter, JwtUtils jwtUtils) {
-        this.jwtFilter = jwtFilter;
-        this.jwtUtils = jwtUtils;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

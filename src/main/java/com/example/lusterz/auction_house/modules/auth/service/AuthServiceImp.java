@@ -22,9 +22,9 @@ import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
-@RequiredArgsConstructor
 public class AuthServiceImp implements AuthService{
 
     private final UserRepository userRepository;

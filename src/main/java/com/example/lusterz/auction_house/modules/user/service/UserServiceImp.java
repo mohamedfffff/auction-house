@@ -3,6 +3,7 @@ package com.example.lusterz.auction_house.modules.user.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class UserServiceImp implements UserService{
@@ -24,12 +26,6 @@ public class UserServiceImp implements UserService{
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-
-    public UserServiceImp(UserRepository userRepository, UserMapper userMapper, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userMapper = userMapper; 
-        this.passwordEncoder = passwordEncoder;
-    }
  
     @Override
     public UserPrivateDto getUserById(Long id) {

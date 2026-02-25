@@ -2,6 +2,7 @@ package com.example.lusterz.auction_house.modules.item.controller;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,16 +25,12 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/items")
 public class ItemController {
 
     private final ItemService itemService;
-
-    public ItemController(ItemService itemService) {
-        this.itemService = itemService;
-    }
 
     @GetMapping("/{id}")
     public ItemDto getItem(@PathVariable Long id) {

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 
+@RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
 public class BidServiceImp implements BidService{
@@ -30,13 +32,6 @@ public class BidServiceImp implements BidService{
     private final ItemRepository itemRepository;
     private final BidRepository bidRepository;
     private final BidMapper bidMapper;
-
-    public BidServiceImp(UserRepository userRepository, ItemRepository itemRepository, BidRepository bidRepository, BidMapper bidMapper) {
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
-        this.bidRepository = bidRepository;
-        this.bidMapper = bidMapper;
-    }
 
     @Override
     public BidDto getBid(Long id) {
