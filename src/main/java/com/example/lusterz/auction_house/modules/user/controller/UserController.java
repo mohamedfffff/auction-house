@@ -2,6 +2,7 @@ package com.example.lusterz.auction_house.modules.user.controller;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,17 +24,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
 
-
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("api/v1/users")
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-    
     @GetMapping("/id/{id}")
     public UserPrivateDto getUserById(@PathVariable Long id) {
         return userService.getUserById(id);

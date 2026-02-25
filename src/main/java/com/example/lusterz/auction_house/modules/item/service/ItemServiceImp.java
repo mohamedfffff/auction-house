@@ -3,6 +3,7 @@ package com.example.lusterz.auction_house.modules.item.service;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
-
+@RequiredArgsConstructor
 @Slf4j
 @Service
 @Transactional(readOnly = true)
@@ -31,13 +32,6 @@ public class ItemServiceImp implements ItemService{
     private final ItemRepository itemRepository;
     private final BidRepository bidRepository;
     private final ItemMapper itemMapper;
-
-    public ItemServiceImp(ItemRepository itemRepository, UserRepository userRepository, BidRepository bidRepository, ItemMapper itemMapper) {
-        this.itemRepository = itemRepository;
-        this.userRepository = userRepository;
-        this.bidRepository = bidRepository;
-        this.itemMapper = itemMapper;
-    }
 
     @Override
     public ItemDto getItem(Long id) {
