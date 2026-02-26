@@ -95,11 +95,12 @@ public class BidServiceImp implements BidService{
         }
 
 
-        Bid newBid = new Bid();
-        newBid.setAmount(bidRequest.amount());
-        newBid.setBidder(bidder);
-        newBid.setItem(item);
-        newBid.setBidTime(OffsetDateTime.now());
+        Bid newBid = Bid.builder()
+            .amount(bidRequest.amount())
+            .bidder(bidder)
+            .item(item)
+            .bidTime(OffsetDateTime.now())
+            .build();
 
         // update the highest bid on item entity
         item.setCurrentHighestBid(bidRequest.amount());

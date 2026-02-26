@@ -77,17 +77,16 @@ public class ItemServiceImp implements ItemService{
             throw ItemException.InvalidState.invalidDuration();
         }
 
-        Item newItem = new Item();
-
-        newItem.setTitle(request.title());
-        newItem.setDescription(request.description());
-        newItem.setItemImageUrl(request.itemImageUrl());
-        newItem.setStartingPrice(request.startingPrice());
-        newItem.setStartTime(request.startTime());
-        newItem.setEndTime(request.endTime());
-
-        newItem.setStatus(AuctionStatus.PENDING);
-        newItem.setCurrentHighestBid(request.startingPrice());
+        Item newItem = Item.builder()
+            .title(request.title())
+            .description(request.description())
+            .itemImageUrl(request.itemImageUrl())
+            .startingPrice(request.startingPrice())
+            .startTime(request.startTime())
+            .endTime(request.endTime())
+            .status(AuctionStatus.PENDING)
+            .currentHighestBid(request.startingPrice())
+            .build();
         
         newItem.setSeller(seller);
 

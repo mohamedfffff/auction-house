@@ -1,14 +1,14 @@
 package com.example.lusterz.auction_house.modules.auth.service;
 
-import com.example.lusterz.auction_house.modules.auth.dto.JwtResponse;
+import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 
 public interface AuthService {
 
-    JwtResponse register(RegisterRequest request);
+    AuthResponse register(RegisterRequest request);
 
-    JwtResponse login(LoginRequest request);
+    AuthResponse login(LoginRequest request);
 
     void verifyEmail();
      

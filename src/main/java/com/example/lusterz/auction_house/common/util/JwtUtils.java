@@ -1,6 +1,5 @@
 package com.example.lusterz.auction_house.common.util;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -15,20 +14,19 @@ import com.example.lusterz.auction_house.common.exception.AuthException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Component
 public class JwtUtils {
 
-    private SecretKey key;
+    @Value("${app.jwt.secret}")
+    private String secretKey;
+    @Value("${app.jwt.expiration}")
     private Long jwtExpiration;
-
-    public JwtUtils(@Value("${app.jwt.secret}") String jwtSecret,
-                    @Value("${app.jwt.expiration}") Long jwtExpiration) {
-        this.key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-        this.jwtExpiration = jwtExpiration;
-    }
 
     public String generateToken(Authentication authentication) {
         UserDetails principal = (UserDetails) authentication.getPrincipal();
@@ -36,13 +34,13 @@ public class JwtUtils {
                 .setSubject(principal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(key)
+                .signWith(getKey())
                 .compact();
     }
 
     public String getIdentifierFromToken(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
@@ -52,7 +50,7 @@ public class JwtUtils {
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token);
             return true;
@@ -66,5 +64,14 @@ public class JwtUtils {
          catch (Exception e) {
             throw new AuthException.JwtError("Authentication failed" + e.getMessage());
         }
+    }
+
+    private SecretKey getKey() {
+        byte[] keyBytes =  Decoders.BASE64.decode(this.secretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public Long getJwtExpiration() {
+        return this.jwtExpiration;
     }
 }
