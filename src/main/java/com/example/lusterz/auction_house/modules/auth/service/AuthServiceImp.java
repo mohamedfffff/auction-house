@@ -3,6 +3,7 @@ package com.example.lusterz.auction_house.modules.auth.service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -31,6 +32,7 @@ public class AuthServiceImp implements AuthService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
     
 
     @Override
@@ -55,11 +57,14 @@ public class AuthServiceImp implements AuthService{
 
         userRepository.save(newUser);
 
-        // create jwt token after registering a new user
+        // no need to use authentication manager as we just created the user
+        // but generatToken needs an Authentication object so we use UsernamePasswordAuthenticationToken
         Authentication auth = new UsernamePasswordAuthenticationToken(
             newUser,
-            null,   
-            List.of(new SimpleGrantedAuthority(UserRole.USER.name())));
+            null,
+            List.of(new SimpleGrantedAuthority(UserRole.USER.name()))
+        );
+        
         String token = jwtUtils.generateToken(auth);
 
         return new AuthResponse(
@@ -72,19 +77,12 @@ public class AuthServiceImp implements AuthService{
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByUsernameOrEmail(request.identifier(), request.identifier())
-            .orElseThrow(() -> UserException.NotFound.byIdentifier(request.identifier()));
-
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw AuthException.Unauthorized.wrongPassword();
-        }
-
-        Authentication auth = new UsernamePasswordAuthenticationToken(
-            user,
-            null,
-            List.of(new SimpleGrantedAuthority(user.getRole().name()))
+        // no nee to check if user exist or password is correct cause AuthenticationManager handles it
+        Authentication auth = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.identifier(), request.password())
         );
 
+        User user = (User) auth.getPrincipal();
         String token = jwtUtils.generateToken(auth);
 
         return new AuthResponse(
