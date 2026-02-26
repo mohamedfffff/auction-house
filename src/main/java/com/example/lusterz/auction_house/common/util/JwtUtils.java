@@ -6,7 +6,6 @@ import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
@@ -29,9 +28,9 @@ public class JwtUtils {
     private Long jwtExpiration;
 
     public String generateToken(Authentication authentication) {
-        UserDetails principal = (UserDetails) authentication.getPrincipal();
+        String username = authentication.getName();
         return Jwts.builder()
-                .setSubject(principal.getUsername())
+                .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getKey())
