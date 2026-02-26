@@ -12,7 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.lusterz.auction_house.common.security.JwtFilter;
-import com.example.lusterz.auction_house.common.util.JwtUtils;
+import com.example.lusterz.auction_house.common.security.Oauth2SuccessHandler;
 
 @RequiredArgsConstructor
 @Configuration
@@ -20,8 +20,8 @@ import com.example.lusterz.auction_house.common.util.JwtUtils;
 public class SecurityConfig{
 
     private final JwtFilter jwtFilter;
-    private final JwtUtils jwtUtils;
     private final AuthenticationProvider authenticationProvider;
+    private final Oauth2SuccessHandler oautheSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -29,15 +29,12 @@ public class SecurityConfig{
             .csrf(csfr -> csfr.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("api/v1/auth/**").permitAll()
+                .requestMatchers("/api/v1/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(Customizer.withDefaults())
-            .oauth2Login(oauth2 -> oauth2.
-                successHandler((request, response, authentication) -> {
-                    String token = jwtUtils.generateToken(authentication);
-                    response.sendRedirect("/http://localhost:3000/oauth2/redirect?token=" + token);
-                })
+            .oauth2Login(oauth2 -> oauth2
+                .successHandler(oautheSuccessHandler)
             )
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

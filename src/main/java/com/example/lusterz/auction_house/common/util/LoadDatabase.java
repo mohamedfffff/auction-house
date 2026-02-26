@@ -63,7 +63,7 @@ public class LoadDatabase {
         User user = new User();
         user.setUsername(name);
         user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(name)); 
+        user.setPassword(passwordEncoder.encode(name + "password")); 
         user.setBalance(new BigDecimal("1000.00"));
         user.setUserImageUrl(email + ".image.com");
         user.setActive(true);
