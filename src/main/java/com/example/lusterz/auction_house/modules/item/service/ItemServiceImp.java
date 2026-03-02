@@ -4,11 +4,14 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.UserException;
+import com.example.lusterz.auction_house.infrastructure.notification.EmailService;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
@@ -32,6 +35,7 @@ public class ItemServiceImp implements ItemService{
     private final ItemRepository itemRepository;
     private final BidRepository bidRepository;
     private final ItemMapper itemMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     public ItemDto getItem(Long id) {
@@ -170,8 +174,12 @@ public class ItemServiceImp implements ItemService{
                     () -> {
                         item.setStatus(AuctionStatus.EXPIRED_UNSOLD);
                     }
-                );    
+                ); 
+            
+            // send notifications for seller and winner
+            eventPublisher.publishEvent(closedItems);
         }
+
 
         log.info("{} Auctions ended successfully", count);
     }
