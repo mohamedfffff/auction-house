@@ -24,11 +24,20 @@ public class JwtUtils {
 
     @Value("${app.jwt.secret}")
     private String secretKey;
-    @Value("${app.jwt.expiration}")
+    @Value("${app.jwt.access.expiration}")
     private Long jwtExpiration;
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getKey())
+                .compact();
+    }
+
+    public String generateTokenFromUsername(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -54,14 +63,14 @@ public class JwtUtils {
                 .parseClaimsJws(token);
             return true;
         } catch (MalformedJwtException e) {
-            throw AuthException.JwtError.malformed();
+            throw AuthException.JwtToken.malformed();
         } catch (SignatureException e) {
-            throw AuthException.JwtError.invalidSignature();
+            throw AuthException.JwtToken.invalidSignature();
         } catch (ExpiredJwtException e) {
-            throw AuthException.JwtError.expired();
+            throw AuthException.JwtToken.expired();
         }
          catch (Exception e) {
-            throw new AuthException.JwtError("Authentication failed" + e.getMessage());
+            throw new AuthException.JwtToken("Authentication failed" + e.getMessage());
         }
     }
 

@@ -11,12 +11,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthUserDto;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
@@ -32,6 +36,7 @@ public class AuthServiceImp implements AuthService{
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
+    private final RefreshTokenService refreshTokenService;
     
 
     @Override
@@ -95,9 +100,22 @@ public class AuthServiceImp implements AuthService{
     }
 
     @Override
-    public void verifyEmail() {}
+    public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
+        RefreshToken refreshToken = refreshTokenService.getRefreshToken(request.refreshToken());
+
+        if (refreshTokenService.expired(refreshToken)) {
+            throw AuthException.RefreshToken.expired();
+        }
+
+        String newAccessToken = jwtUtils.generateTokenFromUsername(refreshToken.getUser().getUsername());
+
+        String newRefreshTokenService = refreshTokenService.rotateToken(request.refreshToken()).getToken();
+
+        return new RefreshTokenResponse(newAccessToken, newRefreshTokenService);
+    }
 
     @Override
-    public void refreshToken() {}
+    public void verifyEmail() {}
+
     
 }

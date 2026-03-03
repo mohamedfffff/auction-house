@@ -6,19 +6,32 @@ public class AuthException extends RuntimeException{
         super(message);
     }
 
-    public static class JwtError extends AuthException{
-        public JwtError(String message) {
+    public static class JwtToken extends AuthException{
+        public JwtToken(String message) {
             super(message);
         }
 
-        public static JwtError malformed() {
-            return new JwtError("Invalid token format");
+        public static JwtToken malformed() {
+            return new JwtToken("Invalid token format");
         }
-        public static JwtError invalidSignature() {
-            return new JwtError("Security Signature mismatch");
+        public static JwtToken invalidSignature() {
+            return new JwtToken("Security Signature mismatch");
         }
-        public static JwtError expired() {
-            return new JwtError("Session expired. Please login again");
+        public static JwtToken expired() {
+            return new JwtToken("Session expired. Please login again");
+        }
+    }
+
+    public static class RefreshToken extends AuthException{
+        public RefreshToken(String message) {
+            super(message);
+        }
+
+        public static RefreshToken expired() {
+            return new RefreshToken("Session expired. Please login again");
+        }
+        public static RefreshToken notFound() {
+            return new RefreshToken("Refresh token not found");
         }
     }
 

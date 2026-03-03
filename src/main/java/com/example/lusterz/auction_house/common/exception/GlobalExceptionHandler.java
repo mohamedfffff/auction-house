@@ -18,7 +18,12 @@ public class GlobalExceptionHandler {
         BidException.NotFound.class
     })
     public ResponseEntity<ErrorDetails> handleNotFound(RuntimeException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.NOT_FOUND.value(),
+            "Not Found",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
     }
 
@@ -27,7 +32,12 @@ public class GlobalExceptionHandler {
         UserException.AlreadyExists.class
     })
     public ResponseEntity<ErrorDetails> handleAlreadyExists(RuntimeException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.CONFLICT.value(),
+            "Already Exists",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
@@ -39,7 +49,12 @@ public class GlobalExceptionHandler {
         BidException.InsufficientBid.class,
     })
     public ResponseEntity<ErrorDetails> handleBadRequest(RuntimeException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.BAD_REQUEST.value(),
+            "Bad Request",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
         return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
@@ -47,24 +62,41 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
         UserException.Unauthorized.class,
         ItemException.Unauthorized.class,
-        BidException.Unauthorized.class
+        BidException.Unauthorized.class,
+        AuthException.class
     })
     public ResponseEntity<ErrorDetails> handleUnauthorized(RuntimeException ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails(ex.getMessage(), request.getDescription(false));
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.UNAUTHORIZED.value(),
+            "Unauthorized",
+            ex.getMessage(),
+            request.getDescription(false)
+        );
         return new ResponseEntity<>(errorDetails, HttpStatus.UNAUTHORIZED);
     }
 
     // handle multiple users bidding at the same time exception
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
     public ResponseEntity<ErrorDetails> handleBidConflict(WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails("Someone else just placed a bid. Please refresh for the latest price.", request.getDescription(false));
+        String message = "Someone else just placed a bid. Please refresh for the latest price.";
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.CONFLICT.value(),
+            "Conflict",
+            message,
+            request.getDescription(false)
+        );
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
     // global handling 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
-        ErrorDetails errorDetails = new ErrorDetails("An unexpected error occurred", request.getDescription(false));
+        String message = "An unexpected error occurred";
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            "Internal Server Error",
+            message,
+            request.getDescription(false));
         return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
