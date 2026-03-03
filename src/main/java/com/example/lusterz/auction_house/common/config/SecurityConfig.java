@@ -11,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.example.lusterz.auction_house.common.security.AuthEntryPoint;
 import com.example.lusterz.auction_house.common.security.JwtFilter;
 import com.example.lusterz.auction_house.common.security.Oauth2SuccessHandler;
 
@@ -22,11 +23,13 @@ public class SecurityConfig{
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
     private final Oauth2SuccessHandler oautheSuccessHandler;
+    private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csfr -> csfr.disable())
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()

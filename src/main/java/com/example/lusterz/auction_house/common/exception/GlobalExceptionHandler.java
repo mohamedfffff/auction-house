@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ErrorDetails> handleNotFound(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
-            "404",
+            HttpStatus.NOT_FOUND.value(),
             "Not Found",
             ex.getMessage(),
             request.getDescription(false)
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ErrorDetails> handleAlreadyExists(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
-            "409",
+            HttpStatus.CONFLICT.value(),
             "Already Exists",
             ex.getMessage(),
             request.getDescription(false)
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ErrorDetails> handleBadRequest(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
-            "400",
+            HttpStatus.BAD_REQUEST.value(),
             "Bad Request",
             ex.getMessage(),
             request.getDescription(false)
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ErrorDetails> handleUnauthorized(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
-            "401",
+            HttpStatus.UNAUTHORIZED.value(),
             "Unauthorized",
             ex.getMessage(),
             request.getDescription(false)
@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleBidConflict(WebRequest request) {
         String message = "Someone else just placed a bid. Please refresh for the latest price.";
         ErrorDetails errorDetails = new ErrorDetails(
-            "409",
+            HttpStatus.CONFLICT.value(),
             "Conflict",
             message,
             request.getDescription(false)
@@ -93,7 +93,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
         String message = "An unexpected error occurred";
         ErrorDetails errorDetails = new ErrorDetails(
-            "200",
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
             "Internal Server Error",
             message,
             request.getDescription(false));
