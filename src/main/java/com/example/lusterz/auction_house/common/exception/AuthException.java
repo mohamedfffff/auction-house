@@ -1,6 +1,5 @@
 package com.example.lusterz.auction_house.common.exception;
 
-import com.example.lusterz.auction_house.common.exception.AuthException.JwtToken;
 
 public class AuthException extends RuntimeException{
     public AuthException(String message) {
@@ -31,6 +30,9 @@ public class AuthException extends RuntimeException{
         public static RefreshToken expired() {
             return new RefreshToken("Session expired. Please login again");
         }
+        public static RefreshToken notFound() {
+            return new RefreshToken("Refresh token not found");
+        }
     }
 
     public static class Unauthorized extends AuthException{
@@ -40,16 +42,6 @@ public class AuthException extends RuntimeException{
 
         public static Unauthorized wrongPassword() {
             return new Unauthorized("The password is incorrect");
-        }
-    }
-
-    public static class NotFound extends AuthException{
-        public NotFound(String message) {
-            super(message);
-        }
-
-        public static NotFound refreshToken() {
-            return new NotFound("Refresh token not found");
         }
     }
 }

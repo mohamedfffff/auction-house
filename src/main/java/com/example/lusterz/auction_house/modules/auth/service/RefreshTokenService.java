@@ -27,7 +27,7 @@ public class RefreshTokenService {
 
     public RefreshToken getRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenReposityory.findByToken(token)
-            .orElseThrow(() -> AuthException.NotFound.refreshToken());
+            .orElseThrow(() -> AuthException.RefreshToken.notFound());
         return refreshToken;
     }
 
@@ -51,7 +51,7 @@ public class RefreshTokenService {
     @Transactional
     public RefreshToken rotateToken(String oldToken) {
         RefreshToken token = refreshTokenReposityory.findByToken(oldToken)
-            .orElseThrow(() -> AuthException.NotFound.refreshToken());
+            .orElseThrow(() -> AuthException.RefreshToken.notFound());
 
         if (expired(token)) {
             throw AuthException.RefreshToken.expired();
