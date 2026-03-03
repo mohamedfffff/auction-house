@@ -10,8 +10,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.service.AuthService;
+import com.example.lusterz.auction_house.modules.auth.service.RefreshTokenService;
 
 import jakarta.validation.Valid;
 
@@ -21,6 +24,7 @@ import jakarta.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -33,4 +37,11 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse response = authService.refreshAccessToken(request);
+        return ResponseEntity.ok(response);
+    }
+    
 }
