@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.lusterz.auction_house.common.security.CustomUserDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,5 +36,11 @@ public class AppConfig {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(customUserDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
+    }
+
+    // i doesn't work on its own for some reason
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
     }
 }

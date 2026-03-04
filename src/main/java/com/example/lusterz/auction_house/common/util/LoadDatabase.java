@@ -46,7 +46,7 @@ public class LoadDatabase {
             Item camera = createItem(itemRepo, seller1, "Vintage Leica M583", "500.00");
             Item watch = createItem(itemRepo, seller2, "Gold Rolex 1970", "1200.00");
             Item vinyl = createItem(itemRepo, seller3, "Signed Beatles Record", "100.00");
-            Item car = createItem(itemRepo, seller3, "Bmw car", "61441215");
+            createItem(itemRepo, seller3, "Bmw car", "61441215");
 
             createBid(bidRepo, bidder1, camera, "550.00");
             createBid(bidRepo, bidder2, camera, "600.00");

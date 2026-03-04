@@ -37,6 +37,7 @@ public class RefreshTokenService {
             .orElseThrow(() -> UserException.NotFound.byId(userId));
 
         // make sure user has no token
+        // because if the user logout and re-login
         refreshTokenReposityory.deleteByUser(user);
 
         RefreshToken token = RefreshToken.builder()
