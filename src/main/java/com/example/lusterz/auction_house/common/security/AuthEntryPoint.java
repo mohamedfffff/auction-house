@@ -8,14 +8,18 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import com.example.lusterz.auction_house.common.exception.ErrorDetails;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @Component
 public class AuthEntryPoint implements AuthenticationEntryPoint{
+
+    private final ObjectMapper mapper;
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
@@ -32,7 +36,7 @@ public class AuthEntryPoint implements AuthenticationEntryPoint{
             request.getServletPath()
         );
 
-        // to-do complete the impelmentation
+        mapper.writeValue(response.getOutputStream(), errorDetails);
     }
     
 }

@@ -2,8 +2,6 @@ package com.example.lusterz.auction_house.common.exception;
 
 import java.time.LocalDateTime;
 
-import org.springframework.http.HttpStatus;
-
 import lombok.Data;
 
 @Data

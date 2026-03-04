@@ -5,8 +5,7 @@ import java.math.BigDecimal;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,6 @@ import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthUserDto;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
-import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
@@ -29,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class AuthServiceImp implements AuthService{
 
     private final UserRepository userRepository;
@@ -40,7 +38,6 @@ public class AuthServiceImp implements AuthService{
     
 
     @Override
-    @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             throw UserException.AlreadyExists.byUsername(request.username());
@@ -58,64 +55,53 @@ public class AuthServiceImp implements AuthService{
             .active(true)//to-do set active to false then send email verification
             .balance(BigDecimal.ZERO)
             .build();
-
         userRepository.save(newUser);
-
-        // no need to use authentication manager as we just created the user
-        // but generatToken needs an Authentication object so we use UsernamePasswordAuthenticationToken
-        Authentication auth = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.username(), request.password())
-        );
         
-        String token = jwtUtils.generateToken(auth);
-
-        return new AuthResponse(
-            token,
-            "Bearer",
-            jwtUtils.getJwtExpiration(),
-            new AuthUserDto(newUser.getUsername(), newUser.getRole().name())
-        );
+        return generateAuthResponse(newUser);
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        // no nee to check if user exist or password is correct cause AuthenticationManager handles it
-        Authentication auth = authenticationManager.authenticate(
+        // no need to check if password is correct cause AuthenticationManager handles it
+        authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.identifier(), request.password())
         );
 
-        UserDetails user = (UserDetails) auth.getPrincipal();
-        String userRole = user.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .orElse("USER");
-        String token = jwtUtils.generateToken(auth);
+        User user = userRepository.findByUsernameOrEmail(request.identifier(), request.identifier())
+            .orElseThrow(() -> UserException.NotFound.byIdentifier(request.identifier()));
 
-        return new AuthResponse(
-            token,
-            "Bearer",
-            jwtUtils.getJwtExpiration(),
-            new AuthUserDto(user.getUsername(), userRole)
-        );
+        return generateAuthResponse(user);
     }
 
     @Override
-    public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
-        RefreshToken refreshToken = refreshTokenService.getRefreshToken(request.refreshToken());
+    public AuthResponse refreshAccessToken(RefreshTokenRequest request) {
+        RefreshToken oldRefreshToken = refreshTokenService.getRefreshToken(request.refreshToken());
 
-        if (refreshTokenService.expired(refreshToken)) {
+        if (refreshTokenService.expired(oldRefreshToken)) {
             throw AuthException.RefreshToken.expired();
         }
 
-        String newAccessToken = jwtUtils.generateTokenFromUsername(refreshToken.getUser().getUsername());
+        User user = oldRefreshToken.getUser();
 
-        String newRefreshTokenService = refreshTokenService.rotateToken(request.refreshToken()).getToken();
-
-        return new RefreshTokenResponse(newAccessToken, newRefreshTokenService);
+        return generateAuthResponse(user);
     }
 
-    @Override
-    public void verifyEmail() {}
+    private AuthResponse generateAuthResponse(User user) {
+        String newAccessToken = jwtUtils.generateTokenFromUsername(user.getUsername());
+        String newRefreshToken = refreshTokenService.generateToken(user.getId()).getToken();
+
+        return new AuthResponse(
+            newAccessToken,
+            newRefreshToken,
+            "Bearer",
+            jwtUtils.getJwtExpiration(),
+            new AuthUserDto(user.getUsername(), user.getRole().name())
+        );
+    }
+
+    // to-do
+    // @Override
+    // public void verifyEmail() {}
 
     
 }

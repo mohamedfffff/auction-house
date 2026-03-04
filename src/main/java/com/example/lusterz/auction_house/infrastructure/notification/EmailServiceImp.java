@@ -17,7 +17,7 @@ public class EmailServiceImp implements EmailService{
 
     private final JavaMailSender mailSender;
     @Value("${app.fromEmail}")
-    private final String fromEmail;
+    private String fromEmail;
 
     @Override
     public void sendWinnerEmail(String toEmail, String item, BigDecimal price) {
