@@ -9,4 +9,7 @@ public interface EmailService {
     void sendSellerEmail(String email, String item, String winner, BigDecimal price);
 
     void sendExpiredEmail(String email, String item);
+
+    // to-do
+    // void sendOutbidEmail(String email, String item);
 }

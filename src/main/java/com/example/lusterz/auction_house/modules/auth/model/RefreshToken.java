@@ -11,7 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,7 +38,12 @@ public class RefreshToken {
     @Column(nullable = false)
     private Instant expiration;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    // to-do
+    // can be used in track logged devices and log out remotely
+    // @Column(nullable = false)
+    // private String deviceInfo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 }

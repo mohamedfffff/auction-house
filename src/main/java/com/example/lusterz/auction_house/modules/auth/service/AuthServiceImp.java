@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class AuthServiceImp implements AuthService{
 
     private final UserRepository userRepository;
@@ -38,7 +38,6 @@ public class AuthServiceImp implements AuthService{
     
 
     @Override
-    @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             throw UserException.AlreadyExists.byUsername(request.username());
@@ -63,13 +62,13 @@ public class AuthServiceImp implements AuthService{
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        // no need to check if user exist or password is correct cause AuthenticationManager handles it
-        Authentication auth = authenticationManager.authenticate(
+        // no need to check if password is correct cause AuthenticationManager handles it
+        authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(request.identifier(), request.password())
         );
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
-        User user = (User) auth.getPrincipal();
+        User user = userRepository.findByUsernameOrEmail(request.identifier(), request.identifier())
+            .orElseThrow(() -> UserException.NotFound.byIdentifier(request.identifier()));
 
         return generateAuthResponse(user);
     }
