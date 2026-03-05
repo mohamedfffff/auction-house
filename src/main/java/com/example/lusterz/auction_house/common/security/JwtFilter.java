@@ -2,7 +2,9 @@ package com.example.lusterz.auction_house.common.security;
 
 import java.io.IOException;
 
+import com.example.lusterz.auction_house.common.exception.AuthException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,21 +24,32 @@ public class JwtFilter extends OncePerRequestFilter{
 
     private final JwtUtils jwtUtils;
     private final CustomUserDetailsService customeUserDetailsService;
+    private final AuthEntryPoint authEntryPoint;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            if (jwtUtils.validateToken(token)) {
-                String identifier = jwtUtils.getIdentifierFromToken(token);
-                UserDetails userDetails = customeUserDetailsService.loadUserByUsername(identifier);
-                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(auth);
+
+        try {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                if (jwtUtils.validateToken(token)) {
+                    String identifier = jwtUtils.getIdentifierFromToken(token);
+                    UserDetails userDetails = customeUserDetailsService.loadUserByUsername(identifier);
+                    UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
             }
+            filterChain.doFilter(request, response);
+
+            // catch the auth exception in filter
+            // because it will be thrown from jwtUtils when calling validateToken
+            // this causes it to be thrown without controller advice handling
+            // which causes the trace tree problem
+        } catch (AuthException.JwtToken ex) {
+            authEntryPoint.commence(request, response, new BadCredentialsException(ex.getMessage(), ex));
         }
-        filterChain.doFilter(request, response);
     }
 
 }

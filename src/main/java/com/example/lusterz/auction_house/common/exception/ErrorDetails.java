@@ -11,13 +11,13 @@ public class ErrorDetails {
     private String error;
     private String message;
     private String details;
-    private LocalDateTime timestamp;
+    private String timestamp;
 
     public ErrorDetails(int status, String error, String message, String details) {
         this.status = status;
         this.error = error;
         this.message = message;
         this.details = details;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = String.valueOf(LocalDateTime.now());
     }
 }
