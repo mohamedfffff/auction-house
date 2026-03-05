@@ -14,7 +14,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class AuthEntryPoint implements AuthenticationEntryPoint{
@@ -25,18 +27,18 @@ public class AuthEntryPoint implements AuthenticationEntryPoint{
     public void commence(HttpServletRequest request, HttpServletResponse response,
             AuthenticationException authException) throws IOException, ServletException {
         
-        // set the header
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
-        ErrorDetails errorDetails = new ErrorDetails(
-            HttpServletResponse.SC_UNAUTHORIZED,
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);    
+
+        ErrorDetails errorMessage = new ErrorDetails(
+            401,
             "Unauthorized",
             authException.getMessage(),
-            request.getServletPath()
+            "/api/v1/auth"
         );
 
-        mapper.writeValue(response.getOutputStream(), errorDetails);
-    }
-    
+        mapper.writeValue(response.getOutputStream(), errorMessage);
+
+    } 
 }

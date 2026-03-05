@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     
@@ -63,7 +64,9 @@ public class GlobalExceptionHandler {
         UserException.Unauthorized.class,
         ItemException.Unauthorized.class,
         BidException.Unauthorized.class,
-        AuthException.class
+        AuthException.Unauthorized.class,
+        AuthException.JwtToken.class,
+        AuthException.RefreshToken.class
     })
     public ResponseEntity<ErrorDetails> handleUnauthorized(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(

@@ -38,7 +38,7 @@ public class AppConfig {
         return authProvider;
     }
 
-    // i doesn't work on its own for some reason
+    // it doesn't work on its own for some reason
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();
