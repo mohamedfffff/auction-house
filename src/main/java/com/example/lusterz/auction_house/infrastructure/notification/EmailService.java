@@ -10,6 +10,4 @@ public interface EmailService {
 
     void sendExpiredEmail(String email, String item);
 
-    // to-do
-    // void sendOutbidEmail(String email, String item);
 }

@@ -19,7 +19,7 @@ public class ProcessAuctionState {
 
     @Scheduled(cron = "0 0 * * * *")
     public void run() {
-        log.info("Checking for auctions to start/end at " + LocalDateTime.now());
+        log.info("Checking for auctions to start/end");
 
         itemService.startAuction();
         itemService.endAuction();

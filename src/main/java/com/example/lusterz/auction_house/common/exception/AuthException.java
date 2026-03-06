@@ -18,7 +18,7 @@ public class AuthException extends RuntimeException{
             return new JwtToken("Security Signature mismatch");
         }
         public static JwtToken expired() {
-            return new JwtToken("Session expired. Please login again");
+            return new JwtToken("Token expired");
         }
     }
 

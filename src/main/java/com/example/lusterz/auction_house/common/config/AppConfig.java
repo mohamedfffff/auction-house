@@ -25,7 +25,8 @@ public class AppConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // throws generc exceptions cause it uses builder patter which needs many stps to complete 
+    // throws generic exceptions cause it uses builder pattern which needs many steps to complete
+    // and can fail at any point
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
         return config.getAuthenticationManager();
@@ -38,7 +39,8 @@ public class AppConfig {
         return authProvider;
     }
 
-    // it doesn't work on its own for some reason
+    // need to initialize the bean to be able to inject it in constructor
+    // with lombok @RequiredArgConstructor annotation
     @Bean
     public ObjectMapper objectMapper() {
         return new ObjectMapper();

@@ -5,6 +5,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 @Transactional(readOnly = true)
@@ -104,6 +106,8 @@ public class BidServiceImp implements BidService{
 
         // update the highest bid on item entity
         item.setCurrentHighestBid(bidRequest.amount());
+
+        log.info("Bid {} placed on item {} from user {}", newBid.getAmount(), item.getTitle(), bidder.getUsername());
 
         bidRepository.save(newBid);
         return bidMapper.toDto(newBid);
