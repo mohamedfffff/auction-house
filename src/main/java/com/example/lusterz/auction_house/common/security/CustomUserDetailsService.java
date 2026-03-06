@@ -27,7 +27,9 @@ public class CustomUserDetailsService implements UserDetailsService{
         List<SimpleGrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority(user.getRole().name())
         );
-        
+
+        // return User Details not User entity
+        // detailed class path is used to differ it from project User entity
         return new org.springframework.security.core.userdetails.User(
             user.getUsername(),
             user.getPassword(),

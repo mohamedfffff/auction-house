@@ -2,6 +2,7 @@ package com.example.lusterz.auction_house.modules.auth.service;
 
 import java.math.BigDecimal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,9 +26,10 @@ import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @RequiredArgsConstructor
-@Service
 @Transactional
+@Service
 public class AuthServiceImp implements AuthService{
 
     private final UserRepository userRepository;
@@ -56,6 +58,8 @@ public class AuthServiceImp implements AuthService{
             .balance(BigDecimal.ZERO)
             .build();
         userRepository.save(newUser);
+
+        log.info("User {} registered successfully", newUser.getUsername());
         
         return generateAuthResponse(newUser);
     }
@@ -69,6 +73,8 @@ public class AuthServiceImp implements AuthService{
 
         User user = userRepository.findByUsernameOrEmail(request.identifier(), request.identifier())
             .orElseThrow(() -> UserException.NotFound.byIdentifier(request.identifier()));
+
+        log.info("User {} registered successfully", user.getUsername());
 
         return generateAuthResponse(user);
     }

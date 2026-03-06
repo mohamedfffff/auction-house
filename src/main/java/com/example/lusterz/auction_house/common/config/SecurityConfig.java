@@ -22,13 +22,13 @@ public class SecurityConfig{
 
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
-    private final Oauth2SuccessHandler oautheSuccessHandler;
+    private final Oauth2SuccessHandler oauthSuccessHandler;
     private final AuthEntryPoint authEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csfr -> csfr.disable())
+            .csrf(csrf -> csrf.disable())
             .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
@@ -38,7 +38,7 @@ public class SecurityConfig{
             )
             .formLogin(Customizer.withDefaults())
             .oauth2Login(oauth2 -> oauth2
-                .successHandler(oautheSuccessHandler)
+                .successHandler(oauthSuccessHandler)
             )
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
