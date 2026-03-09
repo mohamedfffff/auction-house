@@ -93,7 +93,7 @@ public class ItemServiceImp implements ItemService{
         
         newItem.setSeller(seller);
 
-        log.info("Auction item created : {} for user {}", newItem.getTitle(), seller().getUsername());
+        log.info("Auction item created : {} for user {}", newItem.getTitle(), seller.getUsername());
 
         itemRepository.save(newItem);
         return itemMapper.toDto(newItem);

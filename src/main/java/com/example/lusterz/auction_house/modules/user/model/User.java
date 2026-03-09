@@ -7,6 +7,7 @@ import java.util.List;
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.item.model.Item;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,11 +48,6 @@ public class User {
     @Email
     @Column(unique = true, nullable = false)
     private String email;
-
-    @NotBlank
-    @Size(min = 8)
-    @Column(nullable = false)
-    private String password;
     
     private String userImageUrl;
 
@@ -64,9 +60,13 @@ public class User {
     private boolean active;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    // delete sub user credentials when user is deleted
+    @OneToMany(mappedBy = "user_credentials", cascade = CascadeType.ALL)
+    private List<UserCredential> userCredentials = new ArrayList<>();
 
     @OneToMany(mappedBy = "bidder")
     private List<Bid> userBids = new ArrayList<>();

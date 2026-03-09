@@ -44,4 +44,14 @@ public class AuthException extends RuntimeException{
             return new Unauthorized("The password is incorrect");
         }
     }
+
+    public static class Provider extends AuthException{
+        public Provider(String message) {
+            super(message);
+        }
+
+        public static Provider notLocal() {
+            return new Provider("User doesn't have a local password");
+        }
+    }
 }
