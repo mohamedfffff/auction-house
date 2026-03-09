@@ -2,7 +2,6 @@ package com.example.lusterz.auction_house.common.security;
 
 import java.io.IOException;
 
-import com.example.lusterz.auction_house.common.exception.ErrorDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -12,7 +11,6 @@ import com.example.lusterz.auction_house.common.util.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
 
 @RequiredArgsConstructor
 @Component

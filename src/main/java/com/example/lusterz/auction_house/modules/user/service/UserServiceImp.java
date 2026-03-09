@@ -8,7 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
@@ -16,6 +18,7 @@ import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @RequiredArgsConstructor
@@ -114,7 +117,13 @@ public class UserServiceImp implements UserService{
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        if (!passwordEncoder.matches(request.oldPassword(), user.getPassword())) {
+        UserCredential localCredential = user.getUserCredentials()
+            .stream()
+            .filter(l -> AuthProviders.LOCAL.equals(l.getProvider()))
+            .findFirst()
+            .orElseThrow(() -> AuthException.Provider.notLocal());
+
+        if (!passwordEncoder.matches(request.oldPassword(), localCredential.getProviderId())) {
             throw UserException.PasswordMismatch.oldAndGiven();
         }
 
@@ -122,8 +131,7 @@ public class UserServiceImp implements UserService{
             throw UserException.PasswordMismatch.newAndConfirm();
         }
 
-        user.setPassword(passwordEncoder.encode(request.newPassword()));
-        userRepository.save(user);
+        localCredential.setProviderId(passwordEncoder.encode(request.newPassword()));
     }
 
     @Transactional

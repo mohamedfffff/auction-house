@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @Slf4j
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 @Service
 public class AuthServiceImp implements AuthService{
 
@@ -40,6 +40,7 @@ public class AuthServiceImp implements AuthService{
     
 
     @Override
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             throw UserException.AlreadyExists.byUsername(request.username());
@@ -58,6 +59,7 @@ public class AuthServiceImp implements AuthService{
             .balance(BigDecimal.ZERO)
             .build();
         userRepository.save(newUser);
+        
 
         log.info("User {} registered successfully", newUser.getUsername());
         
@@ -65,6 +67,7 @@ public class AuthServiceImp implements AuthService{
     }
 
     @Override
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         // no need to check if password is correct cause AuthenticationManager handles it
         authenticationManager.authenticate(
@@ -80,6 +83,7 @@ public class AuthServiceImp implements AuthService{
     }
 
     @Override
+    @Transactional
     public AuthResponse refreshAccessToken(RefreshTokenRequest request) {
         RefreshToken oldRefreshToken = refreshTokenService.getRefreshToken(request.refreshToken());
 
