@@ -44,6 +44,17 @@ public class UserServiceImp implements UserService{
         return userMapper.toPublicDto(user); 
     }
 
+    @Override
+    public User getByUsernameOrEmail(String identifier) {
+        User user = userRepository.findByUsernameOrEmail(identifier, identifier)
+            .orElseThrow(() -> UserException.NotFound.byIdentifier(identifier));
+        return user;
+    }
+    
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 
     @Override
     public List<UserPrivateDto> getAllActiveUsers() {

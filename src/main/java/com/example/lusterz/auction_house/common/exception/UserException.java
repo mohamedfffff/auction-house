@@ -43,6 +43,9 @@ public class UserException extends RuntimeException {
         public static Unauthorized notOwner() {
             return new Unauthorized("User id does not match");
         }
+        public static Unauthorized providerMismatch() {
+            return new Unauthorized("User has no local credential");
+        }
     } 
 
     public static class PasswordMismatch extends UserException{

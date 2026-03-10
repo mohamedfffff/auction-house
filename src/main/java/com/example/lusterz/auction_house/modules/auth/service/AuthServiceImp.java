@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.modules.auth.service;
 
 import java.math.BigDecimal;
+import java.security.AuthProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,9 +20,12 @@ import com.example.lusterz.auction_house.modules.auth.dto.AuthUserDto;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
+import com.example.lusterz.auction_house.modules.user.repository.UserCredentialRepository;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +41,7 @@ public class AuthServiceImp implements AuthService{
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final UserCredentialRepository userCredentialRepository;
     
 
     @Override
@@ -52,14 +57,20 @@ public class AuthServiceImp implements AuthService{
         User newUser = User.builder()
             .username(request.username())
             .email(request.email())
-            .password(passwordEncoder.encode(request.password()))
             .userImageUrl(request.userImageUrl())
             .role(UserRole.USER)
             .active(true)//to-do set active to false then send email verification
             .balance(BigDecimal.ZERO)
             .build();
         userRepository.save(newUser);
-        
+
+        UserCredential newUserCredential = new UserCredential();
+        newUserCredential.setUser(newUser);
+        newUserCredential.setProvider(request.provider());
+        if (request.provider().equals(AuthProviders.LOCAL)) {
+            newUserCredential.setProviderId(passwordEncoder.encode(request.password()));
+        } else newUserCredential.setProviderId(request.provider().toString());
+        userCredentialRepository.save(newUserCredential);
 
         log.info("User {} registered successfully", newUser.getUsername());
         

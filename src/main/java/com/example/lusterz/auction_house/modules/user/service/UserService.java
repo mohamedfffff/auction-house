@@ -8,12 +8,17 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
+import com.example.lusterz.auction_house.modules.user.model.User;
 
 public interface UserService {
  
     UserPrivateDto getUserById(Long id);
 
     UserPublicDto getUserByName(String username);
+
+    User getByUsernameOrEmail(String identifier);
+
+    boolean existsByEmail(String email);
 
     List<UserPrivateDto> getAllActiveUsers();
 
