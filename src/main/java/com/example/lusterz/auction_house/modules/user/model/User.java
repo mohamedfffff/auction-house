@@ -51,18 +51,21 @@ public class User {
     
     private String userImageUrl;
 
+    @Builder.Default
     @PositiveOrZero
     @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
 
+    @Builder.Default
     @NotNull
     @Column(nullable = false)
-    private boolean active;
+    private boolean active = false;
 
+    @Builder.Default
     @NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole role = UserRole.USER;
 
     // delete sub user credentials when user is deleted
     @OneToMany(mappedBy = "user_credentials", cascade = CascadeType.ALL)

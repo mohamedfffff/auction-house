@@ -1,32 +1,22 @@
 package com.example.lusterz.auction_house.modules.auth.service;
 
-import java.math.BigDecimal;
-import java.security.AuthProvider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
-import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthUserDto;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
-import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
-import com.example.lusterz.auction_house.modules.user.model.UserCredential;
-import com.example.lusterz.auction_house.modules.user.model.UserRole;
-import com.example.lusterz.auction_house.modules.user.repository.UserCredentialRepository;
-import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
+import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,44 +26,19 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class AuthService {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
-    private final UserCredentialRepository userCredentialRepository;
     
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.username())) {
-            throw UserException.AlreadyExists.byUsername(request.username());
-        }
-        if (userRepository.existsByEmail(request.email())) {
-            throw UserException.AlreadyExists.byEmail(request.email());
-        }
-
-        User newUser = User.builder()
-            .username(request.username())
-            .email(request.email())
-            .userImageUrl(request.userImageUrl())
-            .role(UserRole.USER)
-            .active(true)//to-do set active to false then send email verification
-            .balance(BigDecimal.ZERO)
-            .build();
-        userRepository.save(newUser);
-
-        UserCredential newUserCredential = new UserCredential();
-        newUserCredential.setUser(newUser);
-        newUserCredential.setProvider(request.provider());
-        if (request.provider().equals(AuthProviders.LOCAL)) {
-            newUserCredential.setProviderId(passwordEncoder.encode(request.password()));
-        } else newUserCredential.setProviderId(request.provider().toString());
-        userCredentialRepository.save(newUserCredential);
-
-        log.info("User {} registered successfully", newUser.getUsername());
         
-        return generateAuthResponse(newUser);
+        User user = userService.createUser(request);
+        log.info("User {} registered successfully", user.getUsername());
+        
+        return generateAuthResponse(user);
     }
 
     @Transactional
@@ -83,10 +48,9 @@ public class AuthService {
             new UsernamePasswordAuthenticationToken(request.identifier(), request.password())
         );
 
-        User user = userRepository.findByUsernameOrEmail(request.identifier(), request.identifier())
-            .orElseThrow(() -> UserException.NotFound.byIdentifier(request.identifier()));
+        User user = userService.getByUsernameOrEmail(request.identifier());
 
-        log.info("User {} registered successfully", user.getUsername());
+        log.info("User {} logged-in successfully", user.getUsername());
 
         return generateAuthResponse(user);
     }

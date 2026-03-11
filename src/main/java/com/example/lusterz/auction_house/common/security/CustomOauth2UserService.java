@@ -1,13 +1,17 @@
 package com.example.lusterz.auction_house.common.security;
 
 import java.math.BigDecimal;
+import java.security.AuthProvider;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
@@ -19,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class CustomOauth2UserService extends DefaultOAuth2UserService{
 
     private final UserService userService;
-    private final UserCredentialService userCredentialService;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -27,27 +30,13 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService{
 
         String email = user.getAttribute("email");
         String name = user.getAttribute("name");
-        String providerId = userRequest.getClientRegistration().getRegistrationId();
+        AuthProviders provider = AuthProviders.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
 
-        processNewUser(email, name, providerId);
+        if (!userService.existsByEmail(email)) {
+            userService.createOauth2User(email, name, provider);
+        }
 
         return user;
-    }
-
-    private void processNewUser(String email, String name, String providerId) {
-        if (!userService.existsByEmail(email)) {
-            User newUser = User.builder()
-                .username(generateUniqueUsername(name))
-                .email(email)
-                .role(UserRole.USER)
-                .active(true)//to-do set active to false then send email verification
-                .balance(BigDecimal.ZERO)
-                .build();
-        }
-    }
-
-    private String generateUniqueUsername(String name) {
-        return "";
     }
     
 }

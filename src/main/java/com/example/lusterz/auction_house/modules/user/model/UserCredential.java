@@ -38,8 +38,6 @@ public class UserCredential {
     @Enumerated(EnumType.STRING)
     private AuthProviders provider;
 
-    private String providerId;
-
     @Size(min = 8)
     private String password;
 
