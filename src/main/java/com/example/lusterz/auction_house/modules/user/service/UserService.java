@@ -2,6 +2,7 @@ package com.example.lusterz.auction_house.modules.user.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
-import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
@@ -25,7 +25,6 @@ import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
-import com.example.lusterz.auction_house.modules.user.repository.UserCredentialRepository;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @RequiredArgsConstructor
@@ -107,7 +106,12 @@ public class UserService {
     }
 
     @Transactional
-    public void createOauth2User(String email, String name, AuthProviders provider) {
+    public User processOauth2User(String email, String name, AuthProviders provider) {
+        return userRepository.findByEmail(email)
+            .orElseGet(() -> createOauth2User(email, name, provider));
+    }
+
+    private User createOauth2User(String email, String name, AuthProviders provider) {
         if (userRepository.existsByUsername(name)) {
             name = UUID.randomUUID().toString();
             // to-do make better random name generator
@@ -120,7 +124,9 @@ public class UserService {
             .build();
         userRepository.save(newUser);
 
-         userCredentialService.createOauth2UserCredential(newUser, provider);
+        userCredentialService.createOauth2UserCredential(newUser, provider);
+
+        return newUser;
     }
 
     @Transactional
