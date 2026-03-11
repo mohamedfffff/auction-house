@@ -1,6 +1,5 @@
 package com.example.lusterz.auction_house.jobs.item;
 
-import java.time.LocalDateTime;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;

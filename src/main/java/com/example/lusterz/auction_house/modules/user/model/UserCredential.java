@@ -21,10 +21,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "user_credentials")
 public class UserCredential {
@@ -37,8 +37,6 @@ public class UserCredential {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthProviders provider;
-
-    private String providerId;
 
     @Size(min = 8)
     private String password;

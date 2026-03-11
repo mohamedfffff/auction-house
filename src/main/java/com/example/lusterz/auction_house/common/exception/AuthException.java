@@ -53,5 +53,9 @@ public class AuthException extends RuntimeException{
         public static Provider notLocal() {
             return new Provider("User doesn't have a local password");
         }
+
+        public static Provider noEmail() {
+            return new Provider("The email isn't provided by provider");
+        }
     }
 }

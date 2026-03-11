@@ -10,5 +10,7 @@ import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 
 
 public interface UserCredentialRepository extends JpaRepository<UserCredential, Long>{
+
+    // args names must be the same as in entity
     Optional<UserCredential> findByUserAndProvider(User user, AuthProviders provider);
 }
