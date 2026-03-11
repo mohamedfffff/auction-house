@@ -43,13 +43,12 @@ public class RefreshTokenService {
         // because if the user logout and re-login
         refreshTokenReposityory.deleteByUser(user);
 
-        RefreshToken token = RefreshToken.builder()
-            .token(UUID.randomUUID().toString())
-            .expiration(Instant.now().plusMillis(refreshExpiration))
-            .user(user)
-            .build();
+        RefreshToken newToken = new RefreshToken();
+        newToken.setToken(UUID.randomUUID().toString());
+        newToken.setExpiration(Instant.now().plusMillis(refreshExpiration));
+        newToken.setUser(user);
 
-        return refreshTokenReposityory.save(token);
+        return refreshTokenReposityory.save(newToken);
     }
 
     @Transactional

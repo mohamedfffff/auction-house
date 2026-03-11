@@ -92,19 +92,17 @@ public class BidService {
         }
 
 
-        Bid newBid = Bid.builder()
-            .amount(bidRequest.amount())
-            .bidder(bidder)
-            .item(item)
-            .bidTime(OffsetDateTime.now())
-            .build();
-
+        Bid newBid = new Bid();
+        newBid.setAmount(bidRequest.amount());
+        newBid.setBidder(bidder);
+        newBid.setItem(item);
+        newBid.setBidTime(OffsetDateTime.now());
         // update the highest bid on item entity
         item.setCurrentHighestBid(bidRequest.amount());
+        bidRepository.save(newBid);
 
         log.info("Bid {} placed on item {} from user {}", newBid.getAmount(), item.getTitle(), bidder.getUsername());
-
-        bidRepository.save(newBid);
+        
         return bidMapper.toDto(newBid);
     }
 

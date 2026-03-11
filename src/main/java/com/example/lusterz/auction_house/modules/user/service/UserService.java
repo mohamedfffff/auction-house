@@ -2,7 +2,6 @@ package com.example.lusterz.auction_house.modules.user.service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
-import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @RequiredArgsConstructor
@@ -90,14 +88,11 @@ public class UserService {
             throw UserException.AlreadyExists.byEmail(request.email());
         }
 
-        User newUser = User.builder()
-            .username(request.username())
-            .email(request.email())
-            .userImageUrl(request.userImageUrl())
-            .role(UserRole.USER)
-            .active(true)//to-do set active to false then send email verification
-            .balance(BigDecimal.ZERO)
-            .build();
+        User newUser = new User();
+        newUser.setUsername(request.username());
+        newUser.setEmail(request.email());
+        newUser.setUserImageUrl(request.userImageUrl());
+        newUser.setActive(true);//to-do set active to false then send email verification
         userRepository.save(newUser);
 
         userCredentialService.createLocalUserCredential(request, newUser);
@@ -117,11 +112,10 @@ public class UserService {
             // to-do make better random name generator
         }
 
-        User newUser = User.builder()
-            .username(name)
-            .email(email)
-            .active(true)// no need to verify email
-            .build();
+        User newUser = new User();
+        newUser.setUsername(name);
+        newUser.setEmail(email);
+        newUser.setActive(true);// no need to verify email
         userRepository.save(newUser);
 
         userCredentialService.createOauth2UserCredential(newUser, provider);
@@ -207,6 +201,11 @@ public class UserService {
     }
 
     private void refreshSecurityContext(User user) {
+        //to-do
+    }
+
+    @Transactional
+    public void activateAccount(Long id) {
         //to-do
     }
 

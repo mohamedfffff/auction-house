@@ -16,23 +16,23 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity(name = "users")
-@Getter
-@Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@Entity
+@Table(name = "users")
 public class User {
     
     @Id
@@ -51,24 +51,21 @@ public class User {
     
     private String userImageUrl;
 
-    @Builder.Default
     @PositiveOrZero
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @Builder.Default
     @NotNull
     @Column(nullable = false)
     private boolean active = false;
 
-    @Builder.Default
     @NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.USER;
 
     // delete sub user credentials when user is deleted
-    @OneToMany(mappedBy = "user_credentials", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<UserCredential> userCredentials = new ArrayList<>();
 
     @OneToMany(mappedBy = "bidder")

@@ -73,6 +73,7 @@ public class LoadDatabase {
         user.setUserImageUrl(email + ".image.com");
         user.setActive(true);
         user.setRole(UserRole.USER);
+        userRepository.save(user);
 
         UserCredential newUserCredential = new UserCredential();
         newUserCredential.setUser(user);
@@ -80,7 +81,7 @@ public class LoadDatabase {
         newUserCredential.setPassword(passwordEncoder.encode(name + "password"));
         userCredentialRepository.save(newUserCredential);
 
-        return userRepository.save(user);
+        return user;
     }
 
     private Item createItem(User seller, String title, String price) {
