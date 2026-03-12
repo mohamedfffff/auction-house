@@ -85,12 +85,11 @@ public class ItemService {
             .status(AuctionStatus.PENDING)
             .currentHighestBid(request.startingPrice())
             .build();
-        
         newItem.setSeller(seller);
-
-        log.info("Auction item created : {} for user {}", newItem.getTitle(), seller.getUsername());
-
         itemRepository.save(newItem);
+        
+        log.info("Auction item {} created for user {}", newItem.getTitle(), seller.getUsername());
+
         return itemMapper.toDto(newItem);
     }
 
@@ -118,8 +117,10 @@ public class ItemService {
         updatedItem.setStartTime(request.startTime());
         updatedItem.setEndTime(request.endTime());
         updatedItem.setCurrentHighestBid(request.startingPrice());
-
         itemRepository.save(updatedItem);
+
+        log.info("Auction item {} updated", updatedItem.getTitle());
+
         return itemMapper.toDto(updatedItem);
     }
 
@@ -140,6 +141,8 @@ public class ItemService {
             throw ItemException.InvalidState.alreadyStarted();
         }
 
+        log.info("Auction item {} deleted", deletedItem.getTitle());
+
         itemRepository.delete(deletedItem);
     }
 
@@ -147,7 +150,7 @@ public class ItemService {
     public void startAuction() {
         int count = itemRepository.startPendingItems(OffsetDateTime.now());
 
-        log.info("{} Auctions started successfully", count);
+        log.info("{} Auctions started", count);
     }
 
     @Transactional
@@ -173,7 +176,7 @@ public class ItemService {
         }
 
 
-        log.info("{} Auctions ended successfully", count);
+        log.info("{} Auctions ended", count);
     }
 
     public void searchItems() {

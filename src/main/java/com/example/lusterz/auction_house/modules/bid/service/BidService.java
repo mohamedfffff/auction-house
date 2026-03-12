@@ -128,6 +128,8 @@ public class BidService {
         if (deletedBid.getAmount().equals(item.getCurrentHighestBid())) {
             updateHighestBid(item);
         }
+
+        log.info("Bid {} deleted on Item {}", deletedBid.getAmount(), item.getTitle());
         
     }
     
