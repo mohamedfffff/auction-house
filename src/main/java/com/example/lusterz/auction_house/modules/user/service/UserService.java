@@ -96,6 +96,8 @@ public class UserService {
         userRepository.save(newUser);
 
         userCredentialService.createLocalUserCredential(request, newUser);
+
+        log.info("Local User {} created", newUser.getUsername());
         
         return newUser;
     }
@@ -120,6 +122,8 @@ public class UserService {
 
         userCredentialService.createOauth2UserCredential(newUser, provider);
 
+        log.info("Oauth2 User {} created", newUser.getUsername());
+
         return newUser;
     }
 
@@ -143,6 +147,8 @@ public class UserService {
 
         userRepository.save(existingUser);
 
+        log.info("User {} updated", existingUser.getUsername());
+
         return userMapper.toPrivateDto(existingUser);
     }
 
@@ -160,6 +166,8 @@ public class UserService {
 
         deletedUser.setActive(false);
         userRepository.save(deletedUser);
+
+        log.info("User {} deactivated", deletedUser.getUsername());
     }
 
     @Transactional
@@ -182,6 +190,8 @@ public class UserService {
         }
 
         localCredential.setPassword(passwordEncoder.encode(request.newPassword()));
+
+        log.info("User {} password updated", user.getUsername());
     }
 
     @Transactional
@@ -193,6 +203,8 @@ public class UserService {
         userRepository.save(user);
 
         refreshSecurityContext(user);
+
+        log.info("User {} role updated", user.getUsername());
     }
 
     @Transactional

@@ -32,12 +32,11 @@ public class SecurityConfig{
             .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/login/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/items/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(Customizer.withDefaults())
+            // .formLogin(Customizer.withDefaults())
             .oauth2Login(oauth2 -> oauth2
                 .successHandler(oauthSuccessHandler)
             )

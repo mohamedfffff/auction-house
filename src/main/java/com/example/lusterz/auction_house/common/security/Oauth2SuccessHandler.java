@@ -3,33 +3,60 @@ package com.example.lusterz.auction_house.common.security;
 import java.io.IOException;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.lusterz.auction_house.common.util.JwtUtils;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
+import com.example.lusterz.auction_house.modules.auth.service.RefreshTokenService;
+import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 
     private final JwtUtils jwtUtils;
+    private final UserService userService;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        Authentication authentication) throws IOException {
+                                        Authentication auth) throws IOException {
         
-        String token = jwtUtils.generateToken(authentication);
+        
+        OAuth2User oAuth2User = (OAuth2User) auth.getPrincipal(); 
+        String email = oAuth2User.getAttribute("email");
+        String name = oAuth2User.getAttribute("name");
+        System.out.println(email + " : " + name);
 
-        response.setHeader("Authorization", "Bearer " + token);
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("Application/json");
+        User user = userService.processOauth2User(email,name, AuthProviders.GOOGLE);   
 
-        response.getWriter().write("{\"message\": \"Login successful. Check your headers!\"}");
-        // response.sendRedirect("http://localhost:3000/auth-success?token=" + token);
+        String accessToken = jwtUtils.generateToken(auth);
+        String refreshToken = refreshTokenService.generateToken(user.getId()).toString();
+        Long expiration = jwtUtils.getJwtExpiration();
+
+        String tergetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2-callback")
+            .queryParam("accessToken", accessToken)
+            .queryParam("refreshToken", refreshToken)
+            .queryParam("type", "Bearer")
+            .queryParam("expiration", expiration)
+            .queryParam("username", user.getUsername())
+            .queryParam("role", user.getRole())
+            .build().toUriString();
+        
+        getRedirectStrategy().sendRedirect(request, response, tergetUrl);
+
+        log.info("User {} logged-in using oauth2", user.getUsername());
     }
 }

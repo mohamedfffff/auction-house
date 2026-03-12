@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
-import com.example.lusterz.auction_house.modules.auth.dto.AuthUserDto;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
@@ -36,7 +35,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         
         User user = userService.createUser(request);
-        log.info("User {} registered successfully", user.getUsername());
+        log.info("User {} registered using form", user.getUsername());
         
         return generateAuthResponse(user);
     }
@@ -50,7 +49,7 @@ public class AuthService {
 
         User user = userService.getByUsernameOrEmail(request.identifier());
 
-        log.info("User {} logged-in successfully", user.getUsername());
+        log.info("User {} logged-in using form", user.getUsername());
 
         return generateAuthResponse(user);
     }
@@ -65,6 +64,8 @@ public class AuthService {
 
         User user = oldRefreshToken.getUser();
 
+        log.info("Token refreshed for user {}", user.getUsername());
+
         return generateAuthResponse(user);
     }
 
@@ -77,7 +78,8 @@ public class AuthService {
             newRefreshToken,
             "Bearer",
             jwtUtils.getJwtExpiration(),
-            new AuthUserDto(user.getUsername(), user.getRole().name())
+            user.getUsername(),
+            user.getRole().name()
         );
     }
 

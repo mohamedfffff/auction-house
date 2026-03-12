@@ -6,5 +6,6 @@ public record AuthResponse(
     String refreshToken,
     String type,  
     Long expiration,  
-    AuthUserDto user
+    String username,
+    String role
 ) { }
