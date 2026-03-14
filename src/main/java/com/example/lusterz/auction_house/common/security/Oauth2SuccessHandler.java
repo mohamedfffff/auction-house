@@ -3,14 +3,12 @@ package com.example.lusterz.auction_house.common.security;
 import java.io.IOException;
 
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.lusterz.auction_house.common.util.JwtUtils;
-import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.service.RefreshTokenService;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
@@ -37,13 +35,12 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
         
         OAuth2User oAuth2User = (OAuth2User) auth.getPrincipal(); 
         String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
-        System.out.println(email + " : " + name);
 
-        User user = userService.processOauth2User(email,name, AuthProviders.GOOGLE);   
+        User user = userService.getUserByEmail(email);   
 
-        String accessToken = jwtUtils.generateToken(auth);
-        String refreshToken = refreshTokenService.generateToken(user.getId()).toString();
+        // oAuth2User.getAttribute("name") gives a code not user username stored in memory
+        String accessToken = jwtUtils.generateToken(user.getUsername());
+        String refreshToken = refreshTokenService.generateToken(user.getId()).getToken() ;
         Long expiration = jwtUtils.getJwtExpiration();
 
         String tergetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2-callback")

@@ -27,17 +27,8 @@ public class JwtUtils {
     @Value("${app.jwt.access.expiration}")
     private Long jwtExpiration;
 
-    public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getKey())
-                .compact();
-    }
 
-    public String generateTokenFromUsername(String username) {
+    public String generateToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())

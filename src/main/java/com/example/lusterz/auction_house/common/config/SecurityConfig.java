@@ -12,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.lusterz.auction_house.common.security.AuthEntryPoint;
+import com.example.lusterz.auction_house.common.security.CustomOauth2UserService;
 import com.example.lusterz.auction_house.common.security.JwtFilter;
 import com.example.lusterz.auction_house.common.security.Oauth2SuccessHandler;
 
@@ -22,6 +23,7 @@ public class SecurityConfig{
 
     private final JwtFilter jwtFilter;
     private final AuthenticationProvider authenticationProvider;
+    private final CustomOauth2UserService customOauth2UserService;
     private final Oauth2SuccessHandler oauthSuccessHandler;
     private final AuthEntryPoint authEntryPoint;
 
@@ -32,12 +34,19 @@ public class SecurityConfig{
             .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/login").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/items/**").permitAll()
                 .anyRequest().authenticated()
             )
-            // .formLogin(Customizer.withDefaults())
+            // .formLogin(local -> local
+            //     .loginProcessingUrl("/api/v1/auth/login")
+            //     .successHandler(localSuccessHandler)
+            // )
             .oauth2Login(oauth2 -> oauth2
+                .userInfoEndpoint(info -> info
+                    .userService(customOauth2UserService)
+                )
                 .successHandler(oauthSuccessHandler)
             )
             .authenticationProvider(authenticationProvider)

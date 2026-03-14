@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
+
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -64,9 +66,7 @@ public class GlobalExceptionHandler {
         UserException.Unauthorized.class,
         ItemException.Unauthorized.class,
         BidException.Unauthorized.class,
-        AuthException.Unauthorized.class,
-        AuthException.JwtToken.class,
-        AuthException.RefreshToken.class
+        AuthException.class
     })
     public ResponseEntity<ErrorDetails> handleUnauthorized(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(

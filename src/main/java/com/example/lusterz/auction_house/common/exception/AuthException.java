@@ -35,6 +35,16 @@ public class AuthException extends RuntimeException{
         }
     }
 
+    public static class UserCredential extends AuthException{
+        public UserCredential(String message) {
+            super(message);
+        }
+
+        public static UserCredential notFound() {
+            return new UserCredential("User Creadential not found");
+        }
+    }
+
     public static class Unauthorized extends AuthException{
         public Unauthorized(String message) {
             super(message);

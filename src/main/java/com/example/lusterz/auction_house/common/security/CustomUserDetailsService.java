@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService{
         
         User user = userService.getByUsernameOrEmail(identifier);
 
-        UserCredential userCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL);
+        UserCredential userCredential = userCredentialService.getByUser(user);
         
         List<SimpleGrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority(user.getRole().name())

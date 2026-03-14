@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
@@ -20,9 +21,9 @@ public class UserCredentialService {
     private final UserCredentialRepository userCredentialRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserCredential getByUserAndProvider(User user, AuthProviders provider) {
-        UserCredential userCredential = userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)
-            .orElseThrow(() -> UserException.Unauthorized.providerMismatch());
+    public UserCredential getByUser(User user) {
+        UserCredential userCredential = userCredentialRepository.findByUser(user)
+            .orElseThrow(() -> AuthException.UserCredential.notFound());
         return userCredential;
     }
 
