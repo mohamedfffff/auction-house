@@ -70,7 +70,7 @@ public class AuthService {
     }
 
     private AuthResponse generateAuthResponse(User user) {
-        String newAccessToken = jwtUtils.generateTokenFromUsername(user.getUsername());
+        String newAccessToken = jwtUtils.generateToken(user.getUsername());
         String newRefreshToken = refreshTokenService.generateToken(user.getId()).getToken();
 
         return new AuthResponse(

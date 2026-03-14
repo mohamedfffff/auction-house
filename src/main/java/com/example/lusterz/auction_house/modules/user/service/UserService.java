@@ -42,6 +42,11 @@ public class UserService {
         return userMapper.toPrivateDto(user);
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+            .orElseThrow(() -> UserException.NotFound.byEmail(email));
+    }
+
     public UserPublicDto getUserByName(String username) {
         User user = userRepository.findByUsername(username)
             .orElseThrow(() -> UserException.NotFound.byUsername(username));
