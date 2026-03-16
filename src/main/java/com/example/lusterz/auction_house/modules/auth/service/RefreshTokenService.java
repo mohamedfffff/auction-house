@@ -8,11 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
-import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.auth.repository.RefreshTokenReposityory;
 import com.example.lusterz.auction_house.modules.user.model.User;
-import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,18 +24,14 @@ public class RefreshTokenService {
     @Value("${app.jwt.refresh.expiration}")
     private Long refreshExpiration;
     private final RefreshTokenReposityory refreshTokenReposityory;
-    private final UserRepository userRepository;
 
     public RefreshToken getRefreshToken(String token) {
-        RefreshToken refreshToken = refreshTokenReposityory.findByToken(token)
+        return refreshTokenReposityory.findByToken(token)
             .orElseThrow(() -> AuthException.RefreshToken.notFound());
-        return refreshToken;
     }
 
     @Transactional
-    public RefreshToken generateToken(Long userId) {
-        User user = userRepository.findById(userId)
-            .orElseThrow(() -> UserException.NotFound.byId(userId));
+    public RefreshToken generateToken(User user) {
 
         // make sure user has no token
         // because if the user logout and re-login
@@ -63,7 +57,7 @@ public class RefreshTokenService {
         User user = token.getUser();
         refreshTokenReposityory.delete(token);
 
-        return generateToken(user.getId());
+        return generateToken(user);
          
     }
 
@@ -72,7 +66,7 @@ public class RefreshTokenService {
     }
 
     @Transactional
-    public void deleteExpiredTokens() {
-        refreshTokenReposityory.deleteExpired(Instant.now());
+    public int deleteExpiredTokens() {
+        return refreshTokenReposityory.deleteExpired(Instant.now());
     }
 }

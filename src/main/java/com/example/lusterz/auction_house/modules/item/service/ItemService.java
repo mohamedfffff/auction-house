@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.UserException;
+import com.example.lusterz.auction_house.infrastructure.dto.EndAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.dto.ExpiredAuctionEvent;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
@@ -147,14 +149,12 @@ public class ItemService {
     }
 
     @Transactional
-    public void startAuction() {
-        int count = itemRepository.startPendingItems(OffsetDateTime.now());
-
-        log.info("{} Auctions started", count);
+    public int startAuction() {
+        return itemRepository.startPendingItems(OffsetDateTime.now());
     }
 
     @Transactional
-    public void endAuction() {
+    public int endAuction() {
         // update all expired items to CLOSED then fetch them
         int count = itemRepository.closeExpiredItems(OffsetDateTime.now());
         List<Item> closedItems = itemRepository.findAllByStatus(AuctionStatus.CLOSED);
@@ -165,18 +165,36 @@ public class ItemService {
                     (topBid) -> {
                         item.setWinner(topBid.getBidder());
                         item.setStatus(AuctionStatus.SOLD);
+                        // send notifications for winner and seller
+                        // to-fix this code throw lazy intialization
+                        eventPublisher.publishEvent(
+                            new EndAuctionEvent(
+                                item.getWinner().getEmail(), 
+                                item.getWinner().getUsername(), 
+                                item.getSeller().getEmail(),
+                                item.getSeller().getUsername(),
+                                item.getTitle(), 
+                                item.getCurrentHighestBid()
+                            )
+                        );
                     }, 
                     () -> {
                         item.setStatus(AuctionStatus.EXPIRED_UNSOLD);
+                        // send notifications for expired
+                        // to-fix this code throw lazy intialization
+                        eventPublisher.publishEvent(
+                            new ExpiredAuctionEvent( 
+                                item.getSeller().getEmail(),
+                                item.getSeller().getUsername(),
+                                item.getTitle()
+                            )
+                        );
                     }
                 ); 
             
-            // send notifications for seller and winner
-            eventPublisher.publishEvent(closedItems);
+            
         }
-
-
-        log.info("{} Auctions ended", count);
+        return count;
     }
 
     public void searchItems() {

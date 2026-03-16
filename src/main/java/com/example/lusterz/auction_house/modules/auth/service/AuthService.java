@@ -13,7 +13,9 @@ import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.VerifyRequest;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
+import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
@@ -29,6 +31,7 @@ public class AuthService {
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
+    private final VerifyTokenService verifyTokenService;
     
 
     @Transactional
@@ -55,6 +58,20 @@ public class AuthService {
     }
 
     @Transactional
+    public void verifyEmail(VerifyRequest request) {
+        VerifyToken token = verifyTokenService.getByToken(request.token());
+        User user = token.getUser();
+
+        if (verifyTokenService.expired(token)) {
+            throw AuthException.VerifyToken.expired();
+        }
+
+        user.setActive(true);
+
+        log.info("Verified user {}", user.getUsername());
+    }
+
+    @Transactional
     public AuthResponse refreshAccessToken(RefreshTokenRequest request) {
         RefreshToken oldRefreshToken = refreshTokenService.getRefreshToken(request.refreshToken());
 
@@ -71,7 +88,7 @@ public class AuthService {
 
     private AuthResponse generateAuthResponse(User user) {
         String newAccessToken = jwtUtils.generateToken(user.getUsername());
-        String newRefreshToken = refreshTokenService.generateToken(user.getId()).getToken();
+        String newRefreshToken = refreshTokenService.generateToken(user).getToken();
 
         return new AuthResponse(
             newAccessToken,
@@ -83,9 +100,7 @@ public class AuthService {
         );
     }
 
-    // to-do
-    // @Override
-    // public void verifyEmail() {}
+    
 
     
 }

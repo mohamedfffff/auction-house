@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.modules.auth.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 import com.example.lusterz.auction_house.modules.user.model.User;
 
@@ -12,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,9 +25,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "refresh_tokens")
-public class RefreshToken {
-
+@Table(name = "verify_tokens")
+public class VerifyToken {
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -36,12 +38,7 @@ public class RefreshToken {
     @Column(nullable = false)
     private Instant expiration;
 
-    // to-do
-    // can be used in track logged devices and log out remotely
-    // @Column(nullable = false)
-    // private String deviceInfo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(nullable = false, name = "user_id")
     private User user;
 }

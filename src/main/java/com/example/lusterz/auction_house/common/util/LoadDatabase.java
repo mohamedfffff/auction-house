@@ -72,7 +72,7 @@ public class LoadDatabase {
         user.setBalance(new BigDecimal("1000.00"));
         user.setUserImageUrl(email + ".image.com");
         user.setActive(true);
-        user.setRole(UserRole.USER);
+        user.setRole(UserRole.ROLE_USER);
         userRepository.save(user);
 
         UserCredential newUserCredential = new UserCredential();

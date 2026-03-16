@@ -10,17 +10,19 @@ import com.example.lusterz.auction_house.modules.item.service.ItemService;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
-@Component
 @Slf4j
+@Component
 public class ProcessAuctionState {
     
     private final ItemService itemService;
 
     @Scheduled(cron = "0 0 * * * *")
     public void run() {
-        log.info("Checking for auctions to start/end");
+        int startCount = itemService.startAuction();
+        log.info("Started {} auctions", startCount);
+        int endCount = itemService.endAuction();
+        log.info("Ended {} auctions", endCount);
 
-        itemService.startAuction();
-        itemService.endAuction();
+
     }
 }

@@ -94,6 +94,7 @@ public class Item {
     @JoinColumn(name = "winner_id")
     private User winner;
 
+    @Builder.Default
     @OneToMany(mappedBy = "item")
     private List<Bid> bidHistory = new ArrayList<>();
 
