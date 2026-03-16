@@ -4,7 +4,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.example.lusterz.auction_house.infrastructure.dto.EndingAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.dto.EndAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.dto.ExpiredAuctionEvent;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,24 +17,34 @@ public class NotificationListener {
 
     @Async
     @EventListener
-    public void handleEndAuction(EndingAuctionEvent event) {
+    public void handleEndAuction(EndAuctionEvent event) {
 
         emailService.sendWinnerEmail(
             event.winnerEmail(),
+            event.winnerUsername(),
             event.itemTitle(),
             event.price()
         );
 
         emailService.sendSellerEmail(
             event.sellerEmail(),
+            event.sellerUsername(),
             event.itemTitle(),
-            event.winnerUsername(),
-            event.price()
+            event.price(),
+            event.winnerUsername()
         );
+
+    }
+
+    @Async
+    @EventListener
+    public void handleExpiredAuction(ExpiredAuctionEvent event) {
 
         emailService.sendExpiredEmail(
             event.sellerEmail(),
+            event.sellerUsername(),
             event.itemTitle()
         );
+
     }
 }

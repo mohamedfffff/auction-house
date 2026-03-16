@@ -40,7 +40,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
 
         // oAuth2User.getAttribute("name") gives a code not user username stored in memory
         String accessToken = jwtUtils.generateToken(user.getUsername());
-        String refreshToken = refreshTokenService.generateToken(user.getId()).getToken() ;
+        String refreshToken = refreshTokenService.generateToken(user).getToken() ;
         Long expiration = jwtUtils.getJwtExpiration();
 
         String tergetUrl = UriComponentsBuilder.fromUriString("http://localhost:3000/oauth2-callback")

@@ -35,6 +35,19 @@ public class AuthException extends RuntimeException{
         }
     }
 
+    public static class VerifyToken extends AuthException{
+        public VerifyToken(String message) {
+            super(message);
+        }
+
+        public static VerifyToken expired() {
+            return new VerifyToken("Verfication token expired");
+        }
+        public static VerifyToken notFound() {
+            return new VerifyToken("Verfication token not found");
+        }
+    }
+
     public static class UserCredential extends AuthException{
         public UserCredential(String message) {
             super(message);

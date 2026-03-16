@@ -49,6 +49,9 @@ public class UserException extends RuntimeException {
         public static Unauthorized providerMismatch() {
             return new Unauthorized("User has no local credential");
         }
+        public static Unauthorized notEnabled() {
+            return new Unauthorized("User account is not enabled");
+        }
     } 
 
     public static class PasswordMismatch extends UserException{

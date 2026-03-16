@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.VerifyRequest;
 import com.example.lusterz.auction_house.modules.auth.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -33,6 +35,12 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(@Valid @RequestBody VerifyRequest request) {
+        authService.verifyEmail(request);
+        return ResponseEntity.ok().body("Verification successful");
     }
 
     @PostMapping("/refresh")

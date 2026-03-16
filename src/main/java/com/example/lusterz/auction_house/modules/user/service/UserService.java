@@ -1,5 +1,6 @@
 package com.example.lusterz.auction_house.modules.user.service;
 
+import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -7,12 +8,15 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
+import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
@@ -26,15 +30,17 @@ import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @RequiredArgsConstructor
-@Service
 @Slf4j
+@Service
 @Transactional(readOnly = true)
 public class UserService {
 
+    private final VerifyTokenService verifyTokenService;
     private final UserRepository userRepository;
     private final UserCredentialService userCredentialService;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
  
     public UserPrivateDto getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -97,10 +103,10 @@ public class UserService {
         newUser.setUsername(request.username());
         newUser.setEmail(request.email());
         newUser.setUserImageUrl(request.userImageUrl());
-        newUser.setActive(true);//to-do set active to false then send email verification
         userRepository.save(newUser);
 
         userCredentialService.createLocalUserCredential(request, newUser);
+        activateAccount(newUser);
 
         log.info("Local User {} created", newUser.getUsername());
         
@@ -222,8 +228,14 @@ public class UserService {
     }
 
     @Transactional
-    public void activateAccount(Long id) {
-        //to-do
+    public void activateAccount(User user) {
+        String fromEmail = user.getEmail();
+        String username = user.getUsername();
+        String token = verifyTokenService.generateToken(user.getEmail()).toString();
+        
+        eventPublisher.publishEvent(
+            new VerifyEmailEvent(fromEmail, username, token)
+        );
     }
 
 }

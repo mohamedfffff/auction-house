@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
+import jakarta.mail.MessagingException;
 
 
 @RestControllerAdvice
@@ -89,6 +89,19 @@ public class GlobalExceptionHandler {
             request.getDescription(false)
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
+    }
+
+    // handle error in sending email
+    @ExceptionHandler(MessagingException.class)
+    public ResponseEntity<ErrorDetails> handleSendingEmailError(WebRequest request) {
+        String message = "Error occured while sending email.";
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.SERVICE_UNAVAILABLE.value(),
+            "Service_unavailabe",
+            message,
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     // global handling 

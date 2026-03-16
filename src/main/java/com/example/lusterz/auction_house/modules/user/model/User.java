@@ -62,7 +62,7 @@ public class User {
     @NotNull
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private UserRole role = UserRole.USER;
+    private UserRole role = UserRole.ROLE_USER;
 
     // delete sub user credentials when user is deleted
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
