@@ -49,6 +49,11 @@ public class VerifyTokenService {
     }
 
     @Transactional
+    public void deleteUsedToken(String token) {
+        verifyTokenRepository.deleteByToken(token);
+    }
+
+    @Transactional
     public int deleteExpiredTokens() {
         return verifyTokenRepository.deleteExpired(Instant.now());
     }

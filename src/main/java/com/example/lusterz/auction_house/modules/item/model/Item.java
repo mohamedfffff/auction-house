@@ -67,13 +67,15 @@ public class Item {
     @Column(nullable = false)
     private BigDecimal currentHighestBid;
 
-    @NotNull
+    // check this field validation only when creating entity but not update
     @FutureOrPresent(groups = onCreate.class)
+    @NotNull
     @Column(nullable = false)
     private OffsetDateTime startTime;
 
-    @NotNull
+    // check this field validation only when creating entity but not update
     @Future(groups = onCreate.class)
+    @NotNull
     @Column(nullable = false)
     private OffsetDateTime endTime;
 
@@ -82,6 +84,9 @@ public class Item {
     @Column(nullable = false)
     private AuctionStatus status;
 
+    // using optimistic locking to prevent race condition
+    // when multiple users bid at the same time
+    // which throws ObjectOptimisticLockingFailureException
     @Version
     private Integer version;
 

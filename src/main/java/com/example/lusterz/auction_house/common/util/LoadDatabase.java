@@ -7,6 +7,8 @@ import java.time.OffsetDateTime;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
@@ -34,6 +36,7 @@ public class LoadDatabase {
     private final UserCredentialRepository userCredentialRepository;
     private final ItemRepository itemRepository;
     private final BidRepository bidRepository;
+    private final MailSender mailSender;
 
     @Bean
     public CommandLineRunner initialDatabase() {
@@ -61,6 +64,20 @@ public class LoadDatabase {
             createBid(bidder3, vinyl, "650.00");
 
             log.info("Database loaded with mock data");
+
+            // sending test email
+            // try {
+            //     SimpleMailMessage msg = new SimpleMailMessage();
+            //     msg.setFrom("test@auction-house.com");
+            //     msg.setTo("check-this@mailtrap.io");
+            //     msg.setSubject("Direct Test");
+            //     msg.setText("Testing the connection...");
+            //     mailSender.send(msg);
+            //     log.info("test email sent");
+            // } catch (Exception e) {
+            //     log.error("test email failed {}", e);
+            // }
+            
         };
     }
 

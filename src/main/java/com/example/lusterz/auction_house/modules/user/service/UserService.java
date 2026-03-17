@@ -231,7 +231,7 @@ public class UserService {
     public void activateAccount(User user) {
         String fromEmail = user.getEmail();
         String username = user.getUsername();
-        String token = verifyTokenService.generateToken(user.getEmail()).toString();
+        String token = verifyTokenService.generateToken(user.getEmail()).getToken();
         
         eventPublisher.publishEvent(
             new VerifyEmailEvent(fromEmail, username, token)

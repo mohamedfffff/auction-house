@@ -85,7 +85,7 @@ public class EmailService{
         Context context = new Context();
 
         context.setVariable("name", username);
-        context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify" + token);
+        context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify/" + token);
 
         String htmlContent = templateEngine.process("verification-email", context);
 
@@ -96,6 +96,8 @@ public class EmailService{
         helper.setText(htmlContent, true);
         helper.setFrom(fromEmail);
         helper.setTo(toEmail);
+
+        mailSender.send(message);
 
         log.info("Verification email sent to user : {}", username);
 

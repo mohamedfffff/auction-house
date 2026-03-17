@@ -13,7 +13,6 @@ import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
-import com.example.lusterz.auction_house.modules.auth.dto.VerifyRequest;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
@@ -58,15 +57,17 @@ public class AuthService {
     }
 
     @Transactional
-    public void verifyEmail(VerifyRequest request) {
-        VerifyToken token = verifyTokenService.getByToken(request.token());
-        User user = token.getUser();
+    public void verifyEmail(String token) {
+        VerifyToken verifyToken = verifyTokenService.getByToken(token);
+        User user = verifyToken.getUser();
 
-        if (verifyTokenService.expired(token)) {
+        if (verifyTokenService.expired(verifyToken)) {
             throw AuthException.VerifyToken.expired();
         }
 
         user.setActive(true);
+
+        verifyTokenService.deleteUsedToken(token);
 
         log.info("Verified user {}", user.getUsername());
     }
