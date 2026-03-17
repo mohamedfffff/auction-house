@@ -50,6 +50,7 @@ public class ItemController {
         return itemService.getActiveAuctions();
     }
 
+    // use @validated to trigger custom class validation
     @PostMapping
     public ResponseEntity<ItemDto> createItem(@Validated(onCreate.class) @RequestBody ItemRequest itemRequest) {
         ItemDto newItem = itemService.createItem(itemRequest);

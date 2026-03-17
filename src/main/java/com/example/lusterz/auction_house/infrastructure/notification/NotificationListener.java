@@ -15,9 +15,9 @@ public class NotificationListener {
     
     private final EmailService emailService;
 
-    @Async
+    @Async("mailExecutor")
     @EventListener
-    public void handleEndAuction(EndAuctionEvent event) {
+    public void handleEndAuction(EndAuctionEvent event) throws InterruptedException {
 
         emailService.sendWinnerEmail(
             event.winnerEmail(),
@@ -36,9 +36,9 @@ public class NotificationListener {
 
     }
 
-    @Async
+    @Async("mailExecutor")
     @EventListener
-    public void handleExpiredAuction(ExpiredAuctionEvent event) {
+    public void handleExpiredAuction(ExpiredAuctionEvent event) throws InterruptedException {
 
         emailService.sendExpiredEmail(
             event.sellerEmail(),

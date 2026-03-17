@@ -28,76 +28,105 @@ public class EmailService{
     private String fromEmail;
 
     public void sendWinnerEmail(String toEmail, String winnerName, String item, BigDecimal price) {
-        SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("You Won The Auction!!!");
-        message.setText(
-            "Congratulations!\n\n" +
-            "You had the winning bid for " + item + "\n" +
-            "Final price " + price + "\n" +
-            "Access your account to complete the payment"
-        );
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
 
-        mailSender.send(message);
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("You Won The Auction!!!");
+            message.setText(
+                "Congratulations!\n\n" +
+                "You had the winning bid for " + item + "\n" +
+                "Final price " + price + "\n" +
+                "Access your account to complete the payment"
+            );
 
-        log.info("Winner email sent to winner : {}", winnerName);
+            Thread.sleep(2000);
+            mailSender.send(message);
 
+            log.info("Winner email sent to winner : {}", winnerName);
+
+        } catch (InterruptedException e) {
+            // prevent java from clearing the logs
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void sendSellerEmail(String toEmail, String seller, String item, BigDecimal price, String winnerName) {
-        SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("Your Item Has Been Sold!!!");
-        message.setText(
-            "Congratulations!\n\n" +
-            "Your item " + item + " has been sold to " + winnerName + "\n" +
-            "Final price " + price + "\n"
-        );
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
 
-        mailSender.send(message);
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Your Item Has Been Sold!!!");
+            message.setText(
+                "Congratulations!\n\n" +
+                "Your item " + item + " has been sold to " + winnerName + "\n" +
+                "Final price " + price + "\n"
+            );
 
-        log.info("Email sent to seller : {}", seller);
+            Thread.sleep(2000);
+            mailSender.send(message);
 
+            log.info("Email sent to seller : {}", seller);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
     
     public void sendExpiredEmail(String toEmail, String sellerName, String item) {
-        SimpleMailMessage message = new SimpleMailMessage();
+        
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("Your Item Has Expired!!!");
-        message.setText(
-            "Unfortunetely\n\n" +
-            "Your item " + item + " did not find a bidder\n"
-        );
+            message.setFrom(fromEmail);
+            message.setTo(toEmail);
+            message.setSubject("Your Item Has Expired!!!");
+            message.setText(
+                "Unfortunetely\n\n" +
+                "Your item " + item + " did not find a bidder\n"
+            );
 
-        mailSender.send(message);
+            Thread.sleep(2000);
+            mailSender.send(message);
 
-        log.info("Email sent to seller : {}", sellerName);
+            log.info("Email sent to seller : {}", sellerName);
 
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
-    public void sendVerificationEmail(String toEmail, String username, String token) throws MessagingException {
-        Context context = new Context();
+    public void sendVerificationEmail(String toEmail, String username, String token) {
 
-        context.setVariable("name", username);
-        context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify" + token);
+        try {
+            Context context = new Context();
 
-        String htmlContent = templateEngine.process("verification-email", context);
+            context.setVariable("name", username);
+            context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify/" + token);
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            String htmlContent = templateEngine.process("verification-email", context);
 
-        helper.setSubject("Complete your registration");
-        helper.setText(htmlContent, true);
-        helper.setFrom(fromEmail);
-        helper.setTo(toEmail);
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        log.info("Verification email sent to user : {}", username);
+            helper.setSubject("Complete your registration");
+            helper.setText(htmlContent, true);
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
 
+            Thread.sleep(2000);
+            mailSender.send(message);
+
+            log.info("Verification email sent to user : {}", username);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (MessagingException e) {
+            log.error("Failed to send verification email to user : {}. Reason {}", username, e.getMessage());
+        }
     }
 }

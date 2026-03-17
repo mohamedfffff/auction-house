@@ -16,7 +16,7 @@ public class ProcessAuctionState {
     
     private final ItemService itemService;
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void run() {
         int startCount = itemService.startAuction();
         log.info("Started {} auctions", startCount);

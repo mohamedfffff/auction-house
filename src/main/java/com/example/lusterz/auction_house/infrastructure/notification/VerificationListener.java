@@ -15,9 +15,9 @@ public class VerificationListener {
     
     private final EmailService emailService;
 
-    @Async
+    @Async("mailExecutor")
     @EventListener
-    public void handleVerifyEmail(VerifyEmailEvent event) throws MessagingException {
+    public void handleVerifyEmail(VerifyEmailEvent event) throws MessagingException, InterruptedException {
         emailService.sendVerificationEmail(
             event.userEmail(),
             event.username(),
