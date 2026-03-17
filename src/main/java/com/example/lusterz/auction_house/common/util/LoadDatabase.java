@@ -46,37 +46,19 @@ public class LoadDatabase {
             
             User seller1 = createUser("seller1", "seller1@test.com");
             User seller2 = createUser("seller2", "seller2@test.com");
-            User seller3 = createUser("seller3", "seller3@test.com");
             User bidder1 = createUser("bidder1", "bidder1@test.com");
             User bidder2 = createUser("bidder2", "bidder2@test.com");
-            User bidder3 = createUser("bidder3", "bidder3@test.com");
 
             Item camera = createItem(seller1, "Vintage Leica M583", "500.00");
-            Item watch = createItem(seller2, "Gold Rolex 1970", "1200.00");
-            Item vinyl = createItem(seller3, "Signed Beatles Record", "100.00");
-            createItem(seller3, "Bmw car", "61441215");
+            createItem(seller2, "Bmw car", "61441215");
 
             createBid(bidder1, camera, "550.00");
             createBid(bidder2, camera, "600.00");
-            createBid(bidder3, camera, "650.00");
-            createBid(bidder1, watch, "550.00");
-            createBid(bidder2, watch, "600.00");
-            createBid(bidder3, vinyl, "650.00");
 
             log.info("Database loaded with mock data");
 
-            // sending test email
-            // try {
-            //     SimpleMailMessage msg = new SimpleMailMessage();
-            //     msg.setFrom("test@auction-house.com");
-            //     msg.setTo("check-this@mailtrap.io");
-            //     msg.setSubject("Direct Test");
-            //     msg.setText("Testing the connection...");
-            //     mailSender.send(msg);
-            //     log.info("test email sent");
-            // } catch (Exception e) {
-            //     log.error("test email failed {}", e);
-            // }
+            // sendTestEmail();
+            
             
         };
     }
@@ -120,7 +102,21 @@ public class LoadDatabase {
         bid.setBidder(bidder);
         bid.setItem(item);
         bid.setAmount(new BigDecimal(amount));
-        bid.setBidTime(OffsetDateTime.now());
+        bid.setBidTime(OffsetDateTime.now().plusSeconds(10));
         bidRepository.save(bid);
+    }
+
+    private void sendTestEmail() {
+        try {
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setFrom("test@auction-house.com");
+            msg.setTo("check-this@mailtrap.io");
+            msg.setSubject("Direct Test");
+            msg.setText("Testing the connection...");
+            mailSender.send(msg);
+            log.info("test email sent");
+        } catch (Exception e) {
+            log.error("test email failed {}", e);
+        }
     }
 }

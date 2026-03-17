@@ -104,6 +104,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
+    // handle thread error when sending email
+    @ExceptionHandler(InterruptedException.class)
+    public ResponseEntity<ErrorDetails> handleSendingEmailThreadError(WebRequest request) {
+        String message = "Error in email thread.";
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.SERVICE_UNAVAILABLE.value(),
+            "Service_unavailabe",
+            message,
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
     // global handling 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorDetails> handleGlobalException(Exception ex, WebRequest request) {
