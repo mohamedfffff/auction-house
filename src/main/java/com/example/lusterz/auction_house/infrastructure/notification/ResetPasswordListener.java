@@ -4,22 +4,22 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.example.lusterz.auction_house.infrastructure.dto.ResetPasswordEvent;
 import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Component
-public class VerificationListener {
+public class ResetPasswordListener {
     
     private final EmailService emailService;
 
     @Async("emailExecutor")
     @EventListener
-    public void handleVerifyEmail(VerifyEmailEvent event){
-        emailService.sendVerificationEmail(
-            event.userEmail(),
-            event.username(),
+    public void handleResetPasswordEmail(ResetPasswordEvent event){
+        emailService.sendResetPasswordEmail(
+            event.email(),
             event.token()
         );
     }

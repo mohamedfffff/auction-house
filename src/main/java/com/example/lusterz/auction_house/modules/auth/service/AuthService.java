@@ -2,20 +2,28 @@ package com.example.lusterz.auction_house.modules.auth.service;
 
 
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
+import com.example.lusterz.auction_house.infrastructure.dto.ResetPasswordEvent;
+import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.dto.ResetPasswordRequest;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
+import com.example.lusterz.auction_house.modules.auth.model.ResetPasswordToken;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,13 +39,14 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
     private final VerifyTokenService verifyTokenService;
-    
+    private final ResetPasswordTokenService resetPasswordTokenService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
         
         User user = userService.createUser(request);
-        log.info("User {} registered using form", user.getUsername());
+        log.info("User : {} registered using form", user.getUsername());
         
         return generateAuthResponse(user);
     }
@@ -51,7 +60,7 @@ public class AuthService {
 
         User user = userService.getByUsernameOrEmail(request.identifier());
 
-        log.info("User {} logged-in using form", user.getUsername());
+        log.info("User : {} logged-in using form", user.getUsername());
 
         return generateAuthResponse(user);
     }
@@ -69,12 +78,40 @@ public class AuthService {
 
         verifyTokenService.deleteUsedToken(token);
 
-        log.info("Verified user {}", user.getUsername());
+        log.info("Verified user : {}", user.getUsername());
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+
+        String token = resetPasswordTokenService.generateToken(email).getToken();
+        
+        eventPublisher.publishEvent(
+            new ResetPasswordEvent(email, token)
+        );
+    } 
+
+    @Transactional
+    public AuthResponse resetPassword(ResetPasswordRequest request) {
+        ResetPasswordToken resetToken = resetPasswordTokenService.getByToken(request.token());
+        User user = resetToken.getUser();
+
+        if (resetPasswordTokenService.expired(resetToken)) {
+            throw AuthException.ResetPasswordToken.expired();
+        }
+
+        userService.resetPassword(user.getId(), request.password());
+
+        resetPasswordTokenService.deleteUsedToken(resetToken.getToken());
+
+        log.info("Reset password for user : {}", user.getUsername());
+
+        return generateAuthResponse(user);
     }
 
     @Transactional
     public AuthResponse refreshAccessToken(RefreshTokenRequest request) {
-        RefreshToken oldRefreshToken = refreshTokenService.getRefreshToken(request.refreshToken());
+        RefreshToken oldRefreshToken = refreshTokenService.getRefreshToken(request.token());
 
         if (refreshTokenService.expired(oldRefreshToken)) {
             throw AuthException.RefreshToken.expired();
@@ -82,7 +119,7 @@ public class AuthService {
 
         User user = oldRefreshToken.getUser();
 
-        log.info("Token refreshed for user {}", user.getUsername());
+        log.info("Token refreshed for user : {}", user.getUsername());
 
         return generateAuthResponse(user);
     }

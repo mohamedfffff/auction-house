@@ -21,6 +21,7 @@ import com.example.lusterz.auction_house.modules.item.mapper.ItemMapper;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
 import com.example.lusterz.auction_house.modules.item.repository.ItemRepository;
+import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
@@ -90,7 +91,7 @@ public class ItemService {
         newItem.setSeller(seller);
         itemRepository.save(newItem);
         
-        log.info("Auction item {} created for user {}", newItem.getTitle(), seller.getUsername());
+        log.info("Auction item : {} created for user : {}", newItem.getTitle(), seller.getUsername());
 
         return itemMapper.toDto(newItem);
     }
@@ -121,7 +122,7 @@ public class ItemService {
         updatedItem.setCurrentHighestBid(request.startingPrice());
         itemRepository.save(updatedItem);
 
-        log.info("Auction item {} updated", updatedItem.getTitle());
+        log.info("Auction item : {} updated", updatedItem.getTitle());
 
         return itemMapper.toDto(updatedItem);
     }
@@ -143,7 +144,7 @@ public class ItemService {
             throw ItemException.InvalidState.alreadyStarted();
         }
 
-        log.info("Auction item {} deleted", deletedItem.getTitle());
+        log.info("Auction item : {} deleted", deletedItem.getTitle());
 
         itemRepository.delete(deletedItem);
     }
@@ -159,42 +160,47 @@ public class ItemService {
         int count = itemRepository.closeExpiredItems(OffsetDateTime.now());
         List<Item> closedItems = itemRepository.findAllByStatus(AuctionStatus.CLOSED);
         for (Item item : closedItems) {
-            // check if a top bid exist and update the winner and status accordingly
-            bidRepository.findTopByItemOrderByAmountDesc(item)
-                .ifPresentOrElse(
-                    (topBid) -> {
-                        item.setWinner(topBid.getBidder());
-                        item.setStatus(AuctionStatus.SOLD);
-                        // send notifications for winner and seller
-                        // to-fix this code throw lazy intialization
-                        eventPublisher.publishEvent(
-                            new EndAuctionEvent(
-                                item.getWinner().getEmail(), 
-                                item.getWinner().getUsername(), 
-                                item.getSeller().getEmail(),
-                                item.getSeller().getUsername(),
-                                item.getTitle(), 
-                                item.getCurrentHighestBid()
-                            )
-                        );
-                    }, 
-                    () -> {
-                        item.setStatus(AuctionStatus.EXPIRED_UNSOLD);
-                        // send notifications for expired
-                        // to-fix this code throw lazy intialization
-                        eventPublisher.publishEvent(
-                            new ExpiredAuctionEvent( 
-                                item.getSeller().getEmail(),
-                                item.getSeller().getUsername(),
-                                item.getTitle()
-                            )
-                        );
-                    }
-                ); 
-            
-            
+            processAuctionItem(item); 
         }
         return count;
+    }
+
+    private void processAuctionItem(Item item) {
+        // check if a top bid exist and update the winner and status accordingly
+        bidRepository.findTopByItemOrderByAmountDesc(item)
+            .ifPresentOrElse(
+                (topBid) -> processSold(item, topBid), 
+                () -> processUnsold(item)
+            );
+    }
+
+    private void processSold(Item item, Bid bid) {
+        item.setWinner(bid.getBidder());
+        item.setStatus(AuctionStatus.SOLD);
+        itemRepository.save(item);
+        // send notifications for winner and seller
+        eventPublisher.publishEvent(
+            new EndAuctionEvent(
+                item.getWinner().getEmail(), 
+                item.getWinner().getUsername(), 
+                item.getSeller().getEmail(),
+                item.getSeller().getUsername(),
+                item.getTitle(), 
+                item.getCurrentHighestBid()
+            )
+        );
+    }
+
+    private void processUnsold(Item item) {
+        item.setStatus(AuctionStatus.EXPIRED_UNSOLD);
+        // send notifications for expired
+        eventPublisher.publishEvent(
+            new ExpiredAuctionEvent( 
+                item.getSeller().getEmail(),
+                item.getSeller().getUsername(),
+                item.getTitle()
+            )
+        );
     }
 
     public void searchItems() {

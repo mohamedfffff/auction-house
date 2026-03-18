@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,9 +105,10 @@ public class UserService {
         userRepository.save(newUser);
 
         userCredentialService.createLocalUserCredential(request, newUser);
+        // user is still created before verification to prevent dublicate signup and spamming
         activateAccount(newUser);
 
-        log.info("Local User {} created", newUser.getUsername());
+        log.info("Created local user : {}", newUser.getUsername());
         
         return newUser;
     }
@@ -133,7 +133,7 @@ public class UserService {
 
         userCredentialService.createOauth2UserCredential(newUser, provider);
 
-        log.info("Oauth2 User {} created", newUser.getUsername());
+        log.info("Created oauth2 user : {}", newUser.getUsername());
 
         return newUser;
     }
@@ -158,7 +158,7 @@ public class UserService {
 
         userRepository.save(existingUser);
 
-        log.info("User {} updated", existingUser.getUsername());
+        log.info("Updated user : {}", existingUser.getUsername());
 
         return userMapper.toPrivateDto(existingUser);
     }
@@ -178,7 +178,7 @@ public class UserService {
         deletedUser.setActive(false);
         userRepository.save(deletedUser);
 
-        log.info("User {} deactivated", deletedUser.getUsername());
+        log.info("Deactivated user : {}", deletedUser.getUsername());
     }
 
     @Transactional
@@ -193,16 +193,28 @@ public class UserService {
             .orElseThrow(() -> AuthException.Provider.notLocal());
 
         if (!passwordEncoder.matches(request.oldPassword(), localCredential.getPassword())) {
-            throw UserException.PasswordMismatch.oldAndGiven();
-        }
-
-        if (!request.newPassword().equals(request.confirmPassword())) {
-            throw UserException.PasswordMismatch.newAndConfirm();
+            throw UserException.PasswordMismatch.oldAndNew();
         }
 
         localCredential.setPassword(passwordEncoder.encode(request.newPassword()));
 
-        log.info("User {} password updated", user.getUsername());
+        log.info("Updated password for user : {}", user.getUsername());
+    }
+
+    @Transactional
+    public void resetPassword(Long id, String password) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        UserCredential localCredential = user.getUserCredentials()
+            .stream()
+            .filter(l -> AuthProviders.LOCAL.equals(l.getProvider()))
+            .findFirst()
+            .orElseThrow(() -> AuthException.Provider.notLocal());
+
+        localCredential.setPassword(passwordEncoder.encode(password));
+
+        log.info("Updated password for user : {}", user.getUsername());
     }
 
     @Transactional
@@ -215,7 +227,7 @@ public class UserService {
 
         refreshSecurityContext(user);
 
-        log.info("User {} role updated", user.getUsername());
+        log.info("Updated role for user : {}", user.getUsername());
     }
 
     @Transactional

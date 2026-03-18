@@ -13,13 +13,13 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 public class EmailConfig {
 
     // use thread for sending emails to prevent hitting mailtrap limit
-    // and not choke the main scheduler
+    // and not choke the main scheduler waiting for them to be sent
     @Bean(name = "emailExecutor")
     public Executor emailExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(1);
-        executor.setQueueCapacity(1000);
+        executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("Email-");
         executor.initialize();
         return executor;
