@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 
 import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
 
-import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -15,9 +14,9 @@ public class VerificationListener {
     
     private final EmailService emailService;
 
-    @Async("mailExecutor")
+    @Async("emailExecutor")
     @EventListener
-    public void handleVerifyEmail(VerifyEmailEvent event) throws MessagingException, InterruptedException {
+    public void handleVerifyEmail(VerifyEmailEvent event){
         emailService.sendVerificationEmail(
             event.userEmail(),
             event.username(),
