@@ -59,11 +59,8 @@ public class UserException extends RuntimeException {
             super(message);
         }
 
-        public static PasswordMismatch oldAndGiven() {
+        public static PasswordMismatch oldAndNew() {
             return new PasswordMismatch("Old password is incorrect");
-        }
-        public static PasswordMismatch newAndConfirm() {
-            return new PasswordMismatch("new password and confirm password don't match");
         }
     }
 

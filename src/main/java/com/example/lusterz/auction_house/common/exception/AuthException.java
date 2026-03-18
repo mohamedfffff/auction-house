@@ -48,6 +48,19 @@ public class AuthException extends RuntimeException{
         }
     }
 
+    public static class ResetPasswordToken extends AuthException{
+        public ResetPasswordToken(String message) {
+            super(message);
+        }
+
+        public static ResetPasswordToken expired() {
+            return new ResetPasswordToken("Reset password token expired");
+        }
+        public static ResetPasswordToken notFound() {
+            return new ResetPasswordToken("Reset password token not found");
+        }
+    }
+
     public static class UserCredential extends AuthException{
         public UserCredential(String message) {
             super(message);

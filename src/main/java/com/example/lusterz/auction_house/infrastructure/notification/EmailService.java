@@ -129,4 +129,33 @@ public class EmailService{
             log.error("Failed to send verification email to : {}. Reason {}", username, e.getMessage());
         }
     }
+
+    public void sendResetPasswordEmail(String toEmail, String token) {
+
+        try {
+            Context context = new Context();
+
+            context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify/" + token);
+
+            String htmlContent = templateEngine.process("verification-email", context);
+
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setSubject("Complete your registration");
+            helper.setText(htmlContent, true);
+            helper.setFrom(fromEmail);
+            helper.setTo(toEmail);
+
+            Thread.sleep(1000);
+            mailSender.send(message);
+
+            log.info("Verification email sent to : {}", toEmail);
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } catch (MessagingException e) {
+            log.error("Failed to send verification email to : {}. Reason {}", toEmail, e.getMessage());
+        }
+    }
 }
