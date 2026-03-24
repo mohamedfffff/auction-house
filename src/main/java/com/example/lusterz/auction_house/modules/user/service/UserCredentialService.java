@@ -1,5 +1,7 @@
 package com.example.lusterz.auction_house.modules.user.service;
 
+import java.util.Optional;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +28,10 @@ public class UserCredentialService {
         return userCredential;
     }
 
+    public Optional<UserCredential> getByUserAndProvider(User user, AuthProviders provider) {
+        return userCredentialRepository.findByUserAndProvider(user, provider);
+    }
+
     @Transactional
     public void createLocalUserCredential(RegisterRequest request, User user) {
         UserCredential newUserCredential = new UserCredential();
@@ -33,6 +39,17 @@ public class UserCredentialService {
         newUserCredential.setUser(user);
         newUserCredential.setProvider(AuthProviders.LOCAL);
         newUserCredential.setPassword(passwordEncoder.encode(request.password()));
+
+        userCredentialRepository.save(newUserCredential);
+    }
+
+    @Transactional
+    public void createLocalUserCredential(User user, String password) {
+        UserCredential newUserCredential = new UserCredential();
+
+        newUserCredential.setUser(user);
+        newUserCredential.setProvider(AuthProviders.LOCAL);
+        newUserCredential.setPassword(passwordEncoder.encode(password));
 
         userCredentialRepository.save(newUserCredential);
     }

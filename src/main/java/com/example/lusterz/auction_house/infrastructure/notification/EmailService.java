@@ -106,7 +106,7 @@ public class EmailService{
             Context context = new Context();
 
             context.setVariable("name", username);
-            context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify/" + token);
+            context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify/?token=" + token);
 
             String htmlContent = templateEngine.process("verification-email", context);
 
@@ -135,14 +135,14 @@ public class EmailService{
         try {
             Context context = new Context();
 
-            context.setVariable("verifyUrl", "http://localhost:8080/api/v1/auth/verify/" + token);
+            context.setVariable("resetPasswordUrl", "http://localhost:3000/reset-password/?token=" + token);
 
-            String htmlContent = templateEngine.process("verification-email", context);
+            String htmlContent = templateEngine.process("reset-password-email", context);
 
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setSubject("Complete your registration");
+            helper.setSubject("Reset your password");
             helper.setText(htmlContent, true);
             helper.setFrom(fromEmail);
             helper.setTo(toEmail);
@@ -150,12 +150,12 @@ public class EmailService{
             Thread.sleep(1000);
             mailSender.send(message);
 
-            log.info("Verification email sent to : {}", toEmail);
+            log.info("Reset password email sent to : {}", toEmail);
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (MessagingException e) {
-            log.error("Failed to send verification email to : {}. Reason {}", toEmail, e.getMessage());
+            log.error("Failed to send reset password email to : {}. Reason {}", toEmail, e.getMessage());
         }
     }
 }

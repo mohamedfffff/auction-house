@@ -39,6 +39,7 @@ public class Oauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler{
         User user = userService.getUserByEmail(email);   
 
         // oAuth2User.getAttribute("name") gives a code not user username stored in memory
+        // must use email to help with set password
         String accessToken = jwtUtils.generateToken(user.getUsername());
         String refreshToken = refreshTokenService.generateToken(user).getToken() ;
         Long expiration = jwtUtils.getJwtExpiration();

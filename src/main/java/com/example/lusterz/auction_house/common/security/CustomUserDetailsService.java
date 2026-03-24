@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.common.security;
 
 import java.util.List;
+import java.util.Optional;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
@@ -26,7 +28,9 @@ public class CustomUserDetailsService implements UserDetailsService{
         
         User user = userService.getByUsernameOrEmail(identifier);
 
-        UserCredential userCredential = userCredentialService.getByUser(user);
+        // for both local and oauth2 login
+        Optional<UserCredential> userCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL);
+        String password = userCredential.map(UserCredential::getPassword).orElse("");
         
         List<SimpleGrantedAuthority> authorities = List.of(
             new SimpleGrantedAuthority(user.getRole().name())
@@ -36,7 +40,7 @@ public class CustomUserDetailsService implements UserDetailsService{
         // detailed class path is used to differ it from project User entity
         return new org.springframework.security.core.userdetails.User(
             user.getUsername(),
-            userCredential.getPassword(),
+            password,
             authorities
         );
     }

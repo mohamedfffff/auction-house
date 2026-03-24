@@ -56,16 +56,22 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/forgot-password")
+    @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestParam String email) {
         authService.forgotPassword(email);
-        return ResponseEntity.ok().body("If exists, email : " + email + " has been sent a reset link");
+        return ResponseEntity.ok("If email exists, reset password mail sent");
+    }
+
+    @PostMapping("/set-password")
+    public ResponseEntity<String> setPassword() {
+        authService.setPassword();
+        return ResponseEntity.ok("If email exists, set password mail sent");
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<AuthResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         AuthResponse response = authService.resetPassword(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.ok().body(response);
     }
 
     

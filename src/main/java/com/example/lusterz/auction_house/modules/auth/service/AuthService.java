@@ -6,19 +6,22 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
+import com.example.lusterz.auction_house.common.exception.AuthException.UserCredential;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 import com.example.lusterz.auction_house.infrastructure.dto.ResetPasswordEvent;
-import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.ResetPasswordRequest;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.auth.model.ResetPasswordToken;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
@@ -35,6 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserService userService;
+    private final UserCredentialService userCredentialService;
     private final JwtUtils jwtUtils;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
@@ -81,6 +85,7 @@ public class AuthService {
         log.info("Verified user : {}", user.getUsername());
     }
 
+    // needs more validation logic
     @Transactional
     public void forgotPassword(String email) {
 
@@ -92,6 +97,24 @@ public class AuthService {
     } 
 
     @Transactional
+    public void setPassword() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principal = (UserDetails) auth.getPrincipal();
+        String username = principal.getUsername();
+
+        // access token returns user details and it only contains the username
+        // db call is not expensive here instead of changing the whole security 
+        // sturcture to use email instead of username which isn't super safe
+        User user = userService.getByUsernameOrEmail(username);
+
+        String token = resetPasswordTokenService.generateToken(user.getEmail()).getToken();
+        
+        eventPublisher.publishEvent(
+            new ResetPasswordEvent(user.getEmail(), token)
+        );
+    }
+
+    @Transactional
     public AuthResponse resetPassword(ResetPasswordRequest request) {
         ResetPasswordToken resetToken = resetPasswordTokenService.getByToken(request.token());
         User user = resetToken.getUser();
@@ -100,8 +123,11 @@ public class AuthService {
             throw AuthException.ResetPasswordToken.expired();
         }
 
-        userService.resetPassword(user.getId(), request.password());
-
+        // reset password for local users and create new local user creadential for oauth2
+        if (AuthProviders.LOCAL.equals(request.provider())) {
+            userService.resetPassword(user.getId(), request.password());
+        } else { userCredentialService.createLocalUserCredential(user, request.password());}
+    
         resetPasswordTokenService.deleteUsedToken(resetToken.getToken());
 
         log.info("Reset password for user : {}", user.getUsername());
