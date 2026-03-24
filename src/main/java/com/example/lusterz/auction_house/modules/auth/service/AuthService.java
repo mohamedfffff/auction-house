@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
-import com.example.lusterz.auction_house.common.exception.AuthException.UserCredential;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 import com.example.lusterz.auction_house.infrastructure.dto.ResetPasswordEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
@@ -130,7 +129,7 @@ public class AuthService {
     
         resetPasswordTokenService.deleteUsedToken(resetToken.getToken());
 
-        log.info("Reset password for user : {}", user.getUsername());
+        log.info("Password reset for user : {}", user.getUsername());
 
         return generateAuthResponse(user);
     }

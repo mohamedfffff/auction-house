@@ -3,7 +3,6 @@ package com.example.lusterz.auction_house.jobs.auth;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.example.lusterz.auction_house.common.exception.AuthException.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.service.RefreshTokenService;
 import com.example.lusterz.auction_house.modules.auth.service.ResetPasswordTokenService;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;

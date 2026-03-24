@@ -5,7 +5,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.example.lusterz.auction_house.infrastructure.dto.ResetPasswordEvent;
-import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
 
 import lombok.RequiredArgsConstructor;
 

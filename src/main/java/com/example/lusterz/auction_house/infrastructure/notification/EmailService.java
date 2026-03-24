@@ -135,7 +135,7 @@ public class EmailService{
         try {
             Context context = new Context();
 
-            context.setVariable("resetPasswordUrl", "http://localhost:3000/reset-password/?token=" + token);
+            context.setVariable("resetPasswordUrl", "http://localhost:3000/reset-password-callback/?token=" + token);
 
             String htmlContent = templateEngine.process("reset-password-email", context);
 

@@ -168,13 +168,6 @@ public class UserService {
         User deletedUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        //to-do check if request user id matches the id
-        // Long currentUserId = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getId();
-
-        // if (!deletedUser.getId().equals(currentUserId)) {
-        //     throw UserException.Unauthorized.notOwner();
-        // }
-
         deletedUser.setActive(false);
         userRepository.save(deletedUser);
 
