@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ResetPasswordTokenService {
     
-    @Value("${app.reset_password.expiration}")
+    @Value("${app.password.reset.expiration}")
     private Long expiration;
     private final ResetPasswordTokenRepository resetPasswordTokenRepository;
     private final UserRepository userRepository;

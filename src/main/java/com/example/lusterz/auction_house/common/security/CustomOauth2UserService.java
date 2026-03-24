@@ -28,7 +28,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService{
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
 
-        // check if email isn't provided by provider
+        // some auth2 providers don't provide email
         String email = oAuth2User.getAttribute("email");
         if (email == null) {
             throw AuthException.Provider.noEmail();

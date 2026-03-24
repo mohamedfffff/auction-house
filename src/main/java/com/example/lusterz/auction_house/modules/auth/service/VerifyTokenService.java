@@ -21,7 +21,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class VerifyTokenService {
 
-    @Value("${app.jwt.verify.expiration}")
+    @Value("${app.password.verify.expiration}")
     private Long expiration;
     private final VerifyTokenRepository verifyTokenRepository;
     private final UserRepository userRepository;
