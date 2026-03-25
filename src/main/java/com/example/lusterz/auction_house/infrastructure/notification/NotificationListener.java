@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import com.example.lusterz.auction_house.infrastructure.dto.EndAuctionEvent;
-import com.example.lusterz.auction_house.infrastructure.dto.ExpiredAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.EndAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.ExpiredAuctionEvent;
 
 import lombok.RequiredArgsConstructor;
 
