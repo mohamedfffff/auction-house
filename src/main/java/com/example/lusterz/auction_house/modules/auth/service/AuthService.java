@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
-import com.example.lusterz.auction_house.infrastructure.dto.ResetPasswordEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.ResetPasswordEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
 import com.example.lusterz.auction_house.modules.auth.dto.LoginRequest;
 import com.example.lusterz.auction_house.modules.auth.dto.RefreshTokenRequest;

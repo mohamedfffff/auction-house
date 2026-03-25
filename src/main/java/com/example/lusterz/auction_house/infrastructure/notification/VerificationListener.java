@@ -4,7 +4,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.VerifyEmailEvent;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,4 +1,4 @@
-package com.example.lusterz.auction_house.infrastructure.dto;
+package com.example.lusterz.auction_house.infrastructure.notification.dto;
 
 public record VerifyEmailEvent(
     String userEmail,

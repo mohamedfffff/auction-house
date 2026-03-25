@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
-import com.example.lusterz.auction_house.infrastructure.dto.VerifyEmailEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
@@ -47,17 +47,17 @@ public class UserService {
         return userMapper.toPrivateDto(user);
     }
 
+    public UserPublicDto getUserByName(String username) {
+        User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> UserException.NotFound.byUsername(username));
+        return userMapper.toPublicDto(user); 
+    }
+    
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
             .orElseThrow(() -> UserException.NotFound.byEmail(email));
     }
-
-    public UserPublicDto getUserByName(String username) {
-        User user = userRepository.findByUsername(username)
-            .orElseThrow(() -> UserException.NotFound.byUsername(username));
-        return userMapper.toPublicDto(user); 
-    }
-
+    
     public User getByUsernameOrEmail(String identifier) {
         User user = userRepository.findByUsernameOrEmail(identifier, identifier)
             .orElseThrow(() -> UserException.NotFound.byIdentifier(identifier));

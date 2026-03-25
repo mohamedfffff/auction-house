@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.UserException;
-import com.example.lusterz.auction_house.infrastructure.dto.EndAuctionEvent;
-import com.example.lusterz.auction_house.infrastructure.dto.ExpiredAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.EndAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.ExpiredAuctionEvent;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
