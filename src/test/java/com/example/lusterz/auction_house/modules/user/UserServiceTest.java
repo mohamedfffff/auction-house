@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Optional;
 
+import com.example.lusterz.auction_house.TestData;
+import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,54 +29,63 @@ public class UserServiceTest {
     
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private UserMapper userMapper;
 
     @InjectMocks
     private UserService userService;
 
-    private User user;
-    private User activeUser;
-    private User unactiveUser;
-    
-    @BeforeEach
-    void setup() {
-        user = new User();
-        user.setId(1L);
-        user.setUsername("user");
-        user.setEmail("userEmail@gmail.com");
-    }
-
     @Test
-    void getUserById_ShouldReturnUserPrivateDto_WhenUserExists() {
-        Long id = user.getId();
+    void getUserById_ReturnPrivateDto_WhenFound() {
+        Long id = 1L;
+        User user = TestData.testUser();
+        UserPrivateDto dto = TestData.testUserPrivateDto();
+
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(userMapper.toPrivateDto(user)).thenReturn(dto);
 
         UserPrivateDto result = userService.getUserById(id);
 
-        assertEquals(result.username(), user.getUsername());
+        assertEquals(dto, result);
+        verify(userRepository).findById(id);
+        verify(userMapper).toPrivateDto(user);
     }
 
     @Test
-    void getUserById_ShouldThrowUserExceptionNotFound_WhenUserDoesNotExist() {
-        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
+    void getUserById_ThrowUserExceptionNotFound_WhenNotFound() {
+        Long id = 1L;
 
-        assertThrows(UserException.NotFound.class, () -> userService.getUserById(1L));
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(UserException.NotFound.class, () -> userService.getUserById(id));
+        verify(userRepository).findById(id);
+        verifyNoInteractions(userMapper);
     }
 
     @Test
-    void getUserByName_ShouldReturnUserPublicDto_WhenUserExists() {
+    void getUserByName_ReturnPublicDto_WhenFound() {
+        User user = TestData.testUser();
         String username = user.getUsername();
+        UserPublicDto dto = TestData.testUserPublicDto();
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
+        when(userMapper.toPublicDto(user)).thenReturn(dto);
 
         UserPublicDto result = userService.getUserByName(username);
 
-        assertEquals(result.username(), user.getUsername());
+        assertEquals(dto, result);
+        verify(userRepository).findByUsername(username);
+        verify(userMapper).toPublicDto(user);
     }
 
     @Test
-    void getUserByName_ShouldThrowUserExceptionNotFound_WhenUserDoesNotExist() {
-        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+    void getUserByName_ThrowUserExceptionNotFound_WhenNotFound() {
+        String username = "notUser";
 
-        assertThrows(UserException.NotFound.class, () -> userService.getUserByName("notUser"));
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+
+        assertThrows(UserException.NotFound.class, () -> userService.getUserByName(username));
+        verify(userRepository).findByUsername(username);
+        verifyNoInteractions(userMapper);
     }
 }
