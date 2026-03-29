@@ -61,7 +61,7 @@ public class AuthService {
             new UsernamePasswordAuthenticationToken(request.identifier(), request.password())
         );
 
-        User user = userService.getByUsernameOrEmail(request.identifier());
+        User user = userService.getUserByIdentifier(request.identifier());
 
         log.info("User : {} logged-in using form", user.getUsername());
 
@@ -104,7 +104,7 @@ public class AuthService {
         // access token returns user details and it only contains the username
         // db call is not expensive here instead of changing the whole security 
         // sturcture to use email instead of username which isn't super safe
-        User user = userService.getByUsernameOrEmail(username);
+        User user = userService.getUserByIdentifier(username);
 
         String token = resetPasswordTokenService.generateToken(user.getEmail()).getToken();
         

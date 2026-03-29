@@ -159,6 +159,7 @@ public class EmailService{
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (MessagingException | MailSendException e) {
+            // using throw with async functions cause tree trace
             log.warn("Failed to send reset password email to : {}. Reason {}", toEmail, e.getMessage());
         }
     }
