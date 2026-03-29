@@ -1,6 +1,5 @@
 package com.example.lusterz.auction_house.modules.user.model;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +19,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -50,10 +48,6 @@ public class User {
     private String email;
     
     private String userImageUrl;
-
-    @PositiveOrZero
-    @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal balance = BigDecimal.ZERO;
 
     @NotNull
     @Column(nullable = false)

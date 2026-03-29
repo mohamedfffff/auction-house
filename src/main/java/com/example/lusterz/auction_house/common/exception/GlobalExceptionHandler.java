@@ -91,14 +91,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorDetails, HttpStatus.CONFLICT);
     }
 
-    // handle error in sending email
-    @ExceptionHandler(MessagingException.class)
-    public ResponseEntity<ErrorDetails> handleSendingEmailError(WebRequest request) {
-        String message = "Error occured while sending email.";
+    // handle service unavailable errors
+    @ExceptionHandler({
+        NotificationException.Email.class,
+    })
+    public ResponseEntity<ErrorDetails> handleServiceUnavailable(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
             HttpStatus.SERVICE_UNAVAILABLE.value(),
             "Service_unavailabe",
-            message,
+            ex.getMessage(),
             request.getDescription(false)
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);

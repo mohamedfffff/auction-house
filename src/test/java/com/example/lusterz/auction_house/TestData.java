@@ -5,8 +5,6 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
 
-import java.math.BigDecimal;
-
 public class TestData {
 
     public static User testUser() {
@@ -15,7 +13,6 @@ public class TestData {
                 "Alex",
                 "AlexEmail@gmail.com",
                 "AlexImage.com",
-                BigDecimal.TEN,
                 true,
                 UserRole.ROLE_USER,
                 null,
@@ -30,7 +27,6 @@ public class TestData {
                 "Alex",
                 "AlexEmail@gmail.com",
                 "AlexImage.com",
-                BigDecimal.TEN,
                 UserRole.ROLE_USER,
                 null,
                 null

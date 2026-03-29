@@ -79,9 +79,10 @@ public class BidService {
             throw BidException.Unauthorized.isOwner();
         }
 
-        if (bidder.getBalance().compareTo(bidRequest.amount()) < 0) {
-            throw UserException.InsufficientFunds.balanceLessThanBid(bidRequest.amount());
-        }
+        // payment gateway shall check the balance
+        // if (bidder.getBalance().compareTo(bidRequest.amount()) < 0) {
+        //     throw UserException.InsufficientFunds.balanceLessThanBid(bidRequest.amount());
+        // }
 
         if (!item.getStatus().equals(AuctionStatus.ACTIVE)) {
             throw ItemException.InvalidState.notActive();
