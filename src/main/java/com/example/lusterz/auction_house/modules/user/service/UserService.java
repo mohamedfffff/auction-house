@@ -58,7 +58,7 @@ public class UserService {
             .orElseThrow(() -> UserException.NotFound.byEmail(email));
     }
     
-    public User getByUsernameOrEmail(String identifier) {
+    public User getUserByIdentifier(String identifier) {
         User user = userRepository.findByUsernameOrEmail(identifier, identifier)
             .orElseThrow(() -> UserException.NotFound.byIdentifier(identifier));
         return user;
@@ -221,11 +221,6 @@ public class UserService {
         refreshSecurityContext(user);
 
         log.info("Updated role for user : {}", user.getUsername());
-    }
-
-    @Transactional
-    public void updateBalance(Long id, BigDecimal amount) {
-        //to-do 
     }
 
     private void refreshSecurityContext(User user) {

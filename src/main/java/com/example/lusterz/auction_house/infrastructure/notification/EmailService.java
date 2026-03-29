@@ -3,12 +3,15 @@ package com.example.lusterz.auction_house.infrastructure.notification;
 import java.math.BigDecimal;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import com.example.lusterz.auction_house.common.exception.NotificationException;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -125,8 +128,9 @@ public class EmailService{
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } catch (MessagingException e) {
-            log.error("Failed to send verification email to : {}. Reason {}", username, e.getMessage());
+        } catch (MessagingException | MailSendException e) {
+            // using throw with async functions cause tree trace
+            log.warn("Failed to send verification email to : {}. Reason {}", username, e.getMessage());
         }
     }
 
@@ -154,8 +158,9 @@ public class EmailService{
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        } catch (MessagingException e) {
-            log.error("Failed to send reset password email to : {}. Reason {}", toEmail, e.getMessage());
+        } catch (MessagingException | MailSendException e) {
+            // using throw with async functions cause tree trace
+            log.warn("Failed to send reset password email to : {}. Reason {}", toEmail, e.getMessage());
         }
     }
 }

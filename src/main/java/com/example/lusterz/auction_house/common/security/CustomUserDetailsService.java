@@ -26,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
         
-        User user = userService.getByUsernameOrEmail(identifier);
+        User user = userService.getUserByIdentifier(identifier);
 
         // for both local and oauth2 login
         Optional<UserCredential> userCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL);
