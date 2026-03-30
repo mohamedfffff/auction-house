@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,8 +14,10 @@ import com.example.lusterz.auction_house.TestData;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.example.lusterz.auction_house.common.exception.UserException;
@@ -31,9 +32,10 @@ public class UserServiceTest {
     
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private UserMapper userMapper;
 
+    @Spy// it is fine to use spy since it is a simple mapper
+    private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+ 
     @InjectMocks
     private UserService userService;
 
@@ -41,10 +43,9 @@ public class UserServiceTest {
     void getUserById_ReturnPrivateDto_WhenFound() {
         Long id = 1L;
         User user = TestData.testUser(id, true);
-        UserPrivateDto dto = new UserPrivateDto();
+        UserPrivateDto dto = TestData.testUserPrivateDto(user);
 
         when(userRepository.findById(id)).thenReturn(Optional.of(user));
-        when(userMapper.toPrivateDto(user)).thenReturn(dto);
 
         UserPrivateDto result = userService.getUserById(id);
 
@@ -70,10 +71,9 @@ public class UserServiceTest {
     void getUserByName_ReturnPublicDto_WhenFound() {
         User user = TestData.testUser(1L, true);
         String username = user.getUsername();
-        UserPublicDto dto = new UserPublicDto();
+        UserPublicDto dto = TestData.testUserPublicDto(user);
 
         when(userRepository.findByUsername(username)).thenReturn(Optional.of(user));
-        when(userMapper.toPublicDto(user)).thenReturn(dto);
 
         UserPublicDto result = userService.getUserByName(username);
 
@@ -187,8 +187,8 @@ public class UserServiceTest {
         User active = TestData.testUser(1L, true);
         User unactive = TestData.testUser(2L, false);
         List<User> userList = List.of(active, unactive);
-        UserPrivateDto activeDto = new UserPrivateDto();
-        UserPrivateDto unactiveDto = new UserPrivateDto();
+        UserPrivateDto activeDto = TestData.testUserPrivateDto(active);
+        UserPrivateDto unactiveDto = TestData.testUserPrivateDto(unactive);
 
         when(userRepository.findAll()).thenReturn(userList);
 
