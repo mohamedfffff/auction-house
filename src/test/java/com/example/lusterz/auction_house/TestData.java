@@ -1,9 +1,13 @@
 package com.example.lusterz.auction_house;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.mapstruct.factory.Mappers;
 
+import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
+import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
@@ -19,7 +23,7 @@ public class TestData {
                 id,
                 "testUser_" + UUID.randomUUID().toString().substring(0,5),
                 "testEmail" + UUID.randomUUID().toString().substring(0,5) + "@gmail.com",
-                "Image.com",
+                "image.com",
                 active,
                 UserRole.ROLE_USER,
                 null,   
@@ -34,5 +38,19 @@ public class TestData {
 
     public static UserPublicDto testUserPublicDto(User user) {
         return userMapper.toPublicDto(user);
+    }
+
+    public static RegisterRequest testRegisterRequest() {
+        return new RegisterRequest(
+            "user",
+            "userEmail@gmail.com",
+            "userPassword",
+            "image.com",
+            AuthProviders.LOCAL
+        );
+    }
+
+    public static VerifyToken testVerifyToken() {
+        return new VerifyToken(1L, "verifyToken", Instant.now(), null);
     }
 }

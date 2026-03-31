@@ -1,7 +1,9 @@
 package com.example.lusterz.auction_house.modules.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -12,10 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import com.example.lusterz.auction_house.TestData;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
+import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.repository.VerifyTokenRepository;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
@@ -27,12 +32,10 @@ import com.example.lusterz.auction_house.modules.user.service.UserService;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceLogicTest {
     
-    @Mock
-    private UserRepository userRepository;
-    @Mock
-    private UserCredentialService userCredentialService;
-    @Mock
-    private VerifyTokenService verifyTokenService;
+    @Mock private UserRepository userRepository;
+    @Mock private UserCredentialService userCredentialService;
+    @Mock private VerifyTokenService verifyTokenService;
+    @Mock private ApplicationEventPublisher applicationEventPublisher;
 
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
@@ -40,21 +43,15 @@ public class UserServiceLogicTest {
     @InjectMocks
     private UserService userService;
 
+
     @Test
     void createUser_ReturnUser_WhenNotFound() {
-        User user = TestData.testUser(1L, false);
-        RegisterRequest request = new RegisterRequest(
-            user.getUsername(),
-            user.getEmail(),
-            "userPassword",
-            user.getUserImageUrl(),
-            AuthProviders.LOCAL);
+        RegisterRequest request = TestData.testRegisterRequest();
+        VerifyToken token = TestData.testVerifyToken(); 
 
-        when(userRepository.existsByUsername(user.getUsername())).thenReturn(false);
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
-        // passing any user entity as local User doesn't match the created enity in method
-        // then return the same exact entity created in method
-        when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
+        when(userRepository.existsByUsername(anyString())).thenReturn(false);
+        when(userRepository.existsByEmail(anyString())).thenReturn(false);
+        when(verifyTokenService.generateToken(anyString())).thenReturn(token);
 
         User result = userService.createUser(request);
 
@@ -62,7 +59,10 @@ public class UserServiceLogicTest {
         assertEquals(request.email(), result.getEmail());
 
         verify(userRepository).save(any(User.class));
-        verify(userCredentialService).createLocalUserCredential(request, any(User.class));
-        verify(verifyTokenService).generateToken(result.getEmail());
+        // any(User.class) don't work cause mockito requires all args to be matters
+        verify(userCredentialService).createLocalUserCredential(request, result);
+        verify(verifyTokenService).generateToken(anyString());
+        // anyObject() do not exists
+        verify(applicationEventPublisher).publishEvent(any(VerifyEmailEvent.class));
     }
 }
