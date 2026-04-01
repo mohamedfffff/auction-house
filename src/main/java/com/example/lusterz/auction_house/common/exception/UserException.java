@@ -73,5 +73,11 @@ public class UserException extends RuntimeException {
             return new InsufficientFunds("Balance is less than " + bid);
         }
     }
+
+    public static class AlreadyActive extends UserException{
+        public AlreadyActive() {
+            super("Account is already Active");
+        }
+    }
     
 }

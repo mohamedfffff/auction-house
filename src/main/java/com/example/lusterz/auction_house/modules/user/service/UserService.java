@@ -113,6 +113,21 @@ public class UserService {
     }
 
     @Transactional
+    public void activateAccount(User user) {
+        if (user.isActive()) {
+            throw new UserException.AlreadyActive();
+        }
+        
+        String fromEmail = user.getEmail();
+        String username = user.getUsername();
+        String token = verifyTokenService.generateToken(user.getEmail()).getToken();
+        
+        eventPublisher.publishEvent(
+            new VerifyEmailEvent(fromEmail, username, token)
+        );
+    }
+
+    @Transactional
     public User processOauth2User(String email, String name, AuthProviders provider) {
         return userRepository.findByEmail(email)
             .orElseGet(() -> createOauth2User(email, name, provider));
@@ -224,17 +239,6 @@ public class UserService {
 
     private void refreshSecurityContext(User user) {
         //to-do
-    }
-
-    @Transactional
-    public void activateAccount(User user) {
-        String fromEmail = user.getEmail();
-        String username = user.getUsername();
-        String token = verifyTokenService.generateToken(user.getEmail()).getToken();
-        
-        eventPublisher.publishEvent(
-            new VerifyEmailEvent(fromEmail, username, token)
-        );
     }
 
 }

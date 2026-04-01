@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.modules.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -95,6 +96,31 @@ public class UserServiceLogicTest {
 
         verify(userRepository, never()).save(any(User.class));
         verifyNoInteractions(userCredentialService);
+        verifyNoInteractions(verifyTokenService);
+        verifyNoInteractions(applicationEventPublisher);
+    }
+
+    @Test
+    void activateAccount_PublishVerifyEmailEvent_WhenNotActive() {
+        User user = TestData.testUser(1L, false);
+        VerifyToken token = TestData.testVerifyToken();
+
+        when(verifyTokenService.generateToken(user.getEmail())).thenReturn(token);
+
+        // the function must be called 
+        userService.activateAccount(user);
+        String result = verifyTokenService.generateToken(user.getEmail()).getToken();
+
+        assertNotNull(result);
+        verify(applicationEventPublisher).publishEvent(any(VerifyEmailEvent.class));
+    }
+
+    @Test
+    void activateAccount_ThrowUserExceptionAlreadyActive_WhenActive() {
+        User user = TestData.testUser(1L, true);
+
+        assertThrows(UserException.AlreadyActive.class, () -> userService.activateAccount(user));
+
         verifyNoInteractions(verifyTokenService);
         verifyNoInteractions(applicationEventPublisher);
     }
