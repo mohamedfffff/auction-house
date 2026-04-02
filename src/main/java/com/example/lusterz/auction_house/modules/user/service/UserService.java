@@ -128,6 +128,17 @@ public class UserService {
     }
 
     @Transactional
+    public void deactivateUser(Long id) {
+        User deletedUser = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        deletedUser.setActive(false);
+        userRepository.save(deletedUser);
+
+        log.info("Deactivated user : {}", deletedUser.getUsername());
+    }
+
+    @Transactional
     public User processOauth2User(String email, String name, AuthProviders provider) {
         return userRepository.findByEmail(email)
             .orElseGet(() -> createOauth2User(email, name, provider));
@@ -177,16 +188,7 @@ public class UserService {
         return userMapper.toPrivateDto(existingUser);
     }
 
-    @Transactional
-    public void deactivateUser(Long id) {
-        User deletedUser = userRepository.findById(id)
-            .orElseThrow(() -> UserException.NotFound.byId(id));
-
-        deletedUser.setActive(false);
-        userRepository.save(deletedUser);
-
-        log.info("Deactivated user : {}", deletedUser.getUsername());
-    }
+    
 
     @Transactional
     public void updatePassword(Long id, UserUpdatePasswordRequest request) {

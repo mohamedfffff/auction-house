@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.modules.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -10,6 +11,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -123,5 +126,29 @@ public class UserServiceLogicTest {
 
         verifyNoInteractions(verifyTokenService);
         verifyNoInteractions(applicationEventPublisher);
+    }
+
+    @Test
+    void deactivateUser_SetActiveToFalse_WhenFound() {
+        User user = TestData.testUser(1L, true);
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        userService.deactivateUser(user.getId());
+
+        assertFalse(user.isActive());
+        verify(userRepository).findById(user.getId());
+    }
+
+    @Test
+    void deactivateUser_ThrowUserExceptionNotFound_WhenNotFound() {
+        Long id = 1L;
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(UserException.NotFound.class, () -> userService.deactivateUser(id));
+
+        verify(userRepository).findById(id);
+        verify(userRepository, never()).save(any(User.class));
     }
 }

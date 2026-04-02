@@ -79,5 +79,11 @@ public class UserException extends RuntimeException {
             super("Account is already Active");
         }
     }
+
+    public static class NotActive extends UserException{
+        public NotActive() {
+            super("Account is not Active");
+        }
+    }
     
 }
