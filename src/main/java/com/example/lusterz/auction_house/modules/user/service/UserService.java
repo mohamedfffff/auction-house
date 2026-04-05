@@ -146,8 +146,7 @@ public class UserService {
 
     private User createOauth2User(String email, String name, AuthProviders provider) {
         if (userRepository.existsByUsername(name)) {
-            name = UUID.randomUUID().toString();
-            // to-do make better random name generator
+            name += UUID.randomUUID().toString().substring(0,5);
         }
 
         User newUser = new User();

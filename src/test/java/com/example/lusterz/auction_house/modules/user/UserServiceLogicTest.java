@@ -27,6 +27,7 @@ import com.example.lusterz.auction_house.TestData;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.infrastructure.notification.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
+import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
@@ -150,5 +151,57 @@ public class UserServiceLogicTest {
 
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void processOauth2User_ReturnUser_WhenFound() {
+        User user = TestData.testUser(1L, true);
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        User result = userService.processOauth2User(user.getEmail(), user.getUsername(), AuthProviders.GOOGLE);
+
+        assertEquals(user, result);
+        verify(userRepository).findByEmail(user.getEmail());
+        verify(userRepository, never()).existsByUsername(anyString());
+        verify(userCredentialService, never()).createOauth2UserCredential(any(), any());
+    }
+
+    @Test
+    void processOauth2User_CreateNewUser_WhenNotFound() {
+        User user = TestData.testUser(1L, true);
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.existsByUsername(user.getUsername())).thenReturn(false);
+
+        User result = userService.processOauth2User(user.getEmail(), user.getUsername(), AuthProviders.GOOGLE);
+
+        assertEquals(user.getEmail(), result.getEmail());
+        assertEquals(user.getUsername(), result.getUsername());
+        assertTrue(result.isActive());
+
+        verify(userRepository).findByEmail(user.getEmail());
+        verify(userRepository).existsByUsername(user.getUsername());
+        verify(userRepository).save(any(User.class));
+        verify(userCredentialService).createOauth2UserCredential(result, AuthProviders.GOOGLE);
+    }
+
+    @Test
+    void processOauth2User_CreateNewUser_WithUniqueNewUsername_WhenNotFound() {
+        User user = TestData.testUser(1L, true);
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+        when(userRepository.existsByUsername(user.getUsername())).thenReturn(true);
+
+        User result = userService.processOauth2User(user.getEmail(), user.getUsername(), AuthProviders.GOOGLE);
+
+        assertEquals(user.getEmail(), result.getEmail());
+        assertTrue(result.getUsername().contains(user.getUsername()));
+        assertTrue(result.isActive());
+
+        verify(userRepository).findByEmail(user.getEmail());
+        verify(userRepository).existsByUsername(user.getUsername());
+        verify(userRepository).save(any(User.class));
+        verify(userCredentialService).createOauth2UserCredential(result, AuthProviders.GOOGLE);
     }
 }
