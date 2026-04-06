@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateImageUrlRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
 import jakarta.validation.Valid;
@@ -49,9 +51,19 @@ public class UserController {
     }
 
 
-    @PutMapping("/{id}")
-    public UserPrivateDto updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateRequest userRequest) {
-        return userService.updateUser(id, userRequest);
+    @PutMapping("/{id}/username")
+    public String updateUsername(@PathVariable Long id, @Valid @RequestBody UserUpdateUsernameRequest request) {
+        return userService.updateUsername(id, request);
+    }
+
+    @PutMapping("/{id}/email")
+    public String updateEmail(@PathVariable Long id, @Valid @RequestBody UserUpdateEmailRequest request) {
+        return userService.updateEmail(id, request);
+    }
+
+    @PutMapping("/{id}/imageUrl")
+    public String updateImageUrl(@PathVariable Long id, @Valid @RequestBody UserUpdateImageUrlRequest request) {
+        return userService.updateImageUrl(id, request);
     }
 
     @PutMapping("/{id}/role")
