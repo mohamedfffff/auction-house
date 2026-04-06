@@ -19,9 +19,11 @@ import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateImageUrlRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
@@ -162,32 +164,54 @@ public class UserService {
         return newUser;
     }
 
-    @Transactional
-    public UserPrivateDto updateUser(Long id, UserUpdateRequest userRequest) {
+    public String updateUsername(Long id, UserUpdateUsernameRequest request) {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        if (!existingUser.getUsername().equals(userRequest.username()) &&
-             userRepository.existsByUsername(userRequest.username())) {
-            throw UserException.AlreadyExists.byUsername(userRequest.username());
-        }
-        if (!existingUser.getEmail().equals(userRequest.email()) &&
-             userRepository.existsByEmail(userRequest.email())) {
-            throw UserException.AlreadyExists.byEmail(userRequest.email());
+        if (!existingUser.getUsername().equals(request.username()) &&
+             userRepository.existsByUsername(request.username())) {
+            throw UserException.AlreadyExists.byUsername(request.username());
         }
 
-        existingUser.setUsername(userRequest.username());
-        existingUser.setEmail(userRequest.email());
-        existingUser.setUserImageUrl(userRequest.userImageUrl());
+        existingUser.setUsername(request.username());
 
         userRepository.save(existingUser);
 
-        log.info("Updated user : {}", existingUser.getUsername());
+        log.info("Updated username for User : {}", existingUser.getUsername());
 
-        return userMapper.toPrivateDto(existingUser);
+        return existingUser.getUsername();
     }
 
-    
+    public String updateEmail(Long id, UserUpdateEmailRequest request) {
+        User existingUser = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        if (!existingUser.getEmail().equals(request.email()) &&
+             userRepository.existsByEmail(request.email())) {
+            throw UserException.AlreadyExists.byEmail(request.email());
+        }
+
+        existingUser.setEmail(request.email());
+
+        userRepository.save(existingUser);
+
+        log.info("Updated email for User : {}", existingUser.getUsername());
+
+        return existingUser.getEmail();
+    }
+
+    public String updateImageUrl(Long id, UserUpdateImageUrlRequest request) {
+        User existingUser = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        existingUser.setUserImageUrl(request.imageUrl());
+
+        userRepository.save(existingUser);
+
+        log.info("Updated profile picture for user : {}", existingUser.getUsername());
+
+        return existingUser.getUserImageUrl();
+    }
 
     @Transactional
     public void updatePassword(Long id, UserUpdatePasswordRequest request) {

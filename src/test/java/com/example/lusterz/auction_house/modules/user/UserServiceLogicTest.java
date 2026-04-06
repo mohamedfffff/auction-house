@@ -154,7 +154,7 @@ public class UserServiceLogicTest {
     }
 
     @Test
-    void processOauth2User_ReturnUser_WhenFound() {
+    void processOauth2User_ReturnExistingUser_WhenFound() {
         User user = TestData.testUser(1L, true);
 
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
@@ -163,7 +163,7 @@ public class UserServiceLogicTest {
 
         assertEquals(user, result);
         verify(userRepository).findByEmail(user.getEmail());
-        verify(userRepository, never()).existsByUsername(anyString());
+        verify(userRepository, never()).save(any(User.class));
         verify(userCredentialService, never()).createOauth2UserCredential(any(), any());
     }
 
@@ -187,7 +187,7 @@ public class UserServiceLogicTest {
     }
 
     @Test
-    void processOauth2User_CreateNewUser_WithUniqueNewUsername_WhenNotFound() {
+    void processOauth2User_CreateNewUserAndAppendSuffix_WhenNotFoundAndUsernameNotUnique() {
         User user = TestData.testUser(1L, true);
 
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
