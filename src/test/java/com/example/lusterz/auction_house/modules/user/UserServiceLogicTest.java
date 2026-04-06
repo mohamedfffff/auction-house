@@ -6,12 +6,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
@@ -54,7 +56,7 @@ public class UserServiceLogicTest {
     @Test
     void createUser_ReturnUser_WhenValidRequest() {
         RegisterRequest request = TestData.testRegisterRequest();
-        VerifyToken token = TestData.testVerifyToken(); 
+        VerifyToken token = new VerifyToken(1L, "VerifyToken", Instant.now(), null); 
 
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
@@ -107,7 +109,7 @@ public class UserServiceLogicTest {
     @Test
     void activateAccount_PublishVerifyEmailEvent_WhenNotActive() {
         User user = TestData.testUser(1L, false);
-        VerifyToken token = TestData.testVerifyToken();
+        VerifyToken token = new VerifyToken(1L, "VerifyToken", Instant.now(), user);
 
         when(verifyTokenService.generateToken(user.getEmail())).thenReturn(token);
 
@@ -147,7 +149,8 @@ public class UserServiceLogicTest {
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(UserException.NotFound.class, () -> userService.deactivateUser(id));
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.deactivateUser(id));
+        assertTrue(ex.getMessage().contains(id.toString()));
 
         verify(userRepository).findById(id);
         verify(userRepository, never()).save(any(User.class));
@@ -203,5 +206,46 @@ public class UserServiceLogicTest {
         verify(userRepository).existsByUsername(user.getUsername());
         verify(userRepository).save(any(User.class));
         verify(userCredentialService).createOauth2UserCredential(result, AuthProviders.GOOGLE);
+    }
+
+    @Test
+    void updateUsername_SetNewUsername_WhenUserFoundAndUsernameUnique() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateUsernameRequest request = new UserUpdateUsernameRequest(user.getUsername());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(user.getUsername())).thenReturn(false);
+
+        String result = userService.updateUsername(user.getId(), request);
+
+        assertEquals(request.username(), result);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateUsername_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateUsernameRequest request = new UserUpdateUsernameRequest(user.getUsername());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.updateUsername(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getId().toString()));
+        
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void updateUsername_ThrowUserExceptionAlreadyExists_WhenUsernameExists() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateUsernameRequest request = new UserUpdateUsernameRequest(user.getUsername());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsByUsername(user.getUsername())).thenReturn(true);
+
+        UserException.AlreadyExists ex = assertThrows(UserException.AlreadyExists.class, () -> userService.updateUsername(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getUsername()));
+        
+        verify(userRepository, never()).save(any(User.class));
     }
 }

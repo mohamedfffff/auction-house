@@ -168,8 +168,7 @@ public class UserService {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        if (!existingUser.getUsername().equals(request.username()) &&
-             userRepository.existsByUsername(request.username())) {
+        if (userRepository.existsByUsername(request.username())) {
             throw UserException.AlreadyExists.byUsername(request.username());
         }
 
@@ -186,14 +185,15 @@ public class UserService {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        if (!existingUser.getEmail().equals(request.email()) &&
-             userRepository.existsByEmail(request.email())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw UserException.AlreadyExists.byEmail(request.email());
         }
 
         existingUser.setEmail(request.email());
-
+        existingUser.setActive(false);
         userRepository.save(existingUser);
+        
+        activateAccount(existingUser);
 
         log.info("Updated email for User : {}", existingUser.getUsername());
 

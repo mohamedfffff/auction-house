@@ -61,8 +61,8 @@ public class UserServiceQueryTest {
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.getUserById(id));
-
         assertTrue(ex.getMessage().contains(id.toString()));
+
         verify(userRepository).findById(id);
         verifyNoInteractions(userMapper);
     }
@@ -89,8 +89,8 @@ public class UserServiceQueryTest {
         when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
         UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.getUserByName(username));
-        
         assertTrue(ex.getMessage().contains(username));
+
         verify(userRepository).findByUsername(username);
         verifyNoInteractions(userMapper);
     }
@@ -115,8 +115,8 @@ public class UserServiceQueryTest {
         when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.getUserByEmail(email));
-        
         assertTrue(ex.getMessage().contains(email));
+
         verify(userRepository).findByEmail(email);
     }
 
@@ -153,8 +153,8 @@ public class UserServiceQueryTest {
         when(userRepository.findByUsernameOrEmail(identifier, identifier)).thenReturn(Optional.empty());
 
         UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.getUserByIdentifier(identifier));
-        
         assertTrue(ex.getMessage().contains(identifier));
+        
         verify(userRepository).findByUsernameOrEmail(identifier, identifier);
     }
 

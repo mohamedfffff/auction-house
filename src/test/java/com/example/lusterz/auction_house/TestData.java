@@ -49,8 +49,4 @@ public class TestData {
             AuthProviders.LOCAL
         );
     }
-
-    public static VerifyToken testVerifyToken() {
-        return new VerifyToken(1L, "verifyToken", Instant.now(), null);
-    }
 }
