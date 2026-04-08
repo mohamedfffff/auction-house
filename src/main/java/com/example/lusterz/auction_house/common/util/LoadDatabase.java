@@ -68,7 +68,7 @@ public class LoadDatabase {
         User user = new User();
         user.setUsername(name);
         user.setEmail(email);
-        user.setUserImageUrl(email + ".image.com");
+        user.setProfileImage(email + ".image.com");
         user.setActive(true);
         user.setRole(UserRole.ROLE_USER);
         userRepository.save(user);

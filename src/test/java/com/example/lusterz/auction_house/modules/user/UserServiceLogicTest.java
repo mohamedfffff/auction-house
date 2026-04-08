@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -31,9 +30,13 @@ import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateProfileImageRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
@@ -66,7 +69,7 @@ public class UserServiceLogicTest {
 
         assertEquals(request.username(), result.getUsername());
         assertEquals(request.email(), result.getEmail());
-        assertEquals(request.userImageUrl(), result.getUserImageUrl());
+        assertEquals(request.userImageUrl(), result.getProfileImage());
 
         verify(userRepository).save(any(User.class));
         // any(User.class) don't work cause mockito requires all args to be matters
@@ -245,6 +248,104 @@ public class UserServiceLogicTest {
 
         UserException.AlreadyExists ex = assertThrows(UserException.AlreadyExists.class, () -> userService.updateUsername(user.getId(), request));
         assertTrue(ex.getMessage().contains(user.getUsername()));
+        
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void updateEmail_SetNewEmail_WhenUserAndEmailExist() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateEmailRequest request = new UserUpdateEmailRequest(user.getEmail());
+        VerifyToken token = new VerifyToken(1L, "VerifyToken", Instant.now(), user);
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
+        when(verifyTokenService.generateToken(request.email())).thenReturn(token);
+
+        String result = userService.updateEmail(user.getId(), request);
+
+        assertEquals(request.email(), result);
+        verify(verifyTokenService).generateToken(request.email());
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateEmail_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateEmailRequest request = new UserUpdateEmailRequest(user.getEmail());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.updateEmail(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getId().toString()));
+        
+        verify(userRepository, never()).save(any(User.class));
+        verifyNoInteractions(verifyTokenService);
+    }
+
+    @Test
+    void updateEmail_ThrowUserExceptionAlreadyExists_WhenEmailExists() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateEmailRequest request = new UserUpdateEmailRequest(user.getEmail());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
+
+        UserException.AlreadyExists ex = assertThrows(UserException.AlreadyExists.class, () -> userService.updateEmail(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getEmail()));
+        
+        verify(userRepository, never()).save(any(User.class));
+        verifyNoInteractions(verifyTokenService);
+    }
+
+    @Test
+    void updateProfileImage_SetNewImage_WhenUserFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateProfileImageRequest request = new UserUpdateProfileImageRequest(user.getProfileImage());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        String result = userService.updateProfileImage(user.getId(), request);
+
+        assertEquals(request.profileImage(), result);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateImageUrl_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateProfileImageRequest request = new UserUpdateProfileImageRequest(user.getProfileImage());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.updateProfileImage(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getId().toString()));
+        
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void updateRole_SetNewRole_WhenUserFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateRoleRequest request = new UserUpdateRoleRequest(user.getRole());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        UserRole result = userService.updateRole(user.getId(), request);
+
+        assertEquals(request.role(), result);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateRole_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateRoleRequest request = new UserUpdateRoleRequest(user.getRole());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.updateRole(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getId().toString()));
         
         verify(userRepository, never()).save(any(User.class));
     }

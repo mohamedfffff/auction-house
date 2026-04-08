@@ -47,7 +47,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
     
-    private String userImageUrl;
+    private String profileImage;
 
     @NotNull
     @Column(nullable = false)
