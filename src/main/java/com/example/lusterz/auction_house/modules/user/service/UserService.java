@@ -165,6 +165,7 @@ public class UserService {
     }
 
     public String updateUsername(Long id, UserUpdateUsernameRequest request) {
+        // searching with id is always faster than text, even with indexing
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
