@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserUpdateImageUrlRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateProfileImageRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
@@ -62,8 +62,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}/imageUrl")
-    public String updateImageUrl(@PathVariable Long id, @Valid @RequestBody UserUpdateImageUrlRequest request) {
-        return userService.updateImageUrl(id, request);
+    public String updateImageUrl(@PathVariable Long id, @Valid @RequestBody UserUpdateProfileImageRequest request) {
+        return userService.updateProfileImage(id, request);
     }
 
     @PutMapping("/{id}/role")

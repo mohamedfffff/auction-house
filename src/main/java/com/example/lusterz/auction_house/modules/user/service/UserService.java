@@ -20,13 +20,14 @@ import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
-import com.example.lusterz.auction_house.modules.user.dto.UserUpdateImageUrlRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateProfileImageRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
+import com.example.lusterz.auction_house.modules.user.model.UserRole;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @RequiredArgsConstructor
@@ -102,7 +103,7 @@ public class UserService {
         User newUser = new User();
         newUser.setUsername(request.username());
         newUser.setEmail(request.email());
-        newUser.setUserImageUrl(request.userImageUrl());
+        newUser.setProfileImage(request.userImageUrl());
         userRepository.save(newUser);
 
         userCredentialService.createLocalUserCredential(request, newUser);
@@ -201,21 +202,21 @@ public class UserService {
         return existingUser.getEmail();
     }
 
-    public String updateImageUrl(Long id, UserUpdateImageUrlRequest request) {
+    public String updateProfileImage(Long id, UserUpdateProfileImageRequest request) {
         User existingUser = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        existingUser.setUserImageUrl(request.imageUrl());
+        existingUser.setProfileImage(request.profileImage());
 
         userRepository.save(existingUser);
 
         log.info("Updated profile picture for user : {}", existingUser.getUsername());
 
-        return existingUser.getUserImageUrl();
+        return existingUser.getProfileImage();
     }
 
     @Transactional
-    public void updateRole(Long id, UserUpdateRoleRequest request) {
+    public UserRole updateRole(Long id, UserUpdateRoleRequest request) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
@@ -225,6 +226,8 @@ public class UserService {
         refreshSecurityContext(user);
 
         log.info("Updated role for user : {}", user.getUsername());
+
+        return user.getRole();
     }
 
     private void refreshSecurityContext(User user) {
