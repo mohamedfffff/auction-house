@@ -215,6 +215,23 @@ public class UserService {
     }
 
     @Transactional
+    public void updateRole(Long id, UserUpdateRoleRequest request) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> UserException.NotFound.byId(id));
+
+        user.setRole(request.role());
+        userRepository.save(user);
+
+        refreshSecurityContext(user);
+
+        log.info("Updated role for user : {}", user.getUsername());
+    }
+
+    private void refreshSecurityContext(User user) {
+        //to-do
+    }
+
+    @Transactional
     public void updatePassword(Long id, UserUpdatePasswordRequest request) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
@@ -248,23 +265,6 @@ public class UserService {
         localCredential.setPassword(passwordEncoder.encode(password));
 
         log.info("Updated password for user : {}", user.getUsername());
-    }
-
-    @Transactional
-    public void updateRole(Long id, UserUpdateRoleRequest request) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> UserException.NotFound.byId(id));
-
-        user.setRole(request.role());
-        userRepository.save(user);
-
-        refreshSecurityContext(user);
-
-        log.info("Updated role for user : {}", user.getUsername());
-    }
-
-    private void refreshSecurityContext(User user) {
-        //to-do
     }
 
 }

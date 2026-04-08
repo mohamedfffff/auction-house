@@ -31,6 +31,7 @@ import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdateImageUrlRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
@@ -293,5 +294,31 @@ public class UserServiceLogicTest {
         
         verify(userRepository, never()).save(any(User.class));
         verifyNoInteractions(verifyTokenService);
+    }
+
+    @Test
+    void updateImageUrl_SetNewImageUrl_WhenUserFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateImageUrlRequest request = new UserUpdateImageUrlRequest(user.getUsername());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        String result = userService.updateImageUrl(user.getId(), request);
+
+        assertEquals(request.imageUrl(), result);
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void updateImageUrl_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdateImageUrlRequest request = new UserUpdateImageUrlRequest(user.getUsername());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.updateImageUrl(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getId().toString()));
+        
+        verify(userRepository, never()).save(any(User.class));
     }
 }
