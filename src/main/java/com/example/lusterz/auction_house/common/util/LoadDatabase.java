@@ -76,7 +76,7 @@ public class LoadDatabase {
         UserCredential newUserCredential = new UserCredential();
         newUserCredential.setUser(user);
         newUserCredential.setProvider(AuthProviders.LOCAL);
-        newUserCredential.setPassword(passwordEncoder.encode(name + "password"));
+        newUserCredential.setPassword(passwordEncoder.encode(name + "Password"));
         userCredentialRepository.save(newUserCredential);
 
         return user;

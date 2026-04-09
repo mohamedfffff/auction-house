@@ -4,11 +4,10 @@ package com.example.lusterz.auction_house.common.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-
-import jakarta.mail.MessagingException;
 
 
 @RestControllerAdvice
@@ -98,11 +97,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDetails> handleServiceUnavailable(RuntimeException ex, WebRequest request) {
         ErrorDetails errorDetails = new ErrorDetails(
             HttpStatus.SERVICE_UNAVAILABLE.value(),
-            "Service_unavailabe",
+            "Service Unavailabe",
             ex.getMessage(),
             request.getDescription(false)
         );
         return new ResponseEntity<>(errorDetails, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    // handle validation exceptions
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorDetails> handleValidation(WebRequest request) {
+        String message = "Validation constraint is violated";
+        ErrorDetails errorDetails = new ErrorDetails(
+            HttpStatus.BAD_REQUEST.value(),
+            "Bad Request",
+            message,
+            "uri/?"
+        );
+        return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
     }
 
     // global handling 

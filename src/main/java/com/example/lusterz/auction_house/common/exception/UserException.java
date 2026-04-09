@@ -85,5 +85,18 @@ public class UserException extends RuntimeException {
             super("Account is not Active");
         }
     }
+
+     public static class NoCredentials extends UserException{
+        public NoCredentials(String message) {
+            super(message);
+        }
+
+        public static NoCredentials local() {
+            return new NoCredentials("No local credentials found for user");
+        }
+        public static NoCredentials google() {
+            return new NoCredentials("No google credentials found for user");
+        }
+    }
     
 }

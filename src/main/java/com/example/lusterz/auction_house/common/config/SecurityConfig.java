@@ -33,10 +33,10 @@ public class SecurityConfig{
             .exceptionHandling(exception -> exception.authenticationEntryPoint(authEntryPoint))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/login").permitAll()
-                .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/items/**").permitAll()
-                .anyRequest().authenticated()
+                // .requestMatchers("/login").permitAll()
+                // .requestMatchers("/api/v1/auth/**").permitAll()
+                // .requestMatchers("/api/v1/items/**").permitAll()
+                .anyRequest().permitAll()
             )
             // .formLogin(local -> local
             //     .loginProcessingUrl("/api/v1/auth/login")
