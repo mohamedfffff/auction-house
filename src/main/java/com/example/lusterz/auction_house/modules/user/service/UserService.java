@@ -240,7 +240,7 @@ public class UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        UserCredential localCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL)
+        UserCredential localCredential = userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)
             .orElseThrow(() -> UserException.NoCredentials.local());
 
         if (!passwordEncoder.matches(request.oldPassword(), localCredential.getPassword())) {
@@ -259,7 +259,7 @@ public class UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        UserCredential localCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL)
+        UserCredential localCredential = userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)
             .orElseThrow(() -> UserException.NoCredentials.local());
 
         localCredential.setPassword(passwordEncoder.encode(password));

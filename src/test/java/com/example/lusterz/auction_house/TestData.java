@@ -42,7 +42,7 @@ public class TestData {
         return new RegisterRequest(
             "user",
             "userEmail@gmail.com",
-            "userPassword",
+            "userPassword123",
             "image.com",
             AuthProviders.LOCAL
         );
