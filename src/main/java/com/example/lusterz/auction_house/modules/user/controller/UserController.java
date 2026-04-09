@@ -75,7 +75,6 @@ public class UserController {
     @PutMapping("/{id}/password")
     public ResponseEntity<Void> updatePassword(@PathVariable Long id, @Valid @RequestBody UserUpdatePasswordRequest request) {
         userService.updatePassword(id, request);
-        System.out.println(request);
         return ResponseEntity.noContent().build();
     }
 

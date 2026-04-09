@@ -12,7 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.infrastructure.notification.dto.VerifyEmailEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
@@ -28,6 +27,7 @@ import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
+import com.example.lusterz.auction_house.modules.user.repository.UserCredentialRepository;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @RequiredArgsConstructor
@@ -36,9 +36,10 @@ import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final VerifyTokenService verifyTokenService;
     private final UserRepository userRepository;
+    private final VerifyTokenService verifyTokenService;
     private final UserCredentialService userCredentialService;
+    private final UserCredentialRepository userCredentialRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
     private final ApplicationEventPublisher eventPublisher;
@@ -239,17 +240,16 @@ public class UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        UserCredential localCredential = user.getUserCredentials()
-            .stream()
-            .filter(l -> AuthProviders.LOCAL.equals(l.getProvider()))
-            .findFirst()
-            .orElseThrow(() -> AuthException.Provider.notLocal());
+        UserCredential localCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL)
+            .orElseThrow(() -> UserException.NoCredentials.local());
 
         if (!passwordEncoder.matches(request.oldPassword(), localCredential.getPassword())) {
             throw UserException.PasswordMismatch.oldAndNew();
         }
 
         localCredential.setPassword(passwordEncoder.encode(request.newPassword()));
+
+        userCredentialRepository.save(localCredential);
 
         log.info("Updated password for user : {}", user.getUsername());
     }
@@ -259,13 +259,12 @@ public class UserService {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
-        UserCredential localCredential = user.getUserCredentials()
-            .stream()
-            .filter(l -> AuthProviders.LOCAL.equals(l.getProvider()))
-            .findFirst()
-            .orElseThrow(() -> AuthException.Provider.notLocal());
+        UserCredential localCredential = userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL)
+            .orElseThrow(() -> UserException.NoCredentials.local());
 
         localCredential.setPassword(passwordEncoder.encode(password));
+
+        userCredentialRepository.save(localCredential);
 
         log.info("Updated password for user : {}", user.getUsername());
     }
