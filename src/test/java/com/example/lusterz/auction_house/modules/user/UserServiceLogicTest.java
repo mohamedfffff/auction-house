@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.lusterz.auction_house.TestData;
 import com.example.lusterz.auction_house.common.exception.UserException;
@@ -31,12 +33,15 @@ import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.auth.service.VerifyTokenService;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateEmailRequest;
+import com.example.lusterz.auction_house.modules.user.dto.UserUpdatePasswordRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateProfileImageRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateRoleRequest;
 import com.example.lusterz.auction_house.modules.user.dto.UserUpdateUsernameRequest;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
+import com.example.lusterz.auction_house.modules.user.repository.UserCredentialRepository;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
@@ -45,9 +50,11 @@ import com.example.lusterz.auction_house.modules.user.service.UserService;
 public class UserServiceLogicTest {
     
     @Mock private UserRepository userRepository;
+    @Mock private UserCredentialRepository userCredentialRepository;
     @Mock private UserCredentialService userCredentialService;
     @Mock private VerifyTokenService verifyTokenService;
     @Mock private ApplicationEventPublisher applicationEventPublisher;
+    @Mock private PasswordEncoder passwordEncoder;
 
     @Spy
     private UserMapper userMapper = Mappers.getMapper(UserMapper.class);
@@ -348,5 +355,66 @@ public class UserServiceLogicTest {
         assertTrue(ex.getMessage().contains(user.getId().toString()));
         
         verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    void updatePassword_SetNewPassword_WhenUserAndCredentialFound() {
+        String hashed = "hashedPassw0rd";
+        User user = TestData.testUser(1L, true);
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest("oldPassw0rd", "newPassw0rd");
+        UserCredential credential = new UserCredential(1L, AuthProviders.LOCAL, hashed, user);
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)).thenReturn(Optional.of(credential));
+        when(passwordEncoder.matches(request.oldPassword(), credential.getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(request.newPassword())).thenReturn(credential.getPassword());
+
+        userService.updatePassword(user.getId(), request);
+
+        assertEquals(hashed, credential.getPassword());
+
+        verify(userCredentialRepository).save(any(UserCredential.class));
+    }
+
+    @Test
+    void updatePassword_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest("oldPassw0rd", "newPassw0rd");
+        
+        when(userRepository.findById(user.getId())).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> userService.updatePassword(user.getId(), request));
+        assertTrue(ex.getMessage().contains(user.getId().toString()));
+
+        verifyNoInteractions(userCredentialRepository);
+    }
+
+    @Test
+    void updatePassword_ThrowUserExceptionNoCredentials_WhenCredentialsNotFound() {
+        User user = TestData.testUser(1L, true);
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest("oldPassw0rd", "newPassw0rd");
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)).thenReturn(Optional.empty());
+
+        assertThrows(UserException.NoCredentials.class, () -> userService.updatePassword(user.getId(), request));
+
+        verify(userCredentialRepository, times(0)).save(any(UserCredential.class));
+    }
+
+    @Test
+    void updatePassword_ThrowUserExceptionPasswordMismatch_WhenOldPasswordIsWrong() {
+        String hashed = "hashedPassw0rd";
+        User user = TestData.testUser(1L, true);
+        UserUpdatePasswordRequest request = new UserUpdatePasswordRequest("oldPassw0rd", "newPassw0rd");
+        UserCredential credential = new UserCredential(1L, AuthProviders.LOCAL, hashed, user);
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)).thenReturn(Optional.of(credential));
+        when(passwordEncoder.matches(request.oldPassword(), credential.getPassword())).thenReturn(false);
+
+        assertThrows(UserException.PasswordMismatch.class, () -> userService.updatePassword(user.getId(), request));
+
+        verify(userCredentialRepository, times(0)).save(any(UserCredential.class));
     }
 }

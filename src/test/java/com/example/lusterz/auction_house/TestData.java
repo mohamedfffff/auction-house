@@ -3,6 +3,8 @@ package com.example.lusterz.auction_house;
 import java.util.UUID;
 
 import org.mapstruct.factory.Mappers;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
@@ -10,11 +12,13 @@ import com.example.lusterz.auction_house.modules.user.dto.UserPrivateDto;
 import com.example.lusterz.auction_house.modules.user.dto.UserPublicDto;
 import com.example.lusterz.auction_house.modules.user.mapper.UserMapper;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserCredential;
 import com.example.lusterz.auction_house.modules.user.model.UserRole;
 
 public class TestData {
 
     private static final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
+    private static PasswordEncoder encoder  = new BCryptPasswordEncoder();
 
     public static User testUser(Long id, boolean active) {
         return new User(
