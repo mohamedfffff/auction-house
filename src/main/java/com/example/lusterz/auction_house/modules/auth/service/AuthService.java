@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.lusterz.auction_house.common.exception.AuthException;
+import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.common.util.JwtUtils;
 import com.example.lusterz.auction_house.infrastructure.notification.dto.ResetPasswordEvent;
 import com.example.lusterz.auction_house.modules.auth.dto.AuthResponse;
@@ -25,6 +26,8 @@ import com.example.lusterz.auction_house.modules.auth.model.RefreshToken;
 import com.example.lusterz.auction_house.modules.auth.model.ResetPasswordToken;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
+import com.example.lusterz.auction_house.modules.user.model.UserCredential;
+import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
@@ -113,19 +116,20 @@ public class AuthService {
         );
     }
 
+    ///////////////////// to-fix ////////////////////////////
     @Transactional
     public AuthResponse resetPassword(ResetPasswordRequest request) {
         ResetPasswordToken resetToken = resetPasswordTokenService.getByToken(request.token());
         User user = resetToken.getUser();
 
+        UserCredential credential = userCredentialService.getByUserAndProvider(user,AuthProviders.LOCAL)
+            .orElseThrow(() -> UserException.NoCredentials.local());
+
         if (resetPasswordTokenService.expired(resetToken)) {
             throw AuthException.ResetPasswordToken.expired();
         }
 
-        // reset password for local users and create new local user creadential for oauth2
-        if (AuthProviders.LOCAL.equals(request.provider())) {
-            userService.resetPassword(user.getId(), request.password());
-        } else { userCredentialService.createLocalUserCredential(user, request.password());}
+        userService.resetLocalPassword(user.getId(), request.password());
     
         resetPasswordTokenService.deleteUsedToken(resetToken.getToken());
 
@@ -162,8 +166,4 @@ public class AuthService {
             user.getRole().name()
         );
     }
-
-    
-
-    
 }

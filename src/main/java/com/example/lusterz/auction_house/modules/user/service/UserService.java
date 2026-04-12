@@ -254,8 +254,8 @@ public class UserService {
         log.info("Updated password for user : {}", user.getUsername());
     }
 
-    @Transactional
-    public void resetPassword(Long id, String password) {
+    /////////////////////// to-fix ///////////////////////////////
+    public void resetLocalPassword(Long id, String password) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> UserException.NotFound.byId(id));
 
@@ -265,8 +265,5 @@ public class UserService {
         localCredential.setPassword(passwordEncoder.encode(password));
 
         userCredentialRepository.save(localCredential);
-
-        log.info("Updated password for user : {}", user.getUsername());
     }
-
 }

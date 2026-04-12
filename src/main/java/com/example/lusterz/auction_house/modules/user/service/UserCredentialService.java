@@ -29,6 +29,7 @@ public class UserCredentialService {
     }
 
     // this must return optional as it is used to set password to "" later in auth with google
+    // and used in reset password logic in auth service
     public Optional<UserCredential> getByUserAndProvider(User user, AuthProviders provider) {
         return userCredentialRepository.findByUserAndProvider(user, provider);
     }
