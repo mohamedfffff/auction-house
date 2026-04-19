@@ -1,4 +1,5 @@
-package com.example.lusterz.auction_house.modules.user;
+package com.example.lusterz.auction_house.unit.user;
+
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

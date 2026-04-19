@@ -55,18 +55,19 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
-        authService.forgotPassword(email);
-        return ResponseEntity.ok("If email exists, reset password mail sent");
-    }
-
     @PostMapping("/set-password")
     public ResponseEntity<String> setPassword() {
         authService.setPassword();
         return ResponseEntity.ok("If email exists, set password mail sent");
     }
 
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestParam String email) {
+        authService.forgotPassword(email);
+        return ResponseEntity.ok("If email exists, reset password mail sent");
+    }
+
+    // this is part of forgot password logic not an independent enpoint
     @PostMapping("/reset-password")
     public ResponseEntity<AuthResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         AuthResponse response = authService.resetPassword(request);

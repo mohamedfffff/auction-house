@@ -1,6 +1,7 @@
 package com.example.lusterz.auction_house.modules.auth.service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -26,9 +27,9 @@ public class ResetPasswordTokenService {
     private final ResetPasswordTokenRepository resetPasswordTokenRepository;
     private final UserRepository userRepository;
 
-    public ResetPasswordToken getByToken(String token) {
-        return resetPasswordTokenRepository.findByToken(token)
-            .orElseThrow(() -> AuthException.ResetPasswordToken.notFound());
+    // return optional here, and check for it and throw exceptions where it is used
+    public Optional<ResetPasswordToken> getByToken(String token) {
+        return resetPasswordTokenRepository.findByToken(token);
     }
 
     @Transactional

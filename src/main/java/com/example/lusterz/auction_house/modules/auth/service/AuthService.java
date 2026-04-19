@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +43,7 @@ public class AuthService {
     private final UserService userService;
     private final UserCredentialService userCredentialService;
     private final JwtUtils jwtUtils;
+    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RefreshTokenService refreshTokenService;
     private final VerifyTokenService verifyTokenService;
@@ -85,58 +87,7 @@ public class AuthService {
         verifyTokenService.deleteUsedToken(token);
 
         log.info("Verified user : {}", user.getUsername());
-    }
-
-    // needs more validation logic
-    @Transactional
-    public void forgotPassword(String email) {
-
-        String token = resetPasswordTokenService.generateToken(email).getToken();
-        
-        eventPublisher.publishEvent(
-            new ResetPasswordEvent(email, token)
-        );
     } 
-
-    @Transactional
-    public void setPassword() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails principal = (UserDetails) auth.getPrincipal();
-        String username = principal.getUsername();
-
-        // access token returns user details and it only contains the username
-        // db call is not expensive here instead of changing the whole security 
-        // sturcture to use email instead of username which isn't super safe
-        User user = userService.getUserByIdentifier(username);
-
-        String token = resetPasswordTokenService.generateToken(user.getEmail()).getToken();
-        
-        eventPublisher.publishEvent(
-            new ResetPasswordEvent(user.getEmail(), token)
-        );
-    }
-
-    ///////////////////// to-fix ////////////////////////////
-    @Transactional
-    public AuthResponse resetPassword(ResetPasswordRequest request) {
-        ResetPasswordToken resetToken = resetPasswordTokenService.getByToken(request.token());
-        User user = resetToken.getUser();
-
-        UserCredential credential = userCredentialService.getByUserAndProvider(user,AuthProviders.LOCAL)
-            .orElseThrow(() -> UserException.NoCredentials.local());
-
-        if (resetPasswordTokenService.expired(resetToken)) {
-            throw AuthException.ResetPasswordToken.expired();
-        }
-
-        userService.resetLocalPassword(user.getId(), request.password());
-    
-        resetPasswordTokenService.deleteUsedToken(resetToken.getToken());
-
-        log.info("Password reset for user : {}", user.getUsername());
-
-        return generateAuthResponse(user);
-    }
 
     @Transactional
     public AuthResponse refreshAccessToken(RefreshTokenRequest request) {
@@ -149,6 +100,65 @@ public class AuthService {
         User user = oldRefreshToken.getUser();
 
         log.info("Token refreshed for user : {}", user.getUsername());
+
+        return generateAuthResponse(user);
+    }
+
+    @Transactional
+    public void setPassword() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails principal = (UserDetails) auth.getPrincipal();
+        String username = principal.getUsername();
+
+        // access token returns user details and it only contains the username
+        // db call is not expensive here instead of changing the whole security 
+        // sturcture to use email instead of username which isn't super safe
+        User user = userService.getUserByIdentifier(username);
+
+        // set passwork is only allowed for oauth2 users who doesn't have a local password
+        if(userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL).isPresent()) {
+            throw AuthException.Provider.hasLocal();
+        }
+
+        String token = resetPasswordTokenService.generateToken(user.getEmail()).getToken();
+        
+        eventPublisher.publishEvent(
+            new ResetPasswordEvent(user.getEmail(), token)
+        );
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        if (!userService.existsByEmail(email)) {
+            throw UserException.NotFound.byEmail(email);
+        }
+
+        String token = resetPasswordTokenService.generateToken(email).getToken();
+        
+        eventPublisher.publishEvent(
+            new ResetPasswordEvent(email, token)
+        );
+    }
+
+    // this is part of forgot password logic not stand alone logic
+    @Transactional
+    public AuthResponse resetPassword(ResetPasswordRequest request) {
+        ResetPasswordToken resetToken = resetPasswordTokenService.getByToken(request.token())
+            .orElseThrow(() -> AuthException.ResetPasswordToken.notFound());
+            
+        if (resetPasswordTokenService.expired(resetToken)) {
+            throw AuthException.ResetPasswordToken.expired();
+        }
+
+        User user = resetToken.getUser();
+        UserCredential credential = userCredentialService.getByUserAndProvider(user,AuthProviders.LOCAL)
+            .orElseThrow(() -> UserException.NoCredentials.local());
+
+        credential.setPassword(passwordEncoder.encode(request.password()));
+    
+        resetPasswordTokenService.deleteUsedToken(resetToken.getToken());
+
+        log.info("Password reset for user : {}", user.getUsername());
 
         return generateAuthResponse(user);
     }

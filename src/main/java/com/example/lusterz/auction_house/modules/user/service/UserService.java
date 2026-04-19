@@ -253,17 +253,4 @@ public class UserService {
 
         log.info("Updated password for user : {}", user.getUsername());
     }
-
-    /////////////////////// to-fix ///////////////////////////////
-    public void resetLocalPassword(Long id, String password) {
-        User user = userRepository.findById(id)
-            .orElseThrow(() -> UserException.NotFound.byId(id));
-
-        UserCredential localCredential = userCredentialRepository.findByUserAndProvider(user, AuthProviders.LOCAL)
-            .orElseThrow(() -> UserException.NoCredentials.local());
-
-        localCredential.setPassword(passwordEncoder.encode(password));
-
-        userCredentialRepository.save(localCredential);
-    }
 }
