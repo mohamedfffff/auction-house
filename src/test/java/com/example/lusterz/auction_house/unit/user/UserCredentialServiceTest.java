@@ -1,5 +1,6 @@
 package com.example.lusterz.auction_house.unit.user;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.example.lusterz.auction_house.TestData;
+import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
@@ -55,5 +58,25 @@ public class UserCredentialServiceTest {
 
         assertTrue(result.isEmpty());
         verify(userCredentialRepository).findByUserAndProvider(any(User.class), any(AuthProviders.class));
+    }
+
+    @Test
+    void createLocalUserCredential_ShouldSaveLocalCredential_WhenNotFound() {
+        User user = TestData.testUser(1L, false);
+        RegisterRequest request = TestData.testRegisterRequest();
+        String hashedPassword = "hashed";
+
+        when(userCredentialRepository.existsByUserAndProvider(user, request.provider())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn(hashedPassword);
+
+        UserCredential result = userCredentialService.createLocalUserCredential(request, user);
+
+        assertEquals(user, result.getUser());
+        assertEquals(request.provider(), result.getProvider());
+        assertEquals(hashedPassword, result.getPassword());
+
+        verify(userCredentialRepository).existsByUserAndProvider(user, request.provider());
+        verify(passwordEncoder).encode(request.password());
+        verify(userCredentialRepository).save(any(UserCredential.class));
     }
 }

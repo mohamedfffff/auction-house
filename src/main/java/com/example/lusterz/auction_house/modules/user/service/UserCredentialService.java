@@ -30,7 +30,7 @@ public class UserCredentialService {
     }
 
     @Transactional
-    public void createLocalUserCredential(RegisterRequest request, User user) {
+    public UserCredential createLocalUserCredential(RegisterRequest request, User user) {
         if (userCredentialRepository.existsByUserAndProvider(user, AuthProviders.LOCAL)) {
             throw UserException.Credential.hasLocal();
         }
@@ -41,31 +41,35 @@ public class UserCredentialService {
         newUserCredential.setProvider(AuthProviders.LOCAL);
         newUserCredential.setPassword(passwordEncoder.encode(request.password()));
 
-        userCredentialRepository.save(newUserCredential);
+        return userCredentialRepository.save(newUserCredential);
     }
 
     @Transactional
-    public void createLocalUserCredential(User user, String password) {
+    public UserCredential createLocalUserCredential(User user, String password) {
         if (userCredentialRepository.existsByUserAndProvider(user, AuthProviders.LOCAL)) {
             throw UserException.Credential.hasLocal();
         }
-        
+
         UserCredential newUserCredential = new UserCredential();
 
         newUserCredential.setUser(user);
         newUserCredential.setProvider(AuthProviders.LOCAL);
         newUserCredential.setPassword(passwordEncoder.encode(password));
 
-        userCredentialRepository.save(newUserCredential);
+        return userCredentialRepository.save(newUserCredential);
     }
 
     @Transactional
-    public void createOauth2UserCredential(User user, AuthProviders provider) {
+    public UserCredential createOauth2UserCredential(User user, AuthProviders provider) {
+        if (userCredentialRepository.existsByUserAndProvider(user, AuthProviders.GOOGLE)) {
+            throw UserException.Credential.hasOauth2();
+        }
+
         UserCredential newUserCredential = new UserCredential();
 
         newUserCredential.setUser(user);
         newUserCredential.setProvider(provider);
 
-        userCredentialRepository.save(newUserCredential);
+        return userCredentialRepository.save(newUserCredential);
     }
 }
