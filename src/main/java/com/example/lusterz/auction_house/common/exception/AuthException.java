@@ -1,6 +1,5 @@
 package com.example.lusterz.auction_house.common.exception;
 
-
 public class AuthException extends RuntimeException{
     public AuthException(String message) {
         super(message);
@@ -61,16 +60,6 @@ public class AuthException extends RuntimeException{
         }
     }
 
-    public static class UserCredential extends AuthException{
-        public UserCredential(String message) {
-            super(message);
-        }
-
-        public static UserCredential notFound() {
-            return new UserCredential("User Creadential not found");
-        }
-    }
-
     public static class Unauthorized extends AuthException{
         public Unauthorized(String message) {
             super(message);
@@ -85,15 +74,6 @@ public class AuthException extends RuntimeException{
         public Provider(String message) {
             super(message);
         }
-
-        public static Provider notLocal() {
-            return new Provider("User doesn't have a local password");
-        }
-
-        public static Provider hasLocal() {
-            return new Provider("User already has a local password");
-        }
-
         public static Provider noEmail() {
             return new Provider("The email isn't provided by provider");
         }

@@ -98,5 +98,27 @@ public class UserException extends RuntimeException {
             return new NoCredentials("No google credentials found for user");
         }
     }
+
+    public static class Credential extends AuthException{
+        public Credential(String message) {
+            super(message);
+        }
+
+        public static Credential noLocal() {
+            return new Credential("User doesn't have a local credentials");
+        }
+
+        public static Credential hasLocal() {
+            return new Credential("User already has a local credentials");
+        }
+
+        public static Credential noOauth2() {
+            return new Credential("User doesn't have an oauth2 credentials");
+        }
+
+        public static Credential hasOauth2() {
+            return new Credential("User already has an oauth2 credentials");
+        }
+    }
     
 }

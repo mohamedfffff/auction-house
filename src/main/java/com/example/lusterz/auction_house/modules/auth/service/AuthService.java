@@ -117,7 +117,7 @@ public class AuthService {
 
         // set passwork is only allowed for oauth2 users who doesn't have a local password
         if(userCredentialService.getByUserAndProvider(user, AuthProviders.LOCAL).isPresent()) {
-            throw AuthException.Provider.hasLocal();
+            throw UserException.Credential.hasLocal();
         }
 
         String token = resetPasswordTokenService.generateToken(user.getEmail()).getToken();

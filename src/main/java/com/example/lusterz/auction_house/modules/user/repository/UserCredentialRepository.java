@@ -14,4 +14,5 @@ public interface UserCredentialRepository extends JpaRepository<UserCredential, 
     // args names must be the same as in entity
     Optional<UserCredential> findByUser(User user);
     Optional<UserCredential> findByUserAndProvider(User user, AuthProviders provider);
+    boolean existsByUserAndProvider(User user, AuthProviders provider);
 }
