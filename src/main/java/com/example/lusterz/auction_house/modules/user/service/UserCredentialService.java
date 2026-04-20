@@ -6,7 +6,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.lusterz.auction_house.common.exception.AuthException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
@@ -41,7 +40,9 @@ public class UserCredentialService {
         newUserCredential.setProvider(AuthProviders.LOCAL);
         newUserCredential.setPassword(passwordEncoder.encode(request.password()));
 
-        return userCredentialRepository.save(newUserCredential);
+        userCredentialRepository.save(newUserCredential);
+
+        return newUserCredential;
     }
 
     @Transactional
@@ -56,7 +57,9 @@ public class UserCredentialService {
         newUserCredential.setProvider(AuthProviders.LOCAL);
         newUserCredential.setPassword(passwordEncoder.encode(password));
 
-        return userCredentialRepository.save(newUserCredential);
+        userCredentialRepository.save(newUserCredential);
+
+        return newUserCredential;
     }
 
     @Transactional
@@ -70,6 +73,8 @@ public class UserCredentialService {
         newUserCredential.setUser(user);
         newUserCredential.setProvider(provider);
 
-        return userCredentialRepository.save(newUserCredential);
+        userCredentialRepository.save(newUserCredential);
+
+        return newUserCredential;
     }
 }
