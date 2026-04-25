@@ -274,6 +274,7 @@ public class UserServiceQueryTest {
         List<UserPrivateDto> result = userService.getAllUsers();
 
         assertTrue(result.isEmpty());
+        
         verify(userRepository).findAll();
         verifyNoInteractions(userMapper);
     }
