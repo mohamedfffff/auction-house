@@ -28,7 +28,6 @@ import com.example.lusterz.auction_house.modules.auth.model.ResetPasswordToken;
 import com.example.lusterz.auction_house.modules.auth.model.VerifyToken;
 import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.model.UserCredential;
-import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 import com.example.lusterz.auction_house.modules.user.service.UserCredentialService;
 import com.example.lusterz.auction_house.modules.user.service.UserService;
 
