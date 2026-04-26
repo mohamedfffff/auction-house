@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,11 +27,13 @@ import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
+import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
 import com.example.lusterz.auction_house.modules.item.mapper.ItemMapper;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
 import com.example.lusterz.auction_house.modules.item.repository.ItemRepository;
 import com.example.lusterz.auction_house.modules.item.service.ItemService;
+import com.example.lusterz.auction_house.modules.user.model.User;
 import com.example.lusterz.auction_house.modules.user.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -181,6 +184,110 @@ public class ItemServiceTest {
         assertTrue(ex.getMessage().contains(id.toString()));
 
         verify(userRepository).existsById(id);
+        verifyNoInteractions(itemRepository);
+        verifyNoInteractions(itemMapper);
+    }
+
+    @Test
+    void createItem_SaveItemAndReturnDto_WhenValidRequestAndUserExists() {
+        Long id = 1L;
+        User user = TestData.testUser(id, false);
+        ItemRequest request = TestData.testItemRequest(
+            id,
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusMinutes(1)
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        ItemDto result = itemService.createItem(request);
+
+        assertEquals(request.title(), result.title());
+        assertEquals(request.description(), result.description());
+        assertEquals(request.itemImageUrl(), result.itemImageUrl());
+        assertEquals(request.startingPrice(), result.startingPrice());
+        assertEquals(request.startTime(), result.startTime());
+        assertEquals(request.endTime(), result.endTime());
+        assertEquals(AuctionStatus.PENDING, result.status());
+        assertEquals(request.startingPrice(), result.currentHighestBid());
+
+        verify(userRepository).findById(id);
+        verify(itemRepository).save(any(Item.class));
+        verify(itemMapper).toDto(any(Item.class));
+    }
+
+    @Test
+    void createItem_ThrowUserExceptionNotFound_WhenUserNotFound() {
+        Long id = 1L;
+        ItemRequest request = TestData.testItemRequest(
+            id,
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusMinutes(1)
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        UserException.NotFound ex = assertThrows(UserException.NotFound.class, () -> itemService.createItem(request));
+        assertTrue(ex.getMessage().contains(id.toString()));
+
+        verify(userRepository).findById(id);
+        verifyNoInteractions(itemRepository);
+        verifyNoInteractions(itemMapper);
+    }
+
+    @Test
+    void createItem_ThrowItemExceptionInvalidRequest_WhenStartTimeIsBeforeEnd() {
+        Long id = 1L;
+        User user = new User();
+        ItemRequest request = TestData.testItemRequest(
+            id,
+            OffsetDateTime.now().plusMinutes(2),
+            OffsetDateTime.now().plusMinutes(1)
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        assertThrows(ItemException.InvalidRequest.class, () -> itemService.createItem(request));
+
+        verify(userRepository).findById(id);
+        verifyNoInteractions(itemRepository);
+        verifyNoInteractions(itemMapper);
+    }
+
+    @Test
+    void createItem_ThrowItemExceptionInvalidRequest_WhenStartTimeIsAfter3Months() {
+        Long id = 1L;
+        User user = new User();
+        ItemRequest request = TestData.testItemRequest(
+            id,
+            OffsetDateTime.now().plusMonths(3).plusMinutes(1),
+            OffsetDateTime.now().plusMonths(3).plusMinutes(2)
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        assertThrows(ItemException.InvalidRequest.class, () -> itemService.createItem(request));
+
+        verify(userRepository).findById(id);
+        verifyNoInteractions(itemRepository);
+        verifyNoInteractions(itemMapper);
+    }
+
+    @Test
+    void createItem_ThrowItemExceptionInvalidRequest_WhenAuctionTakesLongerThanAMonth() {
+        Long id = 1L;
+        User user = new User();
+        ItemRequest request = TestData.testItemRequest(
+            id,
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusMonths(1).plusMinutes(1)
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+
+        assertThrows(ItemException.InvalidRequest.class, () -> itemService.createItem(request));
+
+        verify(userRepository).findById(id);
         verifyNoInteractions(itemRepository);
         verifyNoInteractions(itemMapper);
     }

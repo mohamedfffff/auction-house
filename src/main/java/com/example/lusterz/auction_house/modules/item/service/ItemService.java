@@ -74,8 +74,12 @@ public class ItemService {
         User seller = userRepository.findById(request.sellerId())
             .orElseThrow(() -> UserException.NotFound.byId(request.sellerId()));
 
-        if (request.endTime().isAfter(OffsetDateTime.now().plusWeeks(4))) {
-            throw ItemException.InvalidState.invalidDuration();
+        // auction can't be scheduled after more than 3 month and can't go longer than a month
+        if (request.endTime().isBefore(request.startTime())
+            || request.startTime().isAfter(OffsetDateTime.now().plusMonths(3))
+            || request.endTime().isAfter(request.startTime().plusMonths(1))) 
+        { 
+            throw ItemException.InvalidRequest.duration();
         }
 
         Item newItem = Item.builder()
@@ -110,7 +114,7 @@ public class ItemService {
         }
 
         if (updatedItem.getEndTime().isAfter(OffsetDateTime.now().plusWeeks(4))) {
-            throw ItemException.InvalidState.invalidDuration();
+            throw ItemException.InvalidRequest.duration();
         }
 
         updatedItem.setTitle(request.title());

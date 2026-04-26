@@ -9,6 +9,7 @@ import org.mapstruct.factory.Mappers;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
+import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
 import com.example.lusterz.auction_house.modules.item.mapper.ItemMapper;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
@@ -74,5 +75,17 @@ public class TestData {
 
     public static ItemDto testItemDto(Item item) {
         return itemMapper.toDto(item);
+    }
+
+    public static ItemRequest testItemRequest(Long id, OffsetDateTime start, OffsetDateTime end) {
+        return new ItemRequest(
+            "title",
+            "description",
+            "itemImageUrl",
+            BigDecimal.ONE,
+            start,
+            end,
+            id
+        );
     }
 }

@@ -38,8 +38,15 @@ public class ItemException extends RuntimeException{
         public static InvalidState alreadyStarted() {
             return new InvalidState("Auction has already started");
         }
-        public static InvalidState invalidDuration() {
-            return new InvalidState("Auction starting or ending date is invalid");
+    }
+
+    public static class InvalidRequest extends ItemException{
+        public InvalidRequest(String message) {
+            super(message);
+        }
+
+        public static InvalidRequest duration() {
+            return new InvalidRequest("Auction starting or ending date is invalid");
         }
     }
     
