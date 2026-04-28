@@ -10,6 +10,7 @@ import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
+import com.example.lusterz.auction_house.modules.item.dto.ItemUpdateRequest;
 import com.example.lusterz.auction_house.modules.item.mapper.ItemMapper;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
@@ -86,6 +87,17 @@ public class TestData {
             start,
             end,
             id
+        );
+    }
+
+    public static ItemUpdateRequest testUpdateItemRequest(OffsetDateTime start, OffsetDateTime end) {
+        return new ItemUpdateRequest(
+            "title",
+            "description",
+            "itemImageUrl",
+            BigDecimal.ONE,
+            start,
+            end
         );
     }
 }

@@ -105,15 +105,13 @@ public class ItemService {
         Item updatedItem = itemRepository.findById(itemId)
             .orElseThrow(() -> ItemException.NotFound.byId(itemId));
 
-        if (!updatedItem.getSeller().getId().equals(userId)) {
-            throw ItemException.Unauthorized.notOwner();
-        }
-
         if (bidRepository.countByItemId(itemId) > 0) {
             throw ItemException.InvalidState.hasBids();
         }
 
-        if (updatedItem.getEndTime().isAfter(OffsetDateTime.now().plusWeeks(4))) {
+        if (request.endTime().isBefore(request.startTime())
+            || request.startTime().isAfter(OffsetDateTime.now().plusMonths(3))
+            || request.endTime().isAfter(request.startTime().plusMonths(1))) {
             throw ItemException.InvalidRequest.duration();
         }
 

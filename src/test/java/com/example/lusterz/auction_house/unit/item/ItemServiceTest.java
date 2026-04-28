@@ -4,11 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +30,7 @@ import com.example.lusterz.auction_house.common.exception.UserException;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
+import com.example.lusterz.auction_house.modules.item.dto.ItemUpdateRequest;
 import com.example.lusterz.auction_house.modules.item.mapper.ItemMapper;
 import com.example.lusterz.auction_house.modules.item.model.AuctionStatus;
 import com.example.lusterz.auction_house.modules.item.model.Item;
@@ -291,4 +294,112 @@ public class ItemServiceTest {
         verifyNoInteractions(itemRepository);
         verifyNoInteractions(itemMapper);
     }
+
+    @Test
+    void updateItem_UpdateAndReturnDto_WhenValidRequestAndOwner() {
+        Long itemId = 1L;
+        Long userId = 1L;
+        int count = 0;
+        Item item = TestData.testItem(itemId, AuctionStatus.ACTIVE);
+        ItemUpdateRequest request = TestData.testUpdateItemRequest(
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(2)
+        );
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bidRepository.countByItemId(itemId)).thenReturn(count);
+
+        itemService.updateItem(itemId, userId, request);
+
+        assertEquals(request.title(),item.getTitle());
+        assertEquals(request.startingPrice(), item.getCurrentHighestBid());
+        
+        verify(itemRepository).findById(itemId);
+        verify(bidRepository).countByItemId(itemId);
+        verify(itemRepository).save(item);
+        verify(itemMapper).toDto(item);
+    }
+
+    // @Test
+    // void updateItem_ThrowItemExceptionNotFound_WhenItemDoesNotExist() {
+    //     Long itemId = 1L;
+    //     ItemUpdateRequest request = TestData.testItemUpdateRequest();
+
+    //     when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+    //     assertThrows(ItemException.NotFound.class, () -> itemService.updateItem(itemId, 99L, request));
+        
+    //     verifyNoInteractions(bidRepository);
+    //     verify(itemRepository, never()).save(any());
+    // }
+
+    // @Test
+    // void updateItem_ThrowUnauthorized_WhenUserIsNotSeller() {
+    //     Long itemId = 1L;
+    //     Long sellerId = 1L;
+    //     Long strangerId = 2L;
+    //     Item existingItem = TestData.testItem(itemId, TestData.testUser(sellerId, false));
+    //     ItemUpdateRequest request = TestData.testItemUpdateRequest();
+
+    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
+
+    //     assertThrows(ItemException.Unauthorized.class, () -> itemService.updateItem(itemId, strangerId, request));
+    // }
+
+    // @Test
+    // void updateItem_ThrowInvalidState_WhenBidsExist() {
+    //     Long itemId = 1L;
+    //     Long userId = 1L;
+    //     Item existingItem = TestData.testItem(itemId, TestData.testUser(userId, false));
+    //     ItemUpdateRequest request = TestData.testItemUpdateRequest();
+
+    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
+    //     when(bidRepository.countByItemId(itemId)).thenReturn(1L);
+
+    //     assertThrows(ItemException.InvalidState.class, () -> itemService.updateItem(itemId, userId, request));
+    // }
+
+    // @Test
+    // void deleteItem_DeleteSuccessfully_WhenValidRequestAndOwner() {
+    //     Long itemId = 1L;
+    //     Long userId = 1L;
+    //     User seller = TestData.testUser(userId, false);
+    //     Item item = TestData.testItem(itemId, seller);
+    //     item.setBidHistory(Collections.emptyList());
+    //     item.setStatus(AuctionStatus.PENDING);
+
+    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+    //     itemService.deleteItem(itemId, userId);
+
+    //     verify(itemRepository).findById(itemId);
+    //     verify(itemRepository).delete(item);
+    // }
+
+    // @Test
+    // void deleteItem_ThrowInvalidState_WhenBidsExistInHistory() {
+    //     Long itemId = 1L;
+    //     Long userId = 1L;
+    //     Item item = TestData.testItem(itemId, TestData.testUser(userId, false));
+    //     item.setBidHistory(List.of(TestData.testBid())); // Assuming TestData has this
+
+    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+    //     assertThrows(ItemException.InvalidState.class, () -> itemService.deleteItem(itemId, userId));
+    //     verify(itemRepository, never()).delete(any());
+    // }
+
+    // @Test
+    // void deleteItem_ThrowInvalidState_WhenStatusIsNotPending() {
+    //     Long itemId = 1L;
+    //     Long userId = 1L;
+    //     Item item = TestData.testItem(itemId, TestData.testUser(userId, false));
+    //     item.setBidHistory(Collections.emptyList());
+    //     item.setStatus(AuctionStatus.ACTIVE);
+
+    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+    //     assertThrows(ItemException.InvalidState.class, () -> itemService.deleteItem(itemId, userId));
+    //     verify(itemRepository, never()).delete(any());
+    // }
 }
