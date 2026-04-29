@@ -320,44 +320,102 @@ public class ItemServiceTest {
         verify(itemMapper).toDto(item);
     }
 
-    // @Test
-    // void updateItem_ThrowItemExceptionNotFound_WhenItemDoesNotExist() {
-    //     Long itemId = 1L;
-    //     ItemUpdateRequest request = TestData.testItemUpdateRequest();
+    @Test
+    void updateItem_ThrowItemExceptionNotFound_WhenItemDoesNotExist() {
+        Long itemId = 1L;
+        ItemUpdateRequest request = TestData.testUpdateItemRequest(
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(2)
+        );
 
-    //     when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-    //     assertThrows(ItemException.NotFound.class, () -> itemService.updateItem(itemId, 99L, request));
+        ItemException.NotFound ex = assertThrows(ItemException.NotFound.class, () -> itemService.updateItem(itemId, 99L, request));
+        assertTrue(ex.getMessage().contains(itemId.toString()));
         
-    //     verifyNoInteractions(bidRepository);
-    //     verify(itemRepository, never()).save(any());
-    // }
+        verifyNoInteractions(bidRepository);
+        verify(itemRepository, never()).save(any());
+    }
 
-    // @Test
-    // void updateItem_ThrowUnauthorized_WhenUserIsNotSeller() {
-    //     Long itemId = 1L;
-    //     Long sellerId = 1L;
-    //     Long strangerId = 2L;
-    //     Item existingItem = TestData.testItem(itemId, TestData.testUser(sellerId, false));
-    //     ItemUpdateRequest request = TestData.testItemUpdateRequest();
+    @Test
+    void updateItem_ThrowInvalidState_WhenBidsExist() {
+        Long itemId = 1L;
+        Long userId = 1L;
+        int count = 1;
+        Item existingItem = TestData.testItem(itemId, AuctionStatus.ACTIVE);
+        ItemUpdateRequest request = TestData.testUpdateItemRequest(
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusDays(2)
+        );
 
-    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
+        when(bidRepository.countByItemId(itemId)).thenReturn(count);
 
-    //     assertThrows(ItemException.Unauthorized.class, () -> itemService.updateItem(itemId, strangerId, request));
-    // }
+        assertThrows(ItemException.InvalidState.class, () -> itemService.updateItem(itemId, userId, request));
 
-    // @Test
-    // void updateItem_ThrowInvalidState_WhenBidsExist() {
-    //     Long itemId = 1L;
-    //     Long userId = 1L;
-    //     Item existingItem = TestData.testItem(itemId, TestData.testUser(userId, false));
-    //     ItemUpdateRequest request = TestData.testItemUpdateRequest();
+        verify(bidRepository).countByItemId(itemId);
+        verify(itemRepository, never()).save(any());
+    }
 
-    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(existingItem));
-    //     when(bidRepository.countByItemId(itemId)).thenReturn(1L);
+    @Test
+    void updateItem_ThrowItemExceptionInvalidRequest_WhenStartTimeIsBeforeEnd() {
+        Long id = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        ItemUpdateRequest request = TestData.testUpdateItemRequest(
+            OffsetDateTime.now().plusMinutes(2),
+            OffsetDateTime.now().plusMinutes(1)
+        );
 
-    //     assertThrows(ItemException.InvalidState.class, () -> itemService.updateItem(itemId, userId, request));
-    // }
+        when(itemRepository.findById(id)).thenReturn(Optional.of(item));
+        when(bidRepository.countByItemId(itemId)).thenReturn(0);
+
+        assertThrows(ItemException.InvalidRequest.class, () -> itemService.updateItem(id, itemId, request));
+
+        verify(itemRepository).findById(id);
+        verify(bidRepository).countByItemId(itemId);
+        verifyNoInteractions(itemMapper);
+    }
+
+    @Test
+    void updateItem_ThrowItemExceptionInvalidRequest_WhenStartTimeIsAfter3Months() {
+        Long id = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        ItemUpdateRequest request = TestData.testUpdateItemRequest(
+            OffsetDateTime.now().plusMonths(3).plusMinutes(1),
+            OffsetDateTime.now().plusMinutes(1)
+        );
+
+        when(itemRepository.findById(id)).thenReturn(Optional.of(item));
+        when(bidRepository.countByItemId(itemId)).thenReturn(0);
+
+        assertThrows(ItemException.InvalidRequest.class, () -> itemService.updateItem(id, itemId, request));
+
+        verify(itemRepository).findById(id);
+        verify(bidRepository).countByItemId(itemId);
+        verifyNoInteractions(itemMapper);
+    }
+
+    @Test
+    void updateItem_ThrowItemExceptionInvalidRequest_WhenAuctionLongerThanAMonth() {
+        Long id = 1L;
+        Long itemId = 1L;
+        Item item = new Item();
+        ItemUpdateRequest request = TestData.testUpdateItemRequest(
+            OffsetDateTime.now(),
+            OffsetDateTime.now().plusMonths(1).plusMinutes(1)
+        );
+
+        when(itemRepository.findById(id)).thenReturn(Optional.of(item));
+        when(bidRepository.countByItemId(itemId)).thenReturn(0);
+
+        assertThrows(ItemException.InvalidRequest.class, () -> itemService.updateItem(id, itemId, request));
+
+        verify(itemRepository).findById(id);
+        verify(bidRepository).countByItemId(itemId);
+        verifyNoInteractions(itemMapper);
+    }
 
     // @Test
     // void deleteItem_DeleteSuccessfully_WhenValidRequestAndOwner() {
