@@ -2,12 +2,14 @@ package com.example.lusterz.auction_house;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.mapstruct.factory.Mappers;
 
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
+import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
 import com.example.lusterz.auction_house.modules.item.dto.ItemUpdateRequest;
@@ -70,7 +72,7 @@ public class TestData {
             OffsetDateTime.now(),
             OffsetDateTime.now().plusMinutes(1),
             status,
-            null,null,null,null
+            null,null,null,List.of()
         );
     }
 
@@ -99,5 +101,9 @@ public class TestData {
             start,
             end
         );
+    }
+
+    public static Bid testBid() {
+        return new Bid(1L, BigDecimal.ONE, null, null, null);
     }
 }

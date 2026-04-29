@@ -129,14 +129,10 @@ public class ItemService {
         return itemMapper.toDto(updatedItem);
     }
 
-    @Transactional//to-do after adding security, get user id from it not as parameter
-    public void deleteItem(Long itemId, Long userId) {
+    @Transactional
+    public void deleteItem(Long itemId) {
         Item deletedItem = itemRepository.findById(itemId)
             .orElseThrow(() -> ItemException.NotFound.byId(itemId));
-
-        if (!deletedItem.getSeller().getId().equals(userId)) {
-            throw ItemException.Unauthorized.notOwner();
-        }
 
         if (!deletedItem.getBidHistory().isEmpty()) {
             throw ItemException.InvalidState.hasBids();

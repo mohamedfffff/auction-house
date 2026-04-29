@@ -374,6 +374,7 @@ public class ItemServiceTest {
 
         verify(itemRepository).findById(id);
         verify(bidRepository).countByItemId(itemId);
+        verify(itemRepository, never()).save(any());
         verifyNoInteractions(itemMapper);
     }
 
@@ -394,6 +395,7 @@ public class ItemServiceTest {
 
         verify(itemRepository).findById(id);
         verify(bidRepository).countByItemId(itemId);
+        verify(itemRepository, never()).save(any());
         verifyNoInteractions(itemMapper);
     }
 
@@ -414,50 +416,61 @@ public class ItemServiceTest {
 
         verify(itemRepository).findById(id);
         verify(bidRepository).countByItemId(itemId);
+        verify(itemRepository, never()).save(any());
         verifyNoInteractions(itemMapper);
     }
 
-    // @Test
-    // void deleteItem_DeleteSuccessfully_WhenValidRequestAndOwner() {
-    //     Long itemId = 1L;
-    //     Long userId = 1L;
-    //     User seller = TestData.testUser(userId, false);
-    //     Item item = TestData.testItem(itemId, seller);
-    //     item.setBidHistory(Collections.emptyList());
-    //     item.setStatus(AuctionStatus.PENDING);
+    @Test
+    void deleteItem_DeleteSuccessfully() {
+        Long itemId = 1L;
+        Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
 
-    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
-    //     itemService.deleteItem(itemId, userId);
+        itemService.deleteItem(itemId);
 
-    //     verify(itemRepository).findById(itemId);
-    //     verify(itemRepository).delete(item);
-    // }
+        verify(itemRepository).findById(itemId);
+        verify(itemRepository).delete(item);
+    }
 
-    // @Test
-    // void deleteItem_ThrowInvalidState_WhenBidsExistInHistory() {
-    //     Long itemId = 1L;
-    //     Long userId = 1L;
-    //     Item item = TestData.testItem(itemId, TestData.testUser(userId, false));
-    //     item.setBidHistory(List.of(TestData.testBid())); // Assuming TestData has this
+    @Test
+    void deleteItem_ThrowInvalidState_WhenItemNotFound() {
+        Long itemId = 1L;
+        Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
+        item.setBidHistory(List.of(TestData.testBid()));
 
-    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
-    //     assertThrows(ItemException.InvalidState.class, () -> itemService.deleteItem(itemId, userId));
-    //     verify(itemRepository, never()).delete(any());
-    // }
+        assertThrows(ItemException.NotFound.class, () -> itemService.deleteItem(itemId));
 
-    // @Test
-    // void deleteItem_ThrowInvalidState_WhenStatusIsNotPending() {
-    //     Long itemId = 1L;
-    //     Long userId = 1L;
-    //     Item item = TestData.testItem(itemId, TestData.testUser(userId, false));
-    //     item.setBidHistory(Collections.emptyList());
-    //     item.setStatus(AuctionStatus.ACTIVE);
+        verify(itemRepository).findById(itemId);
+        verify(itemRepository, never()).delete(any());
+    }
 
-    //     when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+    @Test
+    void deleteItem_ThrowInvalidState_WhenBidsExistInHistory() {
+        Long itemId = 1L;
+        Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
+        item.setBidHistory(List.of(TestData.testBid()));
 
-    //     assertThrows(ItemException.InvalidState.class, () -> itemService.deleteItem(itemId, userId));
-    //     verify(itemRepository, never()).delete(any());
-    // }
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        assertThrows(ItemException.InvalidState.class, () -> itemService.deleteItem(itemId));
+
+        verify(itemRepository).findById(itemId);
+        verify(itemRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteItem_ThrowInvalidState_WhenStatusIsNotPending() {
+        Long itemId = 1L;
+        Item item = TestData.testItem(itemId, AuctionStatus.ACTIVE);
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+
+        assertThrows(ItemException.InvalidState.class, () -> itemService.deleteItem(itemId));
+
+        verify(itemRepository).findById(itemId);
+        verify(itemRepository, never()).delete(any());
+    }
 }
