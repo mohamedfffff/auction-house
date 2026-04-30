@@ -473,4 +473,17 @@ public class ItemServiceTest {
         verify(itemRepository).findById(itemId);
         verify(itemRepository, never()).delete(any());
     }
+
+    @Test
+    void startAuction_ReturnNumberOfAffectedAuctions() {
+        int count = 1;
+
+        when(itemRepository.startPendingItems(any(OffsetDateTime.class))).thenReturn(count);
+
+        int result = itemService.startAuction();
+
+        assertEquals(count, result);
+
+        verify(itemRepository).startPendingItems(any(OffsetDateTime.class));
+    }
 }
