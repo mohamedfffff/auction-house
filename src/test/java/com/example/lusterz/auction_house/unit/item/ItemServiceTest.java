@@ -8,10 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -441,7 +439,7 @@ public class ItemServiceTest {
     void deleteItem_ThrowInvalidState_WhenItemNotFound() {
         Long itemId = 1L;
         Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
-        item.setBidHistory(List.of(TestData.testBid(new User())));
+        item.setBidHistory(List.of(TestData.testBid(1L)));
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
@@ -455,7 +453,7 @@ public class ItemServiceTest {
     void deleteItem_ThrowInvalidState_WhenBidsExistInHistory() {
         Long itemId = 1L;
         Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
-        item.setBidHistory(List.of(TestData.testBid(new User())));
+        item.setBidHistory(List.of(TestData.testBid(1L)));
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
@@ -498,7 +496,8 @@ public class ItemServiceTest {
         User seller = TestData.testUser(2L, true);
         Item item = TestData.testItem(1L, AuctionStatus.CLOSED);
         item.setSeller(seller);
-        Bid topBid = TestData.testBid(winner);
+        Bid topBid = TestData.testBid(1L);
+        topBid.setBidder(winner);
         List<Item> closedItems = List.of(item);
  
         when(itemRepository.closeExpiredItems(any(OffsetDateTime.class))).thenReturn(count);

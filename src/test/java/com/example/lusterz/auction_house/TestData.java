@@ -9,6 +9,8 @@ import org.mapstruct.factory.Mappers;
 
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
+import com.example.lusterz.auction_house.modules.bid.dto.BidDto;
+import com.example.lusterz.auction_house.modules.bid.mapper.BidMapper;
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
@@ -26,6 +28,7 @@ public class TestData {
 
     private static final UserMapper userMapper = Mappers.getMapper(UserMapper.class);
     private static final ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
+    private static final BidMapper bidMapper = Mappers.getMapper(BidMapper.class);
 
     public static User testUser(Long id, boolean active) {
         return new User(
@@ -61,7 +64,7 @@ public class TestData {
 
     /////////////////////////////////////////////////////
     
-    public static Item testItem(long id, AuctionStatus status) {
+    public static Item testItem(Long id, AuctionStatus status) {
         return new Item(
             id,
             "title",
@@ -105,7 +108,11 @@ public class TestData {
 
     ///////////////////////
 
-    public static Bid testBid(User bidder) {
-        return new Bid(1L, BigDecimal.ONE, null, null, bidder);
+    public static Bid testBid(Long id) {
+        return new Bid(id, BigDecimal.ONE, null, null, null);
+    }
+
+    public static BidDto testBidDto(Bid bid) {
+        return bidMapper.toDto(bid);
     }
 }
