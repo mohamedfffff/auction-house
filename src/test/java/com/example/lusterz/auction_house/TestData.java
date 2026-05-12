@@ -103,7 +103,9 @@ public class TestData {
         );
     }
 
-    public static Bid testBid() {
-        return new Bid(1L, BigDecimal.ONE, null, null, null);
+    ///////////////////////
+
+    public static Bid testBid(User bidder) {
+        return new Bid(1L, BigDecimal.ONE, null, null, bidder);
     }
 }

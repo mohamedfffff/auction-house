@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -27,6 +28,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import com.example.lusterz.auction_house.TestData;
 import com.example.lusterz.auction_house.common.exception.ItemException;
 import com.example.lusterz.auction_house.common.exception.UserException;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.EndAuctionEvent;
+import com.example.lusterz.auction_house.infrastructure.notification.dto.ExpiredAuctionEvent;
+import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.bid.repository.BidRepository;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
 import com.example.lusterz.auction_house.modules.item.dto.ItemRequest;
@@ -437,7 +441,7 @@ public class ItemServiceTest {
     void deleteItem_ThrowInvalidState_WhenItemNotFound() {
         Long itemId = 1L;
         Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
-        item.setBidHistory(List.of(TestData.testBid()));
+        item.setBidHistory(List.of(TestData.testBid(new User())));
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
 
@@ -451,7 +455,7 @@ public class ItemServiceTest {
     void deleteItem_ThrowInvalidState_WhenBidsExistInHistory() {
         Long itemId = 1L;
         Item item = TestData.testItem(itemId, AuctionStatus.PENDING);
-        item.setBidHistory(List.of(TestData.testBid()));
+        item.setBidHistory(List.of(TestData.testBid(new User())));
 
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
 
@@ -486,4 +490,72 @@ public class ItemServiceTest {
 
         verify(itemRepository).startPendingItems(any(OffsetDateTime.class));
     }
+
+    @Test
+    void endAuction_ReturnCountAndPublishSoldEvent_WhenClosedItemHasTopBid() {
+        int count = 1;
+        User winner = TestData.testUser(1L, true);
+        User seller = TestData.testUser(2L, true);
+        Item item = TestData.testItem(1L, AuctionStatus.CLOSED);
+        item.setSeller(seller);
+        Bid topBid = TestData.testBid(winner);
+        List<Item> closedItems = List.of(item);
+ 
+        when(itemRepository.closeExpiredItems(any(OffsetDateTime.class))).thenReturn(count);
+        when(itemRepository.findAllByStatus(AuctionStatus.CLOSED)).thenReturn(closedItems);
+        when(bidRepository.findTopByItemOrderByAmountDesc(item)).thenReturn(Optional.of(topBid));
+ 
+        int result = itemService.endAuction();
+ 
+        assertEquals(count, result);
+        assertEquals(AuctionStatus.SOLD, item.getStatus());
+        assertEquals(winner, item.getWinner());
+ 
+        verify(itemRepository).closeExpiredItems(any(OffsetDateTime.class));
+        verify(itemRepository).findAllByStatus(AuctionStatus.CLOSED);
+        verify(bidRepository).findTopByItemOrderByAmountDesc(item);
+        verify(eventPublisher).publishEvent(any(EndAuctionEvent.class));
+    }
+ 
+    @Test
+    void endAuction_ReturnCountAndPublishExpiredEvent_WhenClosedItemHasNoBids() {
+        int count = 1;
+        User seller = TestData.testUser(1L, false);
+        Item item = TestData.testItem(1L, AuctionStatus.CLOSED);
+        item.setSeller(seller);
+        List<Item> closedItems = List.of(item);
+ 
+        when(itemRepository.closeExpiredItems(any(OffsetDateTime.class))).thenReturn(count);
+        when(itemRepository.findAllByStatus(AuctionStatus.CLOSED)).thenReturn(closedItems);
+        when(bidRepository.findTopByItemOrderByAmountDesc(item)).thenReturn(Optional.empty());
+ 
+        int result = itemService.endAuction();
+ 
+        assertEquals(count, result);
+        assertEquals(AuctionStatus.EXPIRED_UNSOLD, item.getStatus());
+ 
+        verify(itemRepository).closeExpiredItems(any(OffsetDateTime.class));
+        verify(itemRepository).findAllByStatus(AuctionStatus.CLOSED);
+        verify(bidRepository).findTopByItemOrderByAmountDesc(item);
+        verify(eventPublisher).publishEvent(any(ExpiredAuctionEvent.class));
+    }
+ 
+    @Test
+    void endAuction_ReturnZeroAndSkipProcessing_WhenNoItemsExpired() {
+        int count = 0;
+        when(itemRepository.closeExpiredItems(any(OffsetDateTime.class))).thenReturn(count);
+        when(itemRepository.findAllByStatus(AuctionStatus.CLOSED)).thenReturn(List.of());
+ 
+        int result = itemService.endAuction();
+ 
+        assertEquals(count, result);
+ 
+        verify(itemRepository).closeExpiredItems(any(OffsetDateTime.class));
+        verify(itemRepository).findAllByStatus(AuctionStatus.CLOSED);
+        verifyNoInteractions(bidRepository);
+        verifyNoInteractions(eventPublisher);
+    }
+
+    //// no need to test the private sub-functions as the logic is already covered
+ 
 }

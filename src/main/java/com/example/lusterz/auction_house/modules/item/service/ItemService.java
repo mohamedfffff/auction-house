@@ -175,7 +175,6 @@ public class ItemService {
     private void processSold(Item item, Bid bid) {
         item.setWinner(bid.getBidder());
         item.setStatus(AuctionStatus.SOLD);
-        itemRepository.save(item);
         // send notifications for winner and seller
         eventPublisher.publishEvent(
             new EndAuctionEvent(
