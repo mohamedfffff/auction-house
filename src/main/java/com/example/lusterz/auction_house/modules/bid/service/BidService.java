@@ -114,14 +114,9 @@ public class BidService {
         Bid deletedBid = bidRepository.findById(bidId)
             .orElseThrow(() -> BidException.NotFound.byId(bidId));
 
-        if (!deletedBid.getBidder().getId().equals(bidderId)) {
-            throw BidException.Unauthorized.notOwner();
-        }
-
         if (!item.getStatus().equals(AuctionStatus.ACTIVE)) {
             throw ItemException.InvalidState.notActive();
         }
-
 
         bidRepository.delete(deletedBid);
 

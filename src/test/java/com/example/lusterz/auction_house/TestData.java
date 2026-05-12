@@ -10,6 +10,7 @@ import org.mapstruct.factory.Mappers;
 import com.example.lusterz.auction_house.modules.auth.dto.RegisterRequest;
 import com.example.lusterz.auction_house.modules.auth.model.AuthProviders;
 import com.example.lusterz.auction_house.modules.bid.dto.BidDto;
+import com.example.lusterz.auction_house.modules.bid.dto.BidRequest;
 import com.example.lusterz.auction_house.modules.bid.mapper.BidMapper;
 import com.example.lusterz.auction_house.modules.bid.model.Bid;
 import com.example.lusterz.auction_house.modules.item.dto.ItemDto;
@@ -108,8 +109,12 @@ public class TestData {
 
     ///////////////////////
 
+    public static Bid testBid(Long id, BigDecimal amount) {
+        return new Bid(id, amount, null, null, null);
+    }
+
     public static Bid testBid(Long id) {
-        return new Bid(id, BigDecimal.ONE, null, null, null);
+        return new Bid(id, BigDecimal.TWO, null, null, null);
     }
 
     public static BidDto testBidDto(Bid bid) {
